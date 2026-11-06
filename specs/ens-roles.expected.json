@@ -1,0 +1,17 @@
+[
+  {
+    "role": "ROLE_REGISTRAR",
+    "holder": "RivalNames",
+    "resource": "0"
+  },
+  {
+    "role": "ROLE_RENEW",
+    "holder": "RivalNames",
+    "resource": "0"
+  },
+  {
+    "role": "ROLE_UNREGISTER",
+    "holder": "RivalNames",
+    "resource": "0"
+  }
+]
