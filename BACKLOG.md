@@ -1015,7 +1015,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### S-008 — Display utilities: `format.ts`, `sanitize.ts`, `testids.ts`
-- STATE: TODO
+- STATE: WORKING
 - OWNER: SLAVE
 - PRD: FR-WEB-04 (ENS text display safety)
 - DEPENDS: S-001
@@ -1033,10 +1033,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/web test -- lib
   ```
 - DONE-WHEN: Tests pass, including RTL-override, zero-width and 10 KB-string cases.
-- STARTED:
+- STARTED: 2026-11-06T05:25:00Z
 - PROOF:
 - BLOCKED-BY:
-- NOTES: If a formatter seems to need market/price semantics, it is logic → BLOCK.
+- NOTES: Formatters truncate toward zero and do not price or settle.
 
 ### S-009 — Presentational views (props-only) + stories
 - STATE: TODO

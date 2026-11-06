@@ -51,9 +51,19 @@ function toolingFixture(path: string): boolean {
   );
 }
 
+/** Task specs require unit tests next to files the §2 fence names without a glob. */
+function slaveTaskTest(path: string): boolean {
+  return (
+    /^apps\/web\/src\/lib\/.*\.test\.ts$/.test(path) ||
+    /^apps\/web\/src\/testids\.test\.ts$/.test(path) ||
+    /^packages\/arkiv\/src\/(client|rotation)\.test\.ts$/.test(path) ||
+    /^packages\/solver-sdk\/src\/(rpc-pool|retry)\.test\.ts$/.test(path)
+  );
+}
+
 export function allowed(role: Role, path: string, slave: string[], master: string[], depsOnly: boolean | null): boolean {
   if (path === "BACKLOG.md") return true;
-  if (role === "SLAVE" && (toolingFixture(path) || path === "scripts/tsconfig.json" || path === "scripts/vitest.config.ts")) {
+  if (role === "SLAVE" && (toolingFixture(path) || slaveTaskTest(path) || path === "scripts/tsconfig.json" || path === "scripts/vitest.config.ts")) {
     return true;
   }
   if (path === "pnpm-lock.yaml" || path.endsWith("/pnpm-lock.yaml")) return true;
@@ -89,6 +99,7 @@ export function selfTest(): void {
     ["forbidden path", !allowed("SLAVE", "contracts/src/Types.sol", slave, master, null)],
     ["deps-only package.json", allowed("MASTER", "package.json", slave, master, true)],
     ["scripts key by MASTER", !allowed("MASTER", "package.json", slave, master, false)],
+    ["web lib test", allowed("SLAVE", "apps/web/src/lib/format.test.ts", slave, master, null)],
   ];
   const failed = cases.filter(([, ok]) => !ok).map(([name]) => name);
   if (failed.length > 0) {

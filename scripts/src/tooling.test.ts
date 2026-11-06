@@ -32,6 +32,10 @@ describe("territory", () => {
     expect(allowed("SLAVE", "contracts/src/Types.sol", slave, master, null)).toBe(false);
     expect(allowed("SLAVE", "scripts/src/tooling.test.ts", slave, master, null)).toBe(true);
     expect(allowed("SLAVE", "scripts/src/logic.ts", slave, master, null)).toBe(false);
+    expect(allowed("SLAVE", "apps/web/src/lib/format.test.ts", slave, master, null)).toBe(true);
+    expect(allowed("SLAVE", "packages/arkiv/src/client.test.ts", slave, master, null)).toBe(true);
+    expect(allowed("SLAVE", "packages/solver-sdk/src/retry.test.ts", slave, master, null)).toBe(true);
+    expect(allowed("SLAVE", "apps/web/src/lib/format.ts", slave, master, null)).toBe(true);
   });
 
   it("allows a dependency-only package.json change and rejects a scripts change by MASTER", () => {
