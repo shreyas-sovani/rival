@@ -714,7 +714,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Preview curve equals contract `requiredAt` at 20 timestamps; no key ever appears in network requests (test).
 - STARTED: 2026-11-06T08:55:00Z
-- PROOF: pnpm --filter @rival/web test && pnpm --filter @rival/web typecheck | 21 passed, 0 failed | apps/web/src/data/curve.test.ts
+- PROOF: cbe8b41 | pnpm --filter @rival/web test && pnpm --filter @rival/web typecheck | 21 passed, 0 failed | apps/web/src/data/curve.test.ts
 - BLOCKED-BY:
 - NOTES: Curve preview matches requiredAt at 20 timestamps. The plaintext key is absent from mocked fetch URLs and bodies. Wallet storage is an injected port, not IndexedDB yet. Live Quoter, hook TWAP, ENS, and auction subscriptions wait on a deployment.
 
