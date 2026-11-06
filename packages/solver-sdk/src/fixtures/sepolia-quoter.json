@@ -1,0 +1,32 @@
+{
+  "chainId": 11155111,
+  "blockNumber": "12075841",
+  "blockHash": "0x78c749e264132720eb8ec807288f7b78b4dd761e91962e3fde88f5b9b02be434",
+  "quoter": "0x68aFa8b853cAa7a2D40B0F6AEE5C4DbC147C8244",
+  "amountIn": "1000000000000000000",
+  "zeroForOne": true,
+  "tokenIn": "0x45E6a5bD3be4D00E7Be57287D7d25De3F833253d",
+  "tokenOut": "0x571c992873D31310B11Bf6bF6B44f2748B4bce8C",
+  "pools": {
+    "A": {
+      "poolId": "0xd302ad11d027e1897d14162ac1d7a583a7c48a12a547a25c12c9bb1da504f13f",
+      "fee": 500,
+      "tickSpacing": 10,
+      "hooks": "0xb17a547082836fDF87001c1DE031fA8A2D391080",
+      "currency0": "0x45E6a5bD3be4D00E7Be57287D7d25De3F833253d",
+      "currency1": "0x571c992873D31310B11Bf6bF6B44f2748B4bce8C",
+      "amountOut": "2998350157",
+      "gasEstimate": "87153"
+    },
+    "B": {
+      "poolId": "0xc990bf9d3e98afd98afafdad812369a1b8dd6822622f49cf9f7a312701c0549b",
+      "fee": 3000,
+      "tickSpacing": 60,
+      "hooks": "0x0000000000000000000000000000000000000000",
+      "currency0": "0x45E6a5bD3be4D00E7Be57287D7d25De3F833253d",
+      "currency1": "0x571c992873D31310B11Bf6bF6B44f2748B4bce8C",
+      "amountOut": "2990850906",
+      "gasEstimate": "50929"
+    }
+  }
+}
