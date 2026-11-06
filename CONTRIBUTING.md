@@ -34,7 +34,7 @@ Never commit secrets. They belong in `secrets/.env.local` (gitignored). `.env.lo
 
 ## Slave work on main (2026-11-06)
 
-`main` is at `e15bb7d`. Submission skeletons (`README.skeleton.md`, `FEEDBACK.skeleton.md`, `RUNBOOK.skeleton.md`, `arkiv/*.skeleton.md`) stay headings and `FILL(` tokens until the product facts exist. `docs/architecture.md` is the PRD §6.1–§6.5 diagrams, copied verbatim. Pins are in `contracts/DEPS.md`.
+`main` includes `6480f04`. Submission skeletons (`README.skeleton.md`, `FEEDBACK.skeleton.md`, `RUNBOOK.skeleton.md`, `arkiv/*.skeleton.md`) stay headings and `FILL(` tokens until the product facts exist. `docs/architecture.md` is the PRD §6.1–§6.5 diagrams, copied verbatim. Pins are in `contracts/DEPS.md`. `specs/FREEZE.json` exists (MASTER).
 
 | Task | State | What landed | Check |
 | --- | --- | --- | --- |
@@ -46,8 +46,17 @@ Never commit secrets. They belong in `secrets/.env.local` (gitignored). `.env.lo
 | S-014 | DONE | `packages/arkiv/src/client.ts`, `packages/arkiv/src/rotation.ts` | `pnpm --filter @rival/arkiv test -- client rotation` |
 | S-015 | DONE | `packages/solver-sdk/src/retry.ts`, `packages/solver-sdk/src/rpc-pool.ts` | `pnpm --filter @rival/solver-sdk test -- rpc-pool retry` |
 | S-018 | DONE | `docs/architecture.md` and the skeletons listed above | existence check in `BACKLOG.md` S-018 |
+| S-004 | DONE | `.env.example` files and `scripts/env-check.ts` | `pnpm env:check --target web-build --self-test` |
+| S-007 | DONE | `apps/web/src/components/ui/**` | `pnpm --filter @rival/web test -- ui && pnpm --filter @rival/web exec axe-primitives` |
+| S-009 | DONE | `apps/web/src/components/views/**` | `pnpm --filter @rival/web typecheck && pnpm --filter @rival/web test -- views` |
+| S-010 | DONE | `apps/web/src/content/**` | `pnpm --filter @rival/web typecheck` |
+| S-013 | DONE | `packages/chain/src/generated/**`, `packages/chain/src/deployments.ts` | `pnpm gen:abis && pnpm --filter @rival/chain typecheck` |
+| S-016 | DONE | `scripts/cli/solver-init.ts`, `scripts/cli/solver-dev.ts`, `solver-template/README.md` | `pnpm solver:init --help && pnpm solver:dev --help` |
+| S-017 | DONE | `scripts/cli/intent.ts`, `scripts/cli/book.ts`, `scripts/cli/verify.ts` | `pnpm cli:intent --help && pnpm cli:book --help && pnpm cli:verify --help` |
+| S-019 | DONE | verify, egress, preflight, `THIRD_PARTY.md` | `pnpm preflight --list` |
+| S-020 | DONE | `apps/web/vercel.json`, `scripts/check-headers.mjs` | `node scripts/check-headers.mjs apps/web/vercel.json` |
 
-`LICENSE` is MIT, year 2026, holder `FILL(FOUNDER_NAME)`. H-001 fills that name. There is no `specs/FREEZE.json`, so S-004, S-006, S-009, S-012, S-013, S-016, S-017, and S-019 have not been started. S-007, S-010, S-011, S-020, and S-021 wait on those.
+`LICENSE` is MIT, year 2026, holder `FILL(FOUNDER_NAME)`. H-001 fills that name. S-003 stays blocked on that name. S-006 builds a static export, and `pnpm audit:egress` still reports hosts inside the Next/React/core-js chunks, so it is not DONE. S-012 typechecks and its tests pass; `--smoke` waits on runner probes that throw before `health()` returns a body. S-011 and S-021 are still open. H-002 stays open for the tGLM faucet.
 
 ### Libraries pinned for S-001
 

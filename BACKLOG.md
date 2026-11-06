@@ -927,7 +927,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: actionlint clean. Workflows, PR template, CODEOWNERS, gitattributes, and the MIT LICENSE are in place. The copyright holder stays FILL(FOUNDER_NAME) until H-001 writes FOUNDER_NAME in docs/ENV.md.
 
 ### S-004 — Env files, schema-driven `env:check`, ENV docs
-- STATE: TODO
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: §9.3
 - DEPENDS: S-001, M-006
@@ -943,10 +943,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm env:check --target web-build --self-test
   ```
 - DONE-WHEN: Self-test proves presence/absence detection and that no value is ever printed.
-- STARTED:
-- PROOF:
+- STARTED: 2026-11-06T11:20:00Z
+- PROOF: 6480f04 | pnpm env:check --target web-build --self-test | OK; SELF-TEST OK | scripts/env-check.ts
 - BLOCKED-BY:
-- NOTES:
+- NOTES: Examples and docs/ENV.md are generated from specs/env.schema.json. FOUNDER_NAME stays FILL(FOUNDER_NAME) for H-001.
 
 ### S-005 — `TestToken` (Solady ERC20, Permit2-ready) + test
 - STATE: DONE
@@ -988,13 +988,13 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/web build
   ```
 - DONE-WHEN: Static export builds with zero third-party hosts in the output (`pnpm audit:egress` once S-019 exists).
-- STARTED:
+- STARTED: 2026-11-06T11:40:00Z
 - PROOF:
 - BLOCKED-BY:
-- NOTES:
+- NOTES: `pnpm --filter @rival/web build` exits 0 (static export, local Source Serif 4 and Source Sans 3 in public/fonts). `pnpm audit:egress` still fails on hosts baked into the Next/React/core-js chunks (`react.dev`, `nextjs.org`, `github.com`, `www.w3.org`). Those are not app connections. Not marked DONE until that scan is clean. No page.tsx (MASTER).
 
 ### S-007 — Design-system primitives
-- STATE: TODO
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: FR-WEB-*, a11y targets §8.4
 - DEPENDS: S-006
@@ -1010,10 +1010,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/web test -- ui && pnpm --filter @rival/web exec axe-primitives
   ```
 - DONE-WHEN: Component tests pass; axe reports 0 critical/serious on the primitives page (`/__ui` dev-only route excluded from production export).
-- STARTED:
-- PROOF:
+- STARTED: 2026-11-06T12:05:00Z
+- PROOF: 6480f04 | pnpm --filter @rival/web test -- ui && pnpm --filter @rival/web exec axe-primitives | 7 passed; axe 0 critical/serious | apps/web/src/components/ui/catalog.tsx
 - BLOCKED-BY:
-- NOTES:
+- NOTES: `/__ui` would be `page.tsx`, which is MASTER territory, so it was not created. The catalog component is what axe-primitives renders, and it is not a production route. ExplorerLink does not invent a host; it renders an anchor only when `href` is passed.
 
 ### S-008 — Display utilities: `format.ts`, `sanitize.ts`, `testids.ts`
 - STATE: DONE
@@ -1040,7 +1040,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Formatters truncate toward zero and do not price or settle.
 
 ### S-009 — Presentational views (props-only) + stories
-- STATE: TODO
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: FR-WEB-02..06, §5.5
 - DEPENDS: S-007, S-008, M-004
@@ -1058,13 +1058,13 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/web typecheck && pnpm --filter @rival/web test -- views
   ```
 - DONE-WHEN: Typecheck passes; each view renders from its fixture; no imports from `data/`, `hooks/`, `wallet/` anywhere under `components/**` (grep gate in test).
-- STARTED:
-- PROOF:
+- STARTED: 2026-11-06T12:20:00Z
+- PROOF: 6480f04 | pnpm --filter @rival/web typecheck && pnpm --filter @rival/web test -- views | typecheck ok; 2 passed | apps/web/src/components/views/IntentComposerView.tsx
 - BLOCKED-BY:
-- NOTES: Missing prop? Do **not** add it — BLOCK with `needs-master-decision` naming the view and prop.
+- NOTES: Props come from the F4 view models. Curve numbers are parsed from the formatted series for axis scale only. Missing prop? Do not add it — BLOCK with `needs-master-decision` naming the view and prop.
 
 ### S-010 — Static content: Evidence, Run-a-solver, disclaimers, troubleshooting
-- STATE: TODO
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: §5.8, §5.10, FR-WEB-05/06, §8 (disclosures)
 - DEPENDS: S-006
@@ -1080,10 +1080,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/web typecheck
   ```
 - DONE-WHEN: Typechecks; strings match PRD text (diff-checked in a test that reads `PRD.md` sections).
-- STARTED:
-- PROOF:
+- STARTED: 2026-11-06T11:55:00Z
+- PROOF: 6480f04 | pnpm --filter @rival/web typecheck | tsc exit 0; content test 5 passed | apps/web/src/content/disclaimers.ts
 - BLOCKED-BY:
-- NOTES:
+- NOTES: Copy is the PRD sentences. The known-limit line drops the markdown bold markers. Solver commands are `pnpm solver:init --label <name>` and `pnpm solver:dev`.
 
 ### S-011 — Playwright config and page objects
 - STATE: TODO
@@ -1125,14 +1125,14 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/runner typecheck && pnpm --filter @rival/runner test && pnpm runner:dev --smoke
   ```
 - DONE-WHEN: Server boots; every endpoint returns **501 NOT_IMPLEMENTED** from stub handlers (never 200); request validation rejects malformed bodies with the spec's error shape; no secrets in logs (test).
-- STARTED:
+- STARTED: 2026-11-06T11:15:00Z
 - PROOF:
-- BLOCKED-BY:
+- BLOCKED-BY: needs-master-decision: `services/deps.ts` probes throw `runner dependency <name> is not configured` before `health()` can return a Health body, so GET /api/health is 500 `{message:"internal error"}`. Smoke does not accept that. SLAVE must not edit `services/**` or invent a Health payload.
 - REWORK-REASON: F3 handlers/index.ts now implements health, faucet, intents, cancel, and stream. types.ts signatures are unchanged. Do not restore the stubs or remove the new apps/runner dependencies. Smoke must accept those implemented responses and the spec's validation errors. startServices and runCheck still throw NotImplemented, so --check still exits 3.
-- NOTES: Handlers are MASTER's (`handlers/**`). Do not create them.
+- NOTES: Typecheck and `pnpm --filter @rival/runner test` pass (33). `--smoke` cannot exit 0 until probes return a real Health body. Handlers stay MASTER's.
 
 ### S-013 — ABI generation pipeline and typed deployments loader
-- STATE: TODO
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: §6.6
 - DEPENDS: S-001, M-001, M-006
@@ -1148,10 +1148,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm gen:abis && git diff --exit-code packages/chain/src/generated && pnpm --filter @rival/chain typecheck
   ```
 - DONE-WHEN: Re-running produces no diff; typecheck passes.
-- STARTED:
-- PROOF:
+- STARTED: 2026-11-06T11:20:00Z
+- PROOF: 6480f04 | pnpm gen:abis && git diff --exit-code packages/chain/src/generated && pnpm --filter @rival/chain typecheck | no diff; typecheck ok | packages/chain/src/generated/index.ts
 - BLOCKED-BY:
-- NOTES: If an ABI is missing, BLOCK on the M-task; never hand-write ABIs.
+- NOTES: Types.sol has no contract artifact, so no ABI is emitted and none is hand-written. The other 13 ABIs are generated. A second `pnpm gen:abis` left `packages/chain/src/generated` unchanged.
 
 ### S-014 — Arkiv client factory with key rotation
 - STATE: DONE
@@ -1198,7 +1198,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### S-016 — Solver template and CLI wrappers (`solver:init`, `solver:dev`)
-- STATE: TODO
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: FR-SOL-04, FR-WEB-05
 - DEPENDS: S-001, M-005, S-004
@@ -1214,13 +1214,13 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm solver:init --help && pnpm solver:dev --help
   ```
 - DONE-WHEN: Help output lists exactly the flags in the frozen API; wrappers contain no logic beyond I/O.
-- STARTED:
-- PROOF:
+- STARTED: 2026-11-06T11:35:00Z
+- PROOF: 6480f04 | pnpm solver:init --help && pnpm solver:dev --help | help lists the frozen flags | scripts/cli/solver-init.ts
 - BLOCKED-BY:
-- NOTES:
+- NOTES: Wrappers call `initSolver` / `runSolver` when those exports exist. Until M-020 exports them, they print `NOT_IMPLEMENTED(M-020)` and exit 3.
 
 ### S-017 — CLI wrappers: `cli:intent`, `cli:book`, `cli:verify`
-- STATE: TODO
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: §5.7 Level C
 - DEPENDS: S-001, M-005
@@ -1235,10 +1235,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm cli:intent --help && pnpm cli:book --help && pnpm cli:verify --help
   ```
 - DONE-WHEN: Help matches the frozen flag schema.
-- STARTED:
-- PROOF:
+- STARTED: 2026-11-06T11:30:00Z
+- PROOF: 6480f04 | pnpm cli:intent --help && pnpm cli:book --help && pnpm cli:verify --help | help lists the frozen flags | scripts/cli/intent.ts
 - BLOCKED-BY:
-- NOTES:
+- NOTES: Same I/O wrapper as S-016. Missing SDK exports print `NOT_IMPLEMENTED(M-020)` and exit 3.
 
 ### S-018 — Documentation skeletons and architecture doc
 - STATE: DONE
@@ -1264,7 +1264,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Diagrams in docs/architecture.md are copied from PRD §6.1–§6.5. Skeletons are headings and FILL( tokens.
 
 ### S-019 — Scripts: verify-deployments, audit-egress, preflight skeleton, licenses table
-- STATE: TODO
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: §9.6, FR-OPS-01, §6.9
 - DEPENDS: S-001, M-006
@@ -1282,13 +1282,13 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm verify:deployments --self-test && pnpm audit:egress --self-test && pnpm preflight --list && pnpm licenses:table
   ```
 - DONE-WHEN: Self-tests pass; `preflight --list` shows 19 checks; `THIRD_PARTY.md` generated.
-- STARTED:
-- PROOF:
+- STARTED: 2026-11-06T11:25:00Z
+- PROOF: 6480f04 | pnpm verify:deployments --self-test && pnpm audit:egress --self-test && pnpm preflight --list && pnpm licenses:table | self-tests ok; 19 checks | THIRD_PARTY.md
 - BLOCKED-BY:
-- NOTES:
+- NOTES: Allowlist hosts stay empty until env provides them. Hostnames without a dot are ignored so minified `http://a` tokens are not treated as egress. v4-periphery stays `see upstream` because the generator did not read a license field.
 
 ### S-020 — Hosting config: Vercel headers/CSP, runner Fly config
-- STATE: TODO
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: FR-OPS-01, §9.2
 - DEPENDS: S-006, S-012
@@ -1304,10 +1304,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   node scripts/check-headers.mjs apps/web/vercel.json
   ```
 - DONE-WHEN: Script confirms required headers present and no wildcard sources.
-- STARTED:
-- PROOF:
+- STARTED: 2026-11-06T12:35:00Z
+- PROOF: 6480f04 | node scripts/check-headers.mjs apps/web/vercel.json | headers ok | apps/web/vercel.json
 - BLOCKED-BY:
-- NOTES: Add `scripts/check-headers.mjs` (SLAVE territory under `scripts/` utilities) as part of this task.
+- NOTES: `apps/web/connect-src.json` lists hosts from `NEXT_PUBLIC_SEPOLIA_RPCS`, `NEXT_PUBLIC_RABDI_RPC`, and `NEXT_PUBLIC_RUNNER_URL`. It is empty until those are set. No provider host is hard-coded. `fly.toml` already checks `/api/health` and mounts the sqlite volume. `scripts/check-headers.mjs --write` refreshes the CSP from env.
 
 ### S-021 — Accessibility and performance gates (axe + Lighthouse CI config)
 - STATE: TODO

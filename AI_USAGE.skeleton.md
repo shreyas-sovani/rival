@@ -6,7 +6,7 @@
 
 # Generated changes
 
-Recorded 2026-11-06 for the slave pass on `main` (`e15bb7d`). Human review of this statement is still `FILL(what a human checked)`.
+Recorded 2026-11-06 for the slave pass on `main` (`6480f04`). Human review of this statement is still `FILL(what a human checked)`.
 
 - S-001 monorepo scaffold, toolchain, and vendored Foundry libs (`contracts/DEPS.md`)
 - S-002 backlog, territory, and freeze command-line tools
@@ -17,6 +17,16 @@ Recorded 2026-11-06 for the slave pass on `main` (`e15bb7d`). Human review of th
 - S-015 `withRetry` and `createRpcPool`
 - S-018 `docs/architecture.md` and the submission skeletons
 - Sepolia ETH sends recorded under H-002 in `BACKLOG.md` and `CONTRIBUTING.md`
+- S-004 env examples and `scripts/env-check.ts`
+- S-006 Next static shell, local fonts, route shells (audit of framework hosts still open)
+- S-007 design-system primitives and the axe catalog
+- S-009 presentational views
+- S-010 static copy checked against `PRD.md`
+- S-012 runner shell (smoke still blocked on unconfigured probes)
+- S-013 generated ABIs and `loadDeployments`
+- S-016 and S-017 CLI wrappers
+- S-019 verify, egress, preflight, and `THIRD_PARTY.md`
+- S-020 Vercel headers and `scripts/check-headers.mjs`
 
 # Human review
 
