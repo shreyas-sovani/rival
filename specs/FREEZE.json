@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "files": [
+    {
+      "path": "apps/runner/src/handlers/index.ts",
+      "sha256": "7fe22fd2bab2ed21a3c4e2c3c98869cba46189f466781e4e7ff0a006f99a58a4",
+      "set": "F3"
+    },
+    {
+      "path": "apps/runner/src/handlers/types.ts",
+      "sha256": "d8f57edcfec3bb84926d7cc6ccf3318957cc4448be682e48983e7f2c8c6a9865",
+      "set": "F3"
+    },
+    {
+      "path": "apps/runner/src/services/index.ts",
+      "sha256": "1b9767400c75071d9dba0c04b7857316fd3921d5a4d52275dd63b8a2498fdbb0",
+      "set": "F3"
+    },
+    {
+      "path": "apps/web/src/viewmodels/auction.ts",
+      "sha256": "3737c8cd920d98e52697b4ff494944c89809b24759b3a1f3bfa9a00a0608aa6b",
+      "set": "F4"
+    },
+    {
+      "path": "apps/web/src/viewmodels/book.ts",
+      "sha256": "5615fe7026204bffae930244e265dc4077a5a73647f5b259c5fde9575897007e",
+      "set": "F4"
+    },
+    {
+      "path": "apps/web/src/viewmodels/common.ts",
+      "sha256": "3bf86c0dbda316acc643bf93e5f197f18b0dd62adab703934df96690b0d2b4ed",
+      "set": "F4"
+    },
+    {
+      "path": "apps/web/src/viewmodels/curve.ts",
+      "sha256": "7ae32b04005b1c082113e0a63eb1e1a709e50da0ba6504e91dc7d712f6f7b533",
+      "set": "F4"
+    },
+    {
+      "path": "apps/web/src/viewmodels/evidence.ts",
+      "sha256": "88f4caafb970ad131685a2393fa313152a14b7745eef2192d62d208ba1891965",
+      "set": "F4"
+    },
+    {
+      "path": "apps/web/src/viewmodels/index.ts",
+      "sha256": "26561694fd8618981dd08b5a5a11ef6a20032d1077c55da19e766b52de15b38d",
+      "set": "F4"
+    },
+    {
+      "path": "apps/web/src/viewmodels/intent-composer.ts",
+      "sha256": "af52598edf49f6135fe3da8e9636cea8942f033ea2ef051f160eb57960e88273",
+      "set": "F4"
+    },
+    {
+      "path": "apps/web/src/viewmodels/leaderboard.ts",
+      "sha256": "69722688e840bfc43a7bea618c2547fc811b7b519ea3c7a50fa5239b01a57147",
+      "set": "F4"
+    },
+    {
+      "path": "apps/web/src/viewmodels/receipt.ts",
+      "sha256": "96efb0e2edce2526923b37251700e253613252aee99ac61be6b63765fb80e884",
+      "set": "F4"
+    },
+    {
+      "path": "apps/web/src/viewmodels/routes.ts",
+      "sha256": "868454611ebfefaed05ade6cc3a767c31dc73947726b42d53246379e03985402",
+      "set": "F4"
+    },
+    {
+      "path": "apps/web/src/viewmodels/run-solver.ts",
+      "sha256": "993577fbbf46ef0c2a42ebfeb22949fa1dc134fbbc98bc43e0aa31a3c0d22b8b",
+      "set": "F4"
+    },
+    {
+      "path": "contracts/src/interfaces/IPermit2Min.sol",
+      "sha256": "9246815a74de4940768f2b4e7607c6f738c385a194fe186ec5c0e4dd2624cbae",
+      "set": "F1"
+    },
+    {
+      "path": "contracts/src/interfaces/IRivalFill.sol",
+      "sha256": "4c88761c7c13deac03171be0a40a12931bc7cb04a501b6dedf3d30c1a1aba6fa",
+      "set": "F1"
+    },
+    {
+      "path": "contracts/src/interfaces/IRivalNames.sol",
+      "sha256": "4632060ad19d184451723e9d4642efe5a23b060e55ce9414c66ebfff0d3b5cfb",
+      "set": "F1"
+    },
+    {
+      "path": "contracts/src/interfaces/IRivalOracle.sol",
+      "sha256": "7cc99476fa88a2c1adbf8c1c85d3fb58ebf175ec9d845a2bcba795e69c95fc52",
+      "set": "F1"
+    },
+    {
+      "path": "contracts/src/interfaces/IRivalSettlement.sol",
+      "sha256": "4ca557c5aca4525ff12b921c18474839823d98fcd65b594cda6204bfad8284d6",
+      "set": "F1"
+    },
+    {
+      "path": "contracts/src/interfaces/ISolverRegistry.sol",
+      "sha256": "09c90abdf17ceba17ac3ce786907426ea08e53a8497feddfe0701342c96d33f1",
+      "set": "F1"
+    },
+    {
+      "path": "contracts/src/Types.sol",
+      "sha256": "f2a0c4d703b579e6f75d6539789e5f4505a79e8640aaaba5e3dd2d4af252cf70",
+      "set": "F1"
+    },
+    {
+      "path": "packages/arkiv/src/schemas.ts",
+      "sha256": "19d39581d47ae19095122aecbfef223bf78efbda087746de69a21a168e89c5c1",
+      "set": "F2"
+    },
+    {
+      "path": "specs/deployments.schema.json",
+      "sha256": "b6b76a8a94bfed74aad095e85e29088fe44bacef8c5d2f30bdcce00530e5f435",
+      "set": "F6"
+    },
+    {
+      "path": "specs/env.schema.json",
+      "sha256": "831cf174a95bb5a9013501b75f0cb5d94facf069b242cf6b21d1b9632db3fe5f",
+      "set": "F6"
+    },
+    {
+      "path": "specs/intent-api.d.ts",
+      "sha256": "1774e08f50500068f61a9a6dbeb03e69f04a4ecc735e34fc518ba5d35e680df7",
+      "set": "F5"
+    },
+    {
+      "path": "specs/runner-api.json",
+      "sha256": "852ef96e2a1d9872b0827ec2349bcfc69e27ab9cc7ceecdc6e8931b2fe099133",
+      "set": "F3"
+    },
+    {
+      "path": "specs/sdk-api.d.ts",
+      "sha256": "6104b8d101d7a3ec59a724baa90777d948dbab8e4018d447d9d44e3862fece8b",
+      "set": "F5"
+    }
+  ],
+  "changelog": [
+    {
+      "version": 1,
+      "time": "2026-11-06T07:00:33.444Z",
+      "reason": "C0"
+    }
+  ]
+}
