@@ -500,7 +500,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Needs operator key funded by human.
 
 ### M-014 — `RivalSettlement` (+ invariants I1–I10) — spike S2 inside
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-SET-01..06, §7.3, §8.3, K3, K4
 - DEPENDS: M-011, M-012, M-001
@@ -517,7 +517,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm forge:test --match-path "test/settlement/*" --fuzz-runs 10000
   ```
 - DONE-WHEN: All listed tests green at 10,000 runs; Slither shows no unaddressed high/medium.
-- STARTED:
+- STARTED: 2026-11-06T07:55:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES: Highest-risk task. Do not parallelize with SLAVE; SLAVE never touches `contracts/src/**`.
