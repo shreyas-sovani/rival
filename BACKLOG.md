@@ -651,7 +651,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - STARTED: 2026-11-06T08:10:00Z
 - PROOF: 4779123 | pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
 - BLOCKED-BY: no settlement transaction
-- NOTES: 36 unit tests pass. encodeFill builds RivalSettlement.fill calldata. On the recorded 1 tWETH quote, sprint fills and arb does not. The calldata was not simulated or submitted.
+- NOTES: 058e860 | 36 unit tests pass. encodeFill builds RivalSettlement.fill calldata. On the recorded 1 tWETH quote, sprint fills and arb does not. The calldata was not simulated or submitted.
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
 - STATE: DONE
