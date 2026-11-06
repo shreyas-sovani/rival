@@ -1103,7 +1103,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Smoke passes in 3 browsers against `web:preview`.
 - STARTED: 2026-11-06T12:40:00Z
-- PROOF: pnpm e2e --grep "@smoke" | chromium, firefox, webkit, 3 passed | apps/web/e2e/smoke.spec.ts
+- PROOF: 0d710a9 | pnpm e2e --grep "@smoke" | chromium, firefox, webkit, 3 passed | apps/web/e2e/smoke.spec.ts
 - BLOCKED-BY:
 - NOTES: Smoke serves the static export from apps/web/out. web:preview still runs next start, which does not serve that export.
 

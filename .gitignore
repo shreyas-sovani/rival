@@ -10,3 +10,6 @@ cache/
 dist/
 broadcast/
 cache_forge/
+test-results/
+playwright-report/
+blob-report/
