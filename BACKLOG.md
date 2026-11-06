@@ -588,7 +588,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Solvers registry 0xCEec9D7ADcad00e4D842283d9526E75C9440b36f. RivalNames 0xC20a61e830bB91A69C1B6BCcd607299152aDE797 holds 0x11001. SolverRegistry 0x6AD5C78fA2278d397Bb7e04e1e2266Cc39a1109E. solvers.rival.eth does not resolve because rival.eth was not bought. H-006 stays skipped.
 
 ### M-018 — Full deployment script and verification
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: §9.4
 - DEPENDS: M-013, M-014, M-015, M-016, M-017, H-007
@@ -603,7 +603,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm verify:deployments
   ```
 - DONE-WHEN: Every address has code; Etherscan verified; JSON validates against F6.
-- STARTED:
+- STARTED: 2026-11-06T10:20:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES: **Produces the first full Sepolia stack (C2 prerequisite).**
@@ -632,7 +632,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C1 gate input** (K6). K6 GO. Rabdi write 6761 ms, query hit 1005 ms, u256 BETWEEN hit, presence extend 6092 ms, tGLM spent 0.000456736. Forged payload rejected in book.test.ts. Browser CORS was not called. Three-minute presence expiry was not waited out.
 
 ### M-020 — Solver SDK: watcher, verifier, quote/cost engine, strategies, submitter
-- STATE: BLOCKED
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-SOL-02/03, §8.2 (tx lifecycle)
 - DEPENDS: M-010, M-014, M-015, M-019, S-015
@@ -650,7 +650,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - DONE-WHEN: Against a Sepolia fork, each strategy fills a seeded intent at its intended point on the curve.
 - STARTED: 2026-11-06T08:10:00Z
 - PROOF: 4779123 | pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
-- BLOCKED-BY: no settlement transaction
+- BLOCKED-BY:
 - NOTES: dbf6716 | 35 unit tests pass. Live Quoter at block 12075841: 1 tWETH pays 2998350157 on pool A and 2990850906 on pool B. Sprint, patient, inventory, and house decide to fill. Arb does not, because pool B is below pool A. No fill transaction was sent.
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
