@@ -6,7 +6,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://rival-runner.fly.dev https://eth-sepolia.g.alchemy.com https://ethereum-sepolia.gateway.tatum.io https://api.zan.top https://rpc.rabdi.db-chain.testnet.arkiv.network https://sepolia.etherscan.io; frame-ancestors 'none'"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://rival-runner.fly.dev https://eth-sepolia.g.alchemy.com https://ethereum-sepolia.gateway.tatum.io https://api.zan.top https://rpc.rabdi.db-chain.testnet.arkiv.network https://sepolia.etherscan.io; frame-ancestors 'none'"
         },
         { "key": "Referrer-Policy", "value": "no-referrer" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
