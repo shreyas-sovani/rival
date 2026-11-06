@@ -903,7 +903,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Do not freeze anything yourself.
 
 ### S-003 — CI workflows and repo hygiene files
-- STATE: TODO
+- STATE: BLOCKED
 - OWNER: SLAVE
 - PRD: §9.6, §11.1, FR-OPS-01
 - DEPENDS: S-001, S-002
@@ -920,10 +920,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm exec actionlint .github/workflows/*.yml
   ```
 - DONE-WHEN: `actionlint` clean; workflows reference only existing scripts.
-- STARTED:
+- STARTED: 2026-11-06T05:11:13Z
 - PROOF:
-- BLOCKED-BY:
-- NOTES: LICENSE name needs H-001.
+- BLOCKED-BY: needs-human: H-001
+- NOTES: actionlint clean. Workflows, PR template, CODEOWNERS, gitattributes, and the MIT LICENSE are in place. The copyright holder stays FILL(FOUNDER_NAME) until H-001 writes FOUNDER_NAME in docs/ENV.md.
 
 ### S-004 — Env files, schema-driven `env:check`, ENV docs
 - STATE: TODO

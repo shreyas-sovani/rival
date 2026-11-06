@@ -1,0 +1,64 @@
+# Mirrors BACKLOG.md §2. Paths not listed are MASTER.
+# One GitHub user reviews both territories until a second maintainer exists.
+
+* @shreyas-sovani
+
+# SLAVE
+/package.json @shreyas-sovani
+/pnpm-workspace.yaml @shreyas-sovani
+/.npmrc @shreyas-sovani
+/.nvmrc @shreyas-sovani
+/tsconfig.base.json @shreyas-sovani
+/eslint.config.js @shreyas-sovani
+/.prettierrc* @shreyas-sovani
+/.editorconfig @shreyas-sovani
+/.gitignore @shreyas-sovani
+/.gitattributes @shreyas-sovani
+/.githooks/ @shreyas-sovani
+/CODEOWNERS @shreyas-sovani
+/LICENSE @shreyas-sovani
+/CONTRIBUTING.md @shreyas-sovani
+/.github/ @shreyas-sovani
+/contracts/foundry.toml @shreyas-sovani
+/contracts/remappings.txt @shreyas-sovani
+/contracts/DEPS.md @shreyas-sovani
+/contracts/lib/ @shreyas-sovani
+/contracts/src/tokens/TestToken.sol @shreyas-sovani
+/contracts/test/TestToken.t.sol @shreyas-sovani
+/docs/architecture.md @shreyas-sovani
+/README.skeleton.md @shreyas-sovani
+/FEEDBACK.skeleton.md @shreyas-sovani
+/AI_USAGE.skeleton.md @shreyas-sovani
+/RUNBOOK.skeleton.md @shreyas-sovani
+/arkiv/*.skeleton.md @shreyas-sovani
+/apps/web/src/lib/format.ts @shreyas-sovani
+/apps/web/src/lib/sanitize.ts @shreyas-sovani
+/apps/web/src/testids.ts @shreyas-sovani
+/packages/arkiv/src/client.ts @shreyas-sovani
+/packages/arkiv/src/rotation.ts @shreyas-sovani
+/packages/solver-sdk/src/rpc-pool.ts @shreyas-sovani
+/packages/solver-sdk/src/retry.ts @shreyas-sovani
+
+# MASTER
+/contracts/src/ @shreyas-sovani
+/contracts/test/ @shreyas-sovani
+/contracts/script/ @shreyas-sovani
+/packages/intent/ @shreyas-sovani
+/packages/arkiv/src/ @shreyas-sovani
+/packages/solver-sdk/src/ @shreyas-sovani
+/packages/chain/src/ @shreyas-sovani
+/apps/runner/src/handlers/ @shreyas-sovani
+/apps/runner/src/services/ @shreyas-sovani
+/apps/runner/src/bots/ @shreyas-sovani
+/apps/web/src/viewmodels/ @shreyas-sovani
+/apps/web/src/data/ @shreyas-sovani
+/apps/web/src/hooks/ @shreyas-sovani
+/apps/web/src/wallet/ @shreyas-sovani
+/specs/ @shreyas-sovani
+/docs/spikes/ @shreyas-sovani
+/README.md @shreyas-sovani
+/FEEDBACK.md @shreyas-sovani
+/AI_USAGE.md @shreyas-sovani
+/RUNBOOK.md @shreyas-sovani
+/arkiv/*.md @shreyas-sovani
+/deployments/ @shreyas-sovani
