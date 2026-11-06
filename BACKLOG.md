@@ -583,7 +583,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Role table equals expected; resolution of `solvers.<PARENT>.eth` works in viem.
 - STARTED: 2026-11-06T07:50:00Z
-- PROOF: pnpm exec tsx scripts/ens-role-check.ts --expect specs/ens-roles.expected.json | result ok, exit 0 | deployments/sepolia.json
+- PROOF: 72a73d1 | pnpm exec tsx scripts/ens-role-check.ts --expect specs/ens-roles.expected.json | result ok, exit 0 | deployments/sepolia.json
 - BLOCKED-BY:
 - NOTES: Solvers registry 0xCEec9D7ADcad00e4D842283d9526E75C9440b36f. RivalNames 0xC20a61e830bB91A69C1B6BCcd607299152aDE797 holds 0x11001. SolverRegistry 0x6AD5C78fA2278d397Bb7e04e1e2266Cc39a1109E. solvers.rival.eth does not resolve because rival.eth was not bought. H-006 stays skipped.
 
