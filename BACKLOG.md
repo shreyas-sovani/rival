@@ -872,7 +872,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: All commands exit 0 on an empty-logic tree; `contracts/DEPS.md` lists a sha for each dependency.
 - STARTED: 2026-11-06T04:06:21Z
-- PROOF: fdf232c | pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm test && forge build --root contracts | exit 0 | contracts/DEPS.md
+- PROOF: 7543dd3 | pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm test && forge build --root contracts | exit 0 | contracts/DEPS.md
 - BLOCKED-BY:
 - NOTES: NatSpec in IRivalOracle.sol no longer uses an at-sign tag, so solc 0.8.26 accepts it. Pins are in contracts/DEPS.md.
 
