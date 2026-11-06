@@ -1102,10 +1102,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm e2e --grep "@smoke"
   ```
 - DONE-WHEN: Smoke passes in 3 browsers against `web:preview`.
-- STARTED:
+- STARTED: 2026-11-06T12:40:00Z
 - PROOF:
 - BLOCKED-BY:
-- NOTES:
+- NOTES: MASTER is implementing this so the demo smoke can run. Do not edit page.tsx or the demo script.
 
 ### S-012 — Runner skeleton: server, config, logger, db, middleware, routes, SSE helper, Docker/Fly
 - STATE: REWORK
