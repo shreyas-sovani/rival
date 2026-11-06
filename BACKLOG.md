@@ -651,7 +651,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - STARTED: 2026-11-06T08:10:00Z
 - PROOF: 4779123 | pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
 - BLOCKED-BY: no settlement transaction
-- NOTES: 35 unit tests pass. Live Quoter at block 12075841: 1 tWETH pays 2998350157 on pool A and 2990850906 on pool B. Sprint, patient, inventory, and house decide to fill. Arb does not, because pool B is below pool A. No fill transaction was sent.
+- NOTES: dbf6716 | 35 unit tests pass. Live Quoter at block 12075841: 1 tWETH pays 2998350157 on pool A and 2990850906 on pool B. Sprint, patient, inventory, and house decide to fill. Arb does not, because pool B is below pool A. No fill transaction was sent.
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
 - STATE: DONE
