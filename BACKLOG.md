@@ -1168,10 +1168,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/arkiv test -- client rotation
   ```
 - DONE-WHEN: Rotation switches keys on 429 and 401 in tests; keys never appear in logged strings.
-- STARTED:
+- STARTED: 2026-11-06T05:28:00Z
 - PROOF:
 - BLOCKED-BY:
-- NOTES: No schema/query/publish code here.
+- NOTES: Read keys rotate on 401 and 429. The SDK still carries the active key in the Rabdi URL path; the client also sets X-API-KEY and does not log it. Backoff stays local so this package does not depend on solver-sdk.
 
 ### S-015 — RPC pool and retry utilities (generic)
 - STATE: TODO
