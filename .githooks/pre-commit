@@ -1,4 +1,4 @@
 #!/bin/sh
-# Stub until S-002 replaces this with the real territory check.
+# Real territory check (S-002). Set AGENT_ROLE=MASTER or AGENT_ROLE=SLAVE.
 set -eu
 pnpm territory:check

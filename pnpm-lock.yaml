@@ -87,6 +87,9 @@ importers:
 
   scripts:
     devDependencies:
+      '@types/node':
+        specifier: ^22.10.0
+        version: 22.20.5
       typescript:
         specifier: ^5.7.2
         version: 5.9.3

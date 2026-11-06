@@ -877,7 +877,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: NatSpec in IRivalOracle.sol no longer uses an at-sign tag, so solc 0.8.26 accepts it. Pins are in contracts/DEPS.md.
 
 ### S-002 — Backlog tooling: board, verify, territory-check, freeze-check/write
-- STATE: TODO
+- STATE: WORKING
 - OWNER: SLAVE
 - PRD: this file §2, §4.2, §6
 - DEPENDS: S-001
@@ -897,7 +897,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm backlog:board && pnpm backlog:verify && AGENT_ROLE=SLAVE pnpm territory:check --self-test && pnpm --filter scripts test
   ```
 - DONE-WHEN: Board prints counts for this file; `territory:check --self-test` passes an allowed path, a forbidden path, a deps-only `package.json` change (allowed) and a scripts-key `package.json` change by MASTER (forbidden).
-- STARTED:
+- STARTED: 2026-11-06T04:38:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES: Do not freeze anything yourself.
