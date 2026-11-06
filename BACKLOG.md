@@ -649,7 +649,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Against a Sepolia fork, each strategy fills a seeded intent at its intended point on the curve.
 - STARTED: 2026-11-06T08:10:00Z
-- PROOF: pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
+- PROOF: 4779123 | pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
 - BLOCKED-BY: M-014, M-015
 - NOTES: Curve, strategies, submit plan, nonce manager, and heartbeat are unit-tested. verifyIntent checks an Intent typed-data signature, not the Permit2 witness makers sign. runSolver and the Sepolia fork fills are not done.
 
