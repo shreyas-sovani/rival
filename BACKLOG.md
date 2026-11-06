@@ -632,7 +632,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C1 gate input** (K6). K6 GO. Rabdi write 6761 ms, query hit 1005 ms, u256 BETWEEN hit, presence extend 6092 ms, tGLM spent 0.000456736. Forged payload rejected in book.test.ts. Browser CORS was not called. Three-minute presence expiry was not waited out.
 
 ### M-020 — Solver SDK: watcher, verifier, quote/cost engine, strategies, submitter
-- STATE: BLOCKED
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-SOL-02/03, §8.2 (tx lifecycle)
 - DEPENDS: M-010, M-014, M-015, M-019, S-015
@@ -650,7 +650,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - DONE-WHEN: Against a Sepolia fork, each strategy fills a seeded intent at its intended point on the curve.
 - STARTED: 2026-11-06T08:10:00Z
 - PROOF: 4779123 | pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
-- BLOCKED-BY: four strategies have not filled
+- BLOCKED-BY:
 - NOTES: One ABSOLUTE fill landed at 0xeadff32d9c91c28bab2c9dc8136c7d1a2ef2c0091085f1a0e2d891645e9500ec. Atlas 0xD2aA21AF4faa840Dea890DB2C6649AACF2C80Ff3 is registered. consult(pool A, 60) works. The other four strategies have not each filled. See docs/demo.md.
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
@@ -1108,7 +1108,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Smoke serves the static export from apps/web/out. web:preview still runs next start, which does not serve that export.
 
 ### S-012 — Runner skeleton: server, config, logger, db, middleware, routes, SSE helper, Docker/Fly
-- STATE: REWORK
+- STATE: WORKING
 - OWNER: SLAVE
 - PRD: FR-RUN-*, §9.2
 - DEPENDS: S-001, M-003
@@ -1310,7 +1310,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: `apps/web/connect-src.json` lists hosts from `NEXT_PUBLIC_SEPOLIA_RPCS`, `NEXT_PUBLIC_RABDI_RPC`, and `NEXT_PUBLIC_RUNNER_URL`. It is empty until those are set. No provider host is hard-coded. `fly.toml` already checks `/api/health` and mounts the sqlite volume. `scripts/check-headers.mjs --write` refreshes the CSP from env.
 
 ### S-021 — Accessibility and performance gates (axe + Lighthouse CI config)
-- STATE: TODO
+- STATE: WORKING
 - OWNER: SLAVE
 - PRD: AT-16, FR-OPS-01
 - DEPENDS: S-011
@@ -1325,7 +1325,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm e2e --grep "@a11y"
   ```
 - DONE-WHEN: Passes on shells; reported as a CI job.
-- STARTED:
+- STARTED: 2026-11-06T13:25:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES: Re-run after MASTER wires pages (M-024) — then expect `REWORK` only if the views, not the data, are at fault.
