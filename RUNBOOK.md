@@ -1,6 +1,6 @@
 # Deploy
 
-The contracts below are already on Sepolia. Addresses are in `deployments/sepolia.json`. The production site is https://rival-flame.vercel.app. Do not treat `https://runner.local` as a public host. Fly assigned https://rival-runner.fly.dev in organization `shreyas-sovani` (slug `shreyas-sovani-944`), and that machine has not booted until a card is added at https://fly.io/dashboard/shreyas-sovani-944/billing. The static site does not embed the runner placeholder. Evidence, book, and leaderboard links go to `sepolia.etherscan.io`. The one-hour soak has not been run.
+The contracts below are already on Sepolia. Addresses are in `deployments/sepolia.json`. The production site is https://rival-flame.vercel.app. The runner is https://rival-runner.fly.dev in the Fly org `personal`. The site's content-security policy allows that host, and the runner allows that site origin. The static site does not embed the runner URL. `/api/live` returns 200. `/api/health` returns 503 `degraded` until the oracle, bot, house, and Arkiv probes are wired. Evidence, book, and leaderboard links go to `sepolia.etherscan.io`. The one-hour soak has not been run.
 
 1. Venue (tokens, hook, pool A, pool B): `contracts/script/DeployVenue.s.sol`, driven by `scripts/pools-deploy.ts`. Hook `0xb17a547082836fDF87001c1DE031fA8A2D391080`, flag mask `0x1080`, salt `0x0000000000000000000000000000000000000000000000000000000000000d1d`. PoolManager `0xE03A1074c86CFeDd5C142C4F04F1a1536e203543`. StateView `0xE1Dd9c3fA50EDB962E442f60DfBc432e24537E4C`. V4Quoter `0x68aFa8b853cAa7a2D40B0F6AEE5C4DbC147C8244`.
 2. Names: `contracts/script/DeployNames.s.sol`. `RivalNames` `0xC20a61e830bB91A69C1B6BCcd607299152aDE797`, `SolverRegistry` `0x6AD5C78fA2278d397Bb7e04e1e2266Cc39a1109E`, solvers `PermissionedRegistry` `0xCEec9D7ADcad00e4D842283d9526E75C9440b36f`. `rival.eth` was not bought. `solvers.rival.eth` does not resolve (`docs/ens-design.md`).
@@ -18,7 +18,7 @@ The contracts below are already on Sepolia. Addresses are in `deployments/sepoli
 - `apps/runner/src/bots/check.ts` `runCheck` reads `oldestTimestamp` on the hook for pool A. It returns 0 when the call returns a timestamp. It returns 1 when `SEPOLIA_RPC_URL` is unset, the deployment record is unusable, or the call reverts.
 - `apps/runner/src/services/index.ts` `runCheck` throws `NotImplemented` unless `RUNNER_SERVICES=on`. `startServices` throws `NotImplemented`. That path is one timestamp read. It is not the one-hour soak.
 - Pool A was warmed by `scripts/demo-live.ts`. Oldest observation timestamp recorded in `docs/demo.md`: `1793958588`. `consult(pool A, 60)` worked at tick `-196257`.
-- No external uptime monitor is configured. H-009 can watch https://rival-flame.vercel.app now. `https://rival-runner.fly.dev/api/health` stays down until the Fly machine launches.
+- No external uptime monitor is configured. H-009 can watch https://rival-flame.vercel.app and https://rival-runner.fly.dev/api/live. `/api/health` is the readiness body and is currently `degraded`.
 
 # Recovery
 

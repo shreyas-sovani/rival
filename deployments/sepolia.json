@@ -51,6 +51,6 @@
     }
   ],
   "arkivWriterAddresses": [],
-  "runnerUrl": "https://runner.local",
+  "runnerUrl": "https://rival-runner.fly.dev",
   "commit": "5f38777993bfdc76858f8487e0fc0659a54c2736"
 }

@@ -4,6 +4,7 @@ import { json } from "../middleware/http.ts";
 import { mapError } from "./errors.ts";
 
 export function registerHealth(app: Hono): void {
+  app.get("/api/live", () => json({ status: "live" }, 200));
   app.get("/api/health", async () => {
     try {
       const body = await handlers.health({});

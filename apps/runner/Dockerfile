@@ -36,7 +36,6 @@ RUN groupadd --gid 1001 runner \
 WORKDIR /app
 COPY --from=build --chown=runner:runner /app /app
 
-USER runner
 WORKDIR /app/apps/runner
 EXPOSE 8080
-CMD ["node", "--import", "tsx", "src/server.ts"]
+CMD ["sh", "-c", "chown runner:runner /data && exec runuser -u runner -- node --import tsx src/server.ts"]

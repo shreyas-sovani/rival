@@ -1,6 +1,6 @@
 # Judge quick-start
 
-1. Read `deployments/sepolia.json` and `docs/demo.md`. The chain is Sepolia (`11155111`). The production site is https://rival-flame.vercel.app (H-008). The Fly app `rival-runner` is in the `shreyas-sovani` organization (slug `shreyas-sovani-944`) at https://rival-runner.fly.dev, and its machine has not booted: Fly is waiting for a card at https://fly.io/dashboard/shreyas-sovani-944/billing. `runnerUrl` in the deployment file is still the placeholder `https://runner.local`. The one-hour soak has not been run.
+1. Read `deployments/sepolia.json` and `docs/demo.md`. The chain is Sepolia (`11155111`). The production site is https://rival-flame.vercel.app (H-008). The runner is https://rival-runner.fly.dev in the Fly org `personal`. `runnerUrl` in the deployment file is that host. CORS allows the site origin. `/api/health` is `degraded` because the oracle, bot, house, and Arkiv probes are not fully wired. The one-hour soak has not been run.
 2. The one absolute fill hash is in `docs/demo.md`: `0xeadff32d9c91c28bab2c9dc8136c7d1a2ef2c0091085f1a0e2d891645e9500ec` on RivalSettlement `0xdD66D017e4B4FfF51aBEf2f559C68065D4FD9850`. `atlas` (`0xD2aA21AF4faa840Dea890DB2C6649AACF2C80Ff3`) is the only registered solver. `rival.eth` was not bought. `solvers.rival.eth` does not resolve.
 3. The Arkiv query below is the one that returned a row on 2026-11-06. That entity has expired. A later run can return no rows. Contract tests from this repo: `pnpm forge:test`.
 
@@ -53,7 +53,7 @@ Line numbers are from the files in this checkout. `v4-core` is BUSL-1.1. These R
 | Expiry, exit, unregister | 30-day expiry on `issue`. `exit` unregisters and refunds the 100 tUSDC deposit | `docs/ens-design.md` | S3: at expiry, `ownerOf` returned `address(0)` and `unregister` reverted `LabelExpired`. `renew` from `RivalNames` revived the name. Deposit is `100000000` (100 tUSDC, 6 decimals). |
 | On-chain gating | `SolverRegistry.isListed` reads `ownerOf` and fails closed | `docs/ens-design.md` | The registry's own label mapping is not the gate. An open intent does not need this read. |
 | Agents as namespaces | Not granted | `docs/ens-design.md` | Solver text roles (`description`, `url`, `agent-context`, `agent-endpoint`, `agent-registration`) need `PermissionedResolver`. They were not granted. |
-| Live demo | One absolute fill, one registered solver | `docs/demo.md` | The site is https://rival-flame.vercel.app. The runner machine has not booted. The one-hour soak has not been run. |
+| Live demo | One absolute fill, one registered solver | `docs/demo.md` | Site https://rival-flame.vercel.app. Runner https://rival-runner.fly.dev. The one-hour soak has not been run. |
 
 # Arkiv
 
@@ -101,7 +101,7 @@ The product query uses pair `tWETH/tUSDC` and a current unix second in place of 
 
 # Limitations
 
-- The one-hour soak has not been run. The production site is https://rival-flame.vercel.app. The Fly runner image is built, and the machine has not launched because the `shreyas-sovani` organization still needs a card. `apps/runner` `startServices` throws `NotImplemented`. `runCheck` is one `oldestTimestamp` read when `RUNNER_SERVICES=on`.
+- The one-hour soak has not been run. The site is https://rival-flame.vercel.app and the runner is https://rival-runner.fly.dev. `/api/health` returns `degraded`. `apps/runner` `startServices` throws `NotImplemented`. `runCheck` is one `oldestTimestamp` read when `RUNNER_SERVICES=on`.
 - `rival.eth` was not bought. `solvers.rival.eth` does not resolve. `atlas` is the only registered solver.
 - One absolute fill hash is in `docs/demo.md`. That page does not record a pegged fill.
 - `com.rival.*` values are `RivalNames.protocolRecord`, not ENS text. `PermissionedResolver` does not compile in this checkout.

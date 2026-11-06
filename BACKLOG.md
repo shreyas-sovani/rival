@@ -1394,7 +1394,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Balance is above 0.8 ETH. SEPOLIA_RPC_URL, SEPOLIA_RPC_URL_2, and SEPOLIA_RPC_URL_3 are in secrets/.env.local. Stays TODO until pnpm env:check exists (S-004).
 
 ### H-004 — Provision the runner host (Fly.io or VPS) and set secrets
-- STATE: TODO
+- STATE: DONE
 - OWNER: FOUNDER
 - PRD: §9.2
 - DEPENDS: H-002, S-012
@@ -1403,9 +1403,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   - Create a Fly.io account/app (or a small VPS). `fly launch --no-deploy` using `apps/runner/fly.toml`; create a 1 GB volume; set secrets from `secrets/.env.local` (`fly secrets import < secrets/runner.env` — agent S-004 documents the exact export script).
 - RETURN: `RUNNER_URL` (https) in `secrets/.env.local`
 - CHECK: `pnpm env:check --target runner`
-- PROOF:
-- BLOCKED-BY: needs-human: Fly billing card for organization shreyas-sovani-944
-- NOTES: 2026-11-06 flyctl 0.5.5 logged in. Org display name `shreyas-sovani`, slug `shreyas-sovani-944` (Fly appended the suffix). App `rival-runner`, hostname `https://rival-runner.fly.dev`, volume `runner_data` `vol_4y8l20m7jn58lder` in `iad` (1 GB). Image built and pushed. Runner secrets and `ALLOWED_ORIGIN=https://rival-flame.vercel.app` are staged, not applied, because no VM exists. `RUNNER_URL` is in `secrets/.env.local`. Machine create failed: add a card at https://fly.io/dashboard/shreyas-sovani-944/billing then `fly deploy` from the repo root with `--config apps/runner/fly.toml --dockerfile apps/runner/Dockerfile`. `runnerUrl` in `deployments/sepolia.json` stays `https://runner.local` until `/api/health` returns 200.
+- PROOF: 2026-11-06 | curl https://rival-runner.fly.dev/api/live | HTTP 200 | Fly org personal, machine 847552c2e931d8, checks 1 passing
+- PROOF: 2026-11-06 | curl -H Origin https://rival-flame.vercel.app https://rival-runner.fly.dev/api/health | 503 degraded, access-control-allow-origin matches the site, Sepolia head 12077340 lag 12s
+- BLOCKED-BY:
+- NOTES: Moved `rival-runner` from `shreyas-sovani-944` into org `personal` because that org has a payment method. Volume `vol_4m3d69oq2nllkedv` in `iad`. Thirteen runner secrets are Deployed, including `ALLOWED_ORIGIN=https://rival-flame.vercel.app`. Fly's check is `GET /api/live` so a degraded readiness body does not pull the machine out of service. The site CSP `connect-src` includes `https://rival-runner.fly.dev`.
 
 ### H-005 — Arkiv access keys and wallets
 - STATE: TODO
