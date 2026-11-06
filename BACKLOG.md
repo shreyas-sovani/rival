@@ -695,7 +695,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - STARTED:
 - PROOF:
 - BLOCKED-BY:
-- NOTES: **C2 vertical slice depends on this.**
+- NOTES: The first demo warms pool A with scripts/demo-live.ts, not the full bot fleet. H-004 and H-008 still block the hosted soak.
 
 ### M-023 — Web data layer: wallet, signing, quotes, book, auction, leaderboard
 - STATE: DONE
