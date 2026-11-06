@@ -567,7 +567,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C1 gate input** (K1). Decision FALLBACK (b): com.rival.* stored on RivalNames; isListed uses ownerOf and fails closed. Skip H-006; do not buy rival.eth. Parent only matters later if solvers.<parent>.eth must resolve in the Sepolia ENS app.
 
 ### M-017 — ENS bootstrap and role-check scripts
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-ENS-01
 - DEPENDS: M-016, H-003, H-006
@@ -582,7 +582,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm exec tsx scripts/ens-role-check.ts --expect specs/ens-roles.expected.json
   ```
 - DONE-WHEN: Role table equals expected; resolution of `solvers.<PARENT>.eth` works in viem.
-- STARTED:
+- STARTED: 2026-11-06T07:50:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES:
@@ -654,7 +654,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-RUN-01..03, FR-ARK-05, §7.5
 - DEPENDS: M-003, M-010, M-019, S-012
@@ -670,7 +670,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/runner test
   ```
 - DONE-WHEN: Contract tests for each endpoint incl. error codes; forged/expired/insufficient-balance intents rejected.
-- STARTED:
+- STARTED: 2026-11-06T07:50:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES:
