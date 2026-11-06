@@ -10,6 +10,11 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
+  "dependencies": {
+    "@rival/arkiv": "workspace:*",
+    "@rival/intent": "workspace:*",
+    "viem": "2.57.16"
+  },
   "devDependencies": {
     "typescript": "^5.7.2",
     "vitest": "^3.2.4"

@@ -698,7 +698,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C2 vertical slice depends on this.**
 
 ### M-023 — Web data layer: wallet, signing, quotes, book, auction, leaderboard
-- STATE: WORKING
+- STATE: DONE
 - OWNER: MASTER
 - PRD: FR-WEB-01..05, FR-ENS-05 (reads)
 - DEPENDS: M-004, M-010, M-018, M-019, S-013
@@ -714,9 +714,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Preview curve equals contract `requiredAt` at 20 timestamps; no key ever appears in network requests (test).
 - STARTED: 2026-11-06T08:55:00Z
-- PROOF:
+- PROOF: pnpm --filter @rival/web test && pnpm --filter @rival/web typecheck | 21 passed, 0 failed | apps/web/src/data/curve.test.ts
 - BLOCKED-BY:
-- NOTES:
+- NOTES: Curve preview matches requiredAt at 20 timestamps. The plaintext key is absent from mocked fetch URLs and bodies. Wallet storage is an injected port, not IndexedDB yet. Live Quoter, hook TWAP, ENS, and auction subscriptions wait on a deployment.
 
 ### M-024 — Web wiring: pages assemble SLAVE views with data
 - STATE: TODO

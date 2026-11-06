@@ -53,6 +53,16 @@ importers:
         version: 3.2.7(@types/node@22.20.5)(tsx@4.23.15)
 
   apps/web:
+    dependencies:
+      '@rival/arkiv':
+        specifier: workspace:*
+        version: link:../../packages/arkiv
+      '@rival/intent':
+        specifier: workspace:*
+        version: link:../../packages/intent
+      viem:
+        specifier: 2.57.16
+        version: 2.57.16(typescript@5.9.3)
     devDependencies:
       typescript:
         specifier: ^5.7.2
