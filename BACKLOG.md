@@ -583,7 +583,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Role table equals expected; resolution of `solvers.<PARENT>.eth` works in viem.
 - STARTED: 2026-11-06T07:50:00Z
-- PROOF: pnpm exec tsx scripts/ens-role-check.test.ts | 3 passed, 0 failed | scripts/ens-role-check.ts
+- PROOF: f4911b5 | pnpm exec tsx scripts/ens-role-check.test.ts | 3 passed, 0 failed | scripts/ens-role-check.ts
 - BLOCKED-BY: deployed solvers registry
 - NOTES: Dry-run only. Live role-check exits 2 until a solvers registry is deployed. H-006 stays waived: do not buy rival.eth. Deployer keeps ALL_ROLES from the PermissionedRegistry constructor; that residual bitmap is not in specs/ens-roles.expected.json. `solvers.<PARENT>.eth` resolution is not done.
 
