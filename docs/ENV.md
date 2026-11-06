@@ -14,7 +14,7 @@ The command loads `secrets/.env.local` when that file exists, then process envir
 
 H-001 writes the legal name used as the MIT license holder.
 
-FOUNDER_NAME=FILL(FOUNDER_NAME)
+FOUNDER_NAME=Shreyas Sovani
 
 ## Example files
 
