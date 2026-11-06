@@ -649,7 +649,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Against a Sepolia fork, each strategy fills a seeded intent at its intended point on the curve.
 - STARTED: 2026-11-06T08:10:00Z
-- PROOF: forge test --match-contract StrategyFill | local and Sepolia fork passed, 0 skipped | contracts/test/solver/StrategyFill.t.sol
+- PROOF: 3fcb929 | forge test --match-contract StrategyFill | local and Sepolia fork passed, 0 skipped | contracts/test/solver/StrategyFill.t.sol
 - BLOCKED-BY:
 - NOTES: Sprint, patient, arb, inventory, and house each fill through UniswapSolver. Arb uses a seeded better pool B because the live pool B is worse than pool A. The live atlas fill remains 0xeadff32d9c91c28bab2c9dc8136c7d1a2ef2c0091085f1a0e2d891645e9500ec.
 
