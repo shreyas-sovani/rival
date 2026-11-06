@@ -36,4 +36,4 @@ M-029, written from the skeletons on 2026-11-06, replaced the submission placeho
 
 # Human review
 
-A person has not checked this file. The license holder is unset.
+On 2026-11-07 the founder directed an agent to fund the house, market maker, and maker bots from the operator key, point the Fly faucet minter at that same operator, and broadcast the ENS subname script. The license holder is Shreyas Sovani. This file is the agent record of that pass. It is not a line-by-line human audit of the generated code.

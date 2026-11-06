@@ -20,7 +20,16 @@ export type { RpcPoolOptions, RpcPoolStats } from "./rpc-pool.ts";
 export { submitPlan } from "./submit.ts";
 export type { Clock, SubmitSignals, SubmitSnapshot, SubmitState, SubmitStep } from "./submit.ts";
 export type { Address, Gate, Hex, Intent, Mode } from "./types.ts";
-export { runSolver } from "./run.ts";
+export { getBook, watchIntents } from "./book.ts";
+export type { BookQuery, BookResult, BookRow, WatchedIntent, WatchIntentsOpts } from "./book.ts";
+export { runSolver } from "./config.ts";
+export type { RunSolverDeps, SolverConfig } from "./config.ts";
+export { initSolver } from "./init.ts";
+export type { InitSolverClients, InitSolverResult } from "./init.ts";
+export { signAndPublish } from "./publish.ts";
+export type { SignAndPublishOpts, SignAndPublishResult } from "./publish.ts";
+export { verifyFill } from "./verify-fill.ts";
+export type { VerifyFillResult } from "./verify-fill.ts";
 export type {
   FillPlan,
   PresencePort,

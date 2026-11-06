@@ -29,7 +29,10 @@ export const publicDeployment = {
   registry: "0x6AD5C78fA2278d397Bb7e04e1e2266Cc39a1109E",
   names: "0xC20a61e830bB91A69C1B6BCcd607299152aDE797",
   uniswapSolvers: ["0xDBe8a61e1A4cDd767FfA7C822C242B8E85414e17"],
-  arkivWriterAddresses: [] as string[],
+  arkivWriterAddresses: [
+    "0xFeAf5C921996FC53f4DEf35e181E766e6D74690A",
+    "0x8cEa9b4F8C42464A3661b5ea08FD5EE566557c45",
+  ],
   ens: {
     parentLabel: "rival",
     solversRegistry: "0xCEec9D7ADcad00e4D842283d9526E75C9440b36f",

@@ -119,13 +119,14 @@ export function curveForIntent(args: {
   };
 }
 
-/** Receipt card from the Filled log plus `receiptMath`. Solver name stays blank without ENS. */
+/** Receipt card from the Filled log plus `receiptMath`. Solver name stays blank until ENS resolves. */
 export function receiptFromFill(args: {
   fill: FillLog;
   intent?: Intent;
   quoteOut?: bigint;
   poolDirectAtSign: string;
   entityKey?: string;
+  solverName?: string;
 }): ReceiptVM {
   let curveBps = args.fill.curveBps;
   if (args.intent && args.quoteOut !== undefined) {
@@ -159,7 +160,7 @@ export function receiptFromFill(args: {
     fairOutAfterFee: formatUnitsFixed(math.fairOutAfterFee, buyDecimals, 4),
     improvementBps: String(math.improvementBps),
     elapsed: `${math.elapsed}s`,
-    solverName: "",
+    solverName: args.solverName ?? "",
     solverLink: {
       chain: "sepolia",
       kind: "address",

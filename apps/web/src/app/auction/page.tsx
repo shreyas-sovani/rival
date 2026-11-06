@@ -19,6 +19,7 @@ import {
   storedToIntent,
   type StoredIntent,
 } from "../../data/published-intent.ts";
+import { ensForSolver } from "../../data/registry.ts";
 import { DEGRADED_BOOK_BANNER, postCancel } from "../../data/runner.ts";
 import { browserStorage } from "../../wallet/storage.ts";
 import { openBurnerWallet, type UnlockedWallet } from "../../wallet/wallet.ts";
@@ -61,6 +62,7 @@ export default function AuctionPage() {
     status: "pending",
   });
   const [snap, setSnap] = useState<AuctionSnapshot | null>(null);
+  const [solverName, setSolverName] = useState("");
   const [chainError, setChainError] = useState<string | null>(null);
   const [localPhase, setLocalPhase] = useState<"cancelled" | null>(null);
   const [cancelling, setCancelling] = useState(false);
@@ -146,6 +148,25 @@ export default function AuctionPage() {
     };
   }, [hash]);
 
+  useEffect(() => {
+    const solver = snap?.fill?.solver;
+    if (!solver) {
+      setSolverName("");
+      return;
+    }
+    let cancelled = false;
+    ensForSolver(solver)
+      .then((ens) => {
+        if (!cancelled) setSolverName(ens.ensName);
+      })
+      .catch(() => {
+        if (!cancelled) setSolverName("");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [snap?.fill?.solver]);
+
   if (hash === null) {
     return (
       <RouteShell title={routeTitle("/auction")}>
@@ -155,9 +176,15 @@ export default function AuctionPage() {
   }
 
   if (hash === "" || !isIntentHash(hash)) {
+    const missing = auctionStatusCopy({
+      hashValid: false,
+      hasStoredIntent: false,
+      phase: "waiting",
+      curveEmpty: true,
+    });
     return (
       <RouteShell title={routeTitle("/auction")}>
-        <AuctionStatusView vm={missingAuction(auctionStatusCopy({ hashValid: false, hasStoredIntent: false, phase: "waiting", curveEmpty: true }).phaseLabel)} />
+        <AuctionStatusView vm={missingAuction(missing.phaseLabel)} />
       </RouteShell>
     );
   }
@@ -223,6 +250,7 @@ export default function AuctionPage() {
           ...(intent ? { intent, quoteOut: quoteOut ?? 0n } : {}),
           poolDirectAtSign: record?.poolDirectAtSign ?? "Pool A direct swap at signing time: unavailable",
           ...(record?.entityKey ? { entityKey: record.entityKey } : {}),
+          ...(solverName ? { solverName } : {}),
         })
       : undefined;
   const vm: AuctionStatusVM = {

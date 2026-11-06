@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@rival/solver-sdk": "workspace:*",
     "commander": "^15.0.0"
   },
   "devDependencies": {

@@ -1,6 +1,7 @@
 import { parseAbi, type Address } from "viem";
 import type { SolverSourceRow } from "./leaderboard.ts";
 import { latestFillTx } from "./auction.ts";
+import { resolveSolverEns } from "./ens.ts";
 import { withSepolia } from "./live-market.ts";
 import { publicDeployment } from "./public-deployment.ts";
 
@@ -23,7 +24,24 @@ function avgBps(sum: bigint, fills: bigint): number {
   return Number(sum / fills);
 }
 
-/** Registered solvers from SolverRegistry storage. ENS names stay blank. */
+/** Label plus Sepolia universal-resolver addr for one solver. Blank when unresolved. */
+export async function ensForSolver(solver: Address): Promise<{ ensName: string; matchesEns: boolean }> {
+  try {
+    const label = await withSepolia((client) =>
+      client.readContract({
+        address: registry,
+        abi,
+        functionName: "labelOf",
+        args: [solver],
+      }),
+    );
+    return resolveSolverEns({ label, solver });
+  } catch {
+    return { ensName: "", matchesEns: false };
+  }
+}
+
+/** Registered solvers from SolverRegistry storage. ENS names come from the Sepolia universal resolver. */
 export async function readSolverRows(nowUnixMs = Date.now()): Promise<SolverSourceRow[]> {
   const house = await withSepolia((client) =>
     client.readContract({ address: registry, abi, functionName: "house" }),
@@ -44,6 +62,7 @@ export async function readSolverRows(nowUnixMs = Date.now()): Promise<SolverSour
       ]),
     );
     if (label === "") continue;
+    const ens = await resolveSolverEns({ label, solver: address });
     let lastFillTx: string | undefined;
     if (stats.fills > 0n) {
       try {
@@ -54,7 +73,7 @@ export async function readSolverRows(nowUnixMs = Date.now()): Promise<SolverSour
     }
     const lastFill = stats.lastFill;
     rows.push({
-      ensName: "",
+      ensName: ens.ensName,
       address,
       fills: stats.fills,
       makers: stats.makers,
@@ -64,7 +83,7 @@ export async function readSolverRows(nowUnixMs = Date.now()): Promise<SolverSour
       expiresAtUnixMs: nowUnixMs,
       agent: false,
       role: address.toLowerCase() === house.toLowerCase() ? "house" : "solver",
-      matchesEns: false,
+      matchesEns: ens.matchesEns,
       strategy: strategyFor(address),
       label,
       listed,

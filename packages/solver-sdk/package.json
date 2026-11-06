@@ -15,6 +15,9 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@arkiv-network/sdk": "1.0.1",
+    "@rival/arkiv": "workspace:*",
+    "@rival/intent": "workspace:*",
     "viem": "2.57.16"
   }
 }

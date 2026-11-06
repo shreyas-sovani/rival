@@ -63,7 +63,7 @@ describe("auction status without a local signed intent", () => {
 });
 
 describe("auction receipt", () => {
-  it("recomputes improvement with receiptMath and leaves the solver name blank", () => {
+  it("recomputes improvement with receiptMath and uses a resolved solver name", () => {
     const math = receiptMath({
       amountOut: fill.amountOut,
       fairOut: fill.fairOut,
@@ -76,6 +76,13 @@ describe("auction receipt", () => {
       poolDirectAtSign: "Pool A direct swap at signing time: unavailable",
     });
     expect(receipt.solverName).toBe("");
+    expect(
+      receiptFromFill({
+        fill,
+        poolDirectAtSign: "Pool A direct swap at signing time: unavailable",
+        solverName: "atlas.solvers.rival.eth",
+      }).solverName,
+    ).toBe("atlas.solvers.rival.eth");
     expect(receipt.improvementBps).toBe(String(math.improvementBps));
     expect(receipt.curveBps).toBe("20");
     expect(receipt.amountOut).toBe("3000");

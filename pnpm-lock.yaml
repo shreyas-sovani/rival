@@ -205,6 +205,15 @@ importers:
 
   packages/solver-sdk:
     dependencies:
+      '@arkiv-network/sdk':
+        specifier: 1.0.1
+        version: 1.0.1(typescript@5.9.3)(viem@2.57.16(typescript@5.9.3)(zod@4.6.7))
+      '@rival/arkiv':
+        specifier: workspace:*
+        version: link:../arkiv
+      '@rival/intent':
+        specifier: workspace:*
+        version: link:../intent
       viem:
         specifier: 2.57.16
         version: 2.57.16(typescript@5.9.3)(zod@4.6.7)
@@ -218,6 +227,9 @@ importers:
 
   scripts:
     dependencies:
+      '@rival/solver-sdk':
+        specifier: workspace:*
+        version: link:../packages/solver-sdk
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -233,6 +245,10 @@ importers:
         version: 3.2.7(@types/node@22.20.5)(jiti@1.21.7)(jsdom@26.1.0)(tsx@4.23.15)
 
   solver-template:
+    dependencies:
+      '@rival/solver-sdk':
+        specifier: workspace:*
+        version: link:../packages/solver-sdk
     devDependencies:
       typescript:
         specifier: ^5.7.2

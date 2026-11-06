@@ -98,7 +98,7 @@ Stats are not cleared on `exit`. A later registration keeps the counters and the
 
 ## Fallback
 
-Primary per-record ENS text is not on the deployed bytecode. `com.rival.fills`, `com.rival.makers`, `com.rival.avgImprovementBps`, and `com.rival.lastFill` are the `protocolRecord` view on the deployed `RivalNames`. The source calls `setText` when a future `RivalNames` is constructed with a non-zero resolver. ENS identity remains register, `ownerOf`, renew, unregister. Gating still uses `ownerOf` and fails closed. This is FR-ENS-06 for the deployment that is on Sepolia today. The bootstrap script is the path that attaches the canonical tree. It has not been broadcast in this checkout.
+Primary per-record ENS text is not written by the deployed `RivalNames` bytecode. `com.rival.fills`, `com.rival.makers`, `com.rival.avgImprovementBps`, and `com.rival.lastFill` are the `protocolRecord` view on that contract. The source calls `setText` when a future `RivalNames` is constructed with a non-zero resolver. The 2026-11-07 bootstrap wrote a snapshot of those values onto resolver `0x8e4116c947fefb774690b0377e12d40d22013b14`. Later fills do not update that snapshot. ENS identity remains register, `ownerOf`, renew, unregister. Gating still uses `ownerOf` and fails closed.
 
 ## Sepolia deployment
 
@@ -146,7 +146,9 @@ pnpm exec tsx scripts/ens-register-parent.ts
 
 The script mints MockUSDC to the operator, approves the ETHRegistrar, `commit`s, waits `MIN_COMMITMENT_AGE`, and `register`s. It prints the transaction hashes and `ENS_PARENT_LABEL`. If the operator already owns a candidate, it prints that label and does not register another. Put `ENS_PARENT_LABEL` in `secrets/.env.local`.
 
-Broadcast on 2026-11-06: `rival.eth` register `0x1d9740fccaa1506b12584e4e23c49ecdb92e96293d904b7d7d195a942c4679f6`. `getOwner(keccak256("rival"))` is the operator. `ownerOf(bytes32)` with the ENSIP-1 namehash reverts on this ETHRegistry. The subname broadcast below has not been sent.
+Broadcast on 2026-11-06: `rival.eth` register `0x1d9740fccaa1506b12584e4e23c49ecdb92e96293d904b7d7d195a942c4679f6`. `getOwner(keccak256("rival"))` is the operator. `ownerOf(bytes32)` with the ENSIP-1 namehash reverts on this ETHRegistry.
+
+Subname broadcast on 2026-11-07. The first `deployProxy` prediction omitted `--from`, so it named empty addresses. Those deploys actually created user registry `0xd5cf9458c645f97febf433461fb77870ae01c01c` (`0x23281b9d420b436b2e71e548dfeb92b826e00fdfceb947bd7ca49da8b31fac5b`) and resolver `0x8e4116c947fefb774690b0377e12d40d22013b14` (`0xe88ac9a3fb21ed08560f1bdcf0f5c1d98f72eb76d69a990e23069d8c025c12c8`). A follow-up with `ENS_USER_REGISTRY` and `ENS_RESOLVER` set to those addresses corrected the parent: `setSubregistry` `0xf2c3b2bc1cbd9e06a3a7bf5e81e59de254cfd3bd57b13d4f9176b6684dcaef29`. `register` solvers `0xd89140375b9c3543ff7d8475a7b2ba6ddbc52805075b7a48eeac55c014ad3dc9`. Atlas `setResolver` `0xb5a94a60e946484ede4ab4df8c6a7a5080366b81aecd7ad4e9e0c76a818e5414`. ETHRegistry `getSubregistry("rival")` is the user registry. That registry's `getSubregistry("solvers")` is `0xCEec9D7ADcad00e4D842283d9526E75C9440b36f`. The atlas resolver is `0x8e4116c947fefb774690b0377e12d40d22013b14`. `TextChanged` on setText `0x38f1841e5cd7239e1b81c7f7e6c15731ab078f1d7e54990652e810e622a8c84c` records `description` = `Rival solver atlas (sprint).` `cast resolve-name atlas.solvers.rival.eth` still reports no resolver. `text(bytes32,string)` on that resolver reverted with empty data.
 
 Wiring `solvers.<parent>.eth` to the deployed solvers registry and a PermissionedResolver:
 
@@ -156,7 +158,7 @@ ENS_BOOTSTRAP_BROADCAST=1 pnpm exec tsx scripts/ens-bootstrap.ts --broadcast
 
 `--broadcast` without `ENS_BOOTSTRAP_BROADCAST=1` throws `BroadcastDisabled`. The broadcast deploys a UserRegistry proxy (`initialize((address,uint256)[])`), `setSubregistry` on the parent, `register`s `solvers` with subregistry `0xCEec9D7ADcad00e4D842283d9526E75C9440b36f`, deploys the resolver (`initialize((address,uint256)[],bytes[])` with `ROLE_SET_TEXT_ADMIN` and the upgrade roles), grants text roles with `grantSetterRoles`, snapshots `protocolRecord` into `com.rival.*`, and `revokeRoles` the operator on those four keys. If `setResolver` on an existing solver label reverts, the log prints the `cast send` for the deployer key. That step is not invented here.
 
-`atlas.solvers.rival.eth` does not resolve until those transactions land. Do not treat a missing `cast resolve-name` as a successful resolution.
+`cast resolve-name atlas.solvers.rival.eth` still reports no resolver after the broadcast. Do not treat that message as proof the subregistry is unset. The reads above are the check.
 
 ## Evidence page
 

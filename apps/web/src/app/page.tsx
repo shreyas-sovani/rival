@@ -1,13 +1,12 @@
 "use client";
 
-import { buildIntent, hardFloorFromQuote, hashIntent, presets, type PresetId } from "@rival/intent";
+import { buildIntent, hashIntent, presets, type PresetId } from "@rival/intent";
 import { PAIR } from "@rival/arkiv";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { keccak256, toBytes, type Hex } from "viem";
 import { IntentComposerView } from "../components/views/IntentComposerView.tsx";
-import { requiredOutputsAt } from "../data/curve.ts";
-import { signFaucetClaim, utcDay } from "../data/faucet.ts";
+import { mapFaucetClaimError, signFaucetClaim, utcDay } from "../data/faucet.ts";
 import { quoteSell, readBalances, readLiveMarket, type LiveMarket } from "../data/live-market.ts";
 import { publicDeployment } from "../data/public-deployment.ts";
 import { recordFromIntent, savePublishedIntent } from "../data/published-intent.ts";
@@ -19,8 +18,11 @@ import {
   fetchOpenBook,
   postFaucet,
   postSignedIntent,
+  previewCurve,
   readHealth,
   runnerOrigin,
+  sellBalanceAllowsSubmit,
+  sellBalanceBlockMessage,
   settlementAddress,
   type BookFeed,
 } from "../data/runner.ts";
@@ -29,16 +31,12 @@ import { formatUnitsFixed } from "../lib/format.ts";
 import { browserStorage } from "../wallet/storage.ts";
 import { openBurnerWallet, type UnlockedWallet } from "../wallet/wallet.ts";
 import type { BannerVM } from "../viewmodels/common.ts";
-import type { CurveChartVM } from "../viewmodels/curve.ts";
 import type { CurveModeId, GateId, IntentComposerPatch, IntentComposerVM, SigningState } from "../viewmodels/intent-composer.ts";
 import { routes } from "../viewmodels/routes.ts";
 import { RouteShell } from "./page.shell.tsx";
 
 const SELL_DECIMALS = 18;
 const BUY_DECIMALS = 6;
-const SAMPLE_COUNT = 20;
-/** Absolute curve base used only while the Quoter cannot be called. Not a pool price. */
-const OFFLINE_ABSOLUTE_BASE = 1_000_000n;
 
 const pairParts = PAIR.split("/");
 const sellSymbol = pairParts[0] ?? "tWETH";
@@ -46,7 +44,7 @@ const buySymbol = pairParts[1] ?? "tUSDC";
 
 const OFFLINE_BANNER: BannerVM = {
   kind: "warn",
-  text: "Live pool quote and TWAP are unavailable, so pegged mode is off. The curve is the offline absolute preview of this preset on a 1 tUSDC base, not a swap quote.",
+  text: "Live pool quote and TWAP are unavailable, so pegged mode is off. No pool price is shown.",
 };
 
 const LIVE_TEXT =
@@ -64,19 +62,6 @@ function parseAmount(text: string, decimals: number): bigint | null {
   const digits = `${whole ?? "0"}${frac.padEnd(decimals, "0")}`;
   const value = BigInt(digits);
   return value > 0n ? value : null;
-}
-
-function sampleTimestamps(decaySecs: number): number[] {
-  const points: number[] = [];
-  const seen = new Set<number>();
-  const last = SAMPLE_COUNT - 1;
-  for (let i = 0; i < SAMPLE_COUNT; i++) {
-    let ts = Math.round((decaySecs * i) / last);
-    while (seen.has(ts)) ts += 1;
-    seen.add(ts);
-    points.push(ts);
-  }
-  return points;
 }
 
 function signedBps(bps: number): string {
@@ -98,46 +83,11 @@ function allowLabels(text: string): Hex[] {
     .map((label) => keccak256(toBytes(label.toLowerCase())));
 }
 
-function previewCurve(
-  presetId: PresetId,
-  mode: CurveModeId,
-  poolOut: bigint | null,
-  twapOut: bigint | null,
-): { curve: CurveChartVM; hardMinOut: bigint } {
-  const preset = presets[presetId];
-  const liveBase = mode === "pegged" ? twapOut : poolOut;
-  const baseOut = liveBase ?? OFFLINE_ABSOLUTE_BASE;
-  const hardMinOut = liveBase === null ? (baseOut * BigInt(preset.hardFloorRatioBps)) / 10_000n : hardFloorFromQuote(baseOut, preset.hardFloorRatioBps);
-  const timestamps = sampleTimestamps(preset.decaySecs);
-  const outputs = requiredOutputsAt(
-    {
-      mode: mode === "pegged" ? 1 : 0,
-      baseOut,
-      startBps: preset.startBps,
-      floorBps: preset.floorBps,
-      startTime: 0,
-      decaySecs: preset.decaySecs,
-      hardMinOut,
-    },
-    timestamps,
-    twapOut ?? 0n,
-  );
-  const requiredOut = outputs.flatMap((value, index) => {
-    const tSec = timestamps[index];
-    if (tSec === undefined) return [];
-    return [{ tSec, value: formatUnitsFixed(value, BUY_DECIMALS, 4) }];
-  });
-  const money = (value: bigint | null) => (value === null ? "unavailable" : `${formatUnitsFixed(value, BUY_DECIMALS, 4)} ${buySymbol}`);
+function heldBalances(next: { sell: bigint; buy: bigint }): { sell: string; buy: string; sellRaw: bigint } {
   return {
-    hardMinOut,
-    curve: {
-      requiredOut,
-      poolQuote: { label: "Pool", value: money(poolOut) },
-      twap: { label: "TWAP", value: money(twapOut) },
-      hardFloor: { label: "Floor", value: formatUnitsFixed(hardMinOut, BUY_DECIMALS, 4) },
-      yUnit: buySymbol,
-      empty: requiredOut.length === 0,
-    },
+    sell: formatUnitsFixed(next.sell, SELL_DECIMALS, 4),
+    buy: formatUnitsFixed(next.buy, BUY_DECIMALS, 4),
+    sellRaw: next.sell,
   };
 }
 
@@ -159,7 +109,7 @@ export default function TradePage() {
   const [mode, setMode] = useState<CurveModeId>("absolute");
   const [market, setMarket] = useState<LiveMarket | null>(null);
   const [marketError, setMarketError] = useState<string | null>(null);
-  const [balances, setBalances] = useState<{ sell: string; buy: string } | null>(null);
+  const [balances, setBalances] = useState<{ sell: string; buy: string; sellRaw: bigint } | null>(null);
   const [wallet, setWallet] = useState<UnlockedWallet | null>(null);
   const [walletError, setWalletError] = useState<string | null>(null);
   const [signingState, setSigningState] = useState<SigningState>("idle");
@@ -183,9 +133,10 @@ export default function TradePage() {
       return { poolOut: null as bigint | null, twapOut: null as bigint | null };
     }
   }, [market, quotedAmount]);
+  const activeMode: CurveModeId = mode === "pegged" && quotes.twapOut === null ? "absolute" : mode;
   const preview = useMemo(
-    () => previewCurve(preset, mode, quotes.poolOut, quotes.twapOut),
-    [preset, mode, quotes.poolOut, quotes.twapOut],
+    () => previewCurve(preset, activeMode, quotes.poolOut, quotes.twapOut),
+    [preset, activeMode, quotes.poolOut, quotes.twapOut],
   );
 
   useEffect(() => {
@@ -210,10 +161,7 @@ export default function TradePage() {
       readBalances(wallet.address)
         .then((next) => {
           if (cancelled) return;
-          setBalances({
-            sell: formatUnitsFixed(next.sell, SELL_DECIMALS, 4),
-            buy: formatUnitsFixed(next.buy, BUY_DECIMALS, 4),
-          });
+          setBalances(heldBalances(next));
         })
         .catch(() => {
           if (!cancelled) setBalances(null);
@@ -295,14 +243,16 @@ export default function TradePage() {
   }, []);
 
   const namedMissing = gate === "named" && namedLabels.trim() === "";
+  const needTokens = sellBalanceBlockMessage(wallet !== null && balances !== null ? balances.sellRaw : null, amount);
   const validationMessages = [
     ...(walletError ? [walletError] : []),
-    ...(formError ? [formError] : []),
+    ...(formError && formError !== "Get test tokens first" ? [formError] : []),
+    ...(needTokens ? [needTokens] : []),
     ...(namedMissing ? ["Enter the named solver labels."] : []),
     ...(signingPreview ? [signingPreview] : []),
   ];
   const busy = signingState === "signing" || signingState === "publishing";
-  const reference = mode === "pegged" ? quotes.twapOut : quotes.poolOut;
+  const reference = activeMode === "pegged" ? quotes.twapOut : quotes.poolOut;
   const stocked = health !== null && faucetIsStocked(health);
 
   function onChange(patch: IntentComposerPatch) {
@@ -343,6 +293,13 @@ export default function TradePage() {
       setSigningPreview(null);
       return;
     }
+    if (!sellBalanceAllowsSubmit(balances?.sellRaw ?? null, amount)) {
+      submitting.current = false;
+      setSigningPreview(null);
+      const block = sellBalanceBlockMessage(balances?.sellRaw ?? null, amount);
+      if (block) setFormError(block);
+      return;
+    }
     if (namedMissing) {
       submitting.current = false;
       setFormError(null);
@@ -379,9 +336,9 @@ export default function TradePage() {
         tokenOut: publicDeployment.tokens.tUSDC as Hex,
         amountIn: amount,
         preset,
-        mode: mode === "pegged" ? 1 : 0,
-        baseOut: mode === "pegged" ? 0n : reference,
-        oracleWindow: mode === "pegged" ? 60 : 0,
+        mode: activeMode === "pegged" ? 1 : 0,
+        baseOut: activeMode === "pegged" ? 0n : reference,
+        oracleWindow: activeMode === "pegged" ? 60 : 0,
         startTime,
         deadline,
         hardMinOut,
@@ -454,12 +411,10 @@ export default function TradePage() {
       const signature = await signFaucetClaim({ account: wallet.account, day, kind: "tokens" });
       await postFaucet({ wallet: wallet.address, signature, day, kind: "tokens" });
       const next = await readBalances(wallet.address);
-      setBalances({
-        sell: formatUnitsFixed(next.sell, SELL_DECIMALS, 4),
-        buy: formatUnitsFixed(next.buy, BUY_DECIMALS, 4),
-      });
+      setBalances(heldBalances(next));
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "The faucet claim failed.");
+      const raw = err instanceof Error ? err.message : "The faucet claim failed.";
+      setFormError(mapFaucetClaimError(raw));
     } finally {
       setFaucetBusy(false);
     }
@@ -472,7 +427,7 @@ export default function TradePage() {
   const banner: BannerVM = degraded
     ? { kind: "warn", text: DEGRADED_BOOK_BANNER }
     : live
-      ? { kind: "info", text: health !== null && !stocked ? `${LIVE_TEXT} The faucet is empty.` : LIVE_TEXT }
+      ? { kind: "info", text: LIVE_TEXT }
       : marketError
         ? OFFLINE_BANNER
         : { kind: "info", text: "Reading Sepolia pool A." };
@@ -495,7 +450,7 @@ export default function TradePage() {
       { id: "named", label: "Named solvers", enabled: true },
     ],
     namedLabels,
-    mode,
+    mode: activeMode,
     peggedEnabled: quotes.twapOut !== null,
     oracleWindowSec: "60",
     startBps: String(presets[preset].startBps),
@@ -511,11 +466,18 @@ export default function TradePage() {
       names: [],
     },
     preview: preview.curve,
-    floorLine: live
-      ? `${preview.curve.hardFloor.value} ${buySymbol} on ${amountIn || "1"} ${sellSymbol} at the ${mode} quote`
-      : `${preview.curve.hardFloor.value} ${buySymbol} on a 1 ${buySymbol} absolute base`,
+    floorLine:
+      reference !== null
+        ? `${preview.curve.hardFloor.value} ${buySymbol} on ${amountIn || "1"} ${sellSymbol} at the ${activeMode} quote`
+        : "unavailable",
     validationMessages,
-    canSubmit: amount !== null && !namedMissing && wallet !== null && reference !== null && !busy,
+    canSubmit:
+      amount !== null &&
+      !namedMissing &&
+      wallet !== null &&
+      reference !== null &&
+      !busy &&
+      sellBalanceAllowsSubmit(balances?.sellRaw ?? null, amount),
     submitLabel:
       signingState === "signing" ? "Signing…" : signingState === "publishing" ? "Publishing…" : signingState === "published" ? "Published" : "Sign & publish",
     faucetLabel: faucetBusy ? "Claiming…" : "Get test tokens",

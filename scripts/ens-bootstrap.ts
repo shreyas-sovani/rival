@@ -116,6 +116,8 @@ function deployProxy(chain: Chain, implementation: string, saltLabel: string, ca
     implementation,
     salt,
     calldata,
+    "--from",
+    chain.operator,
   ]).split(/\s+/)[0];
   if (!predicted || !/^0x[0-9a-fA-F]{40}$/.test(predicted)) {
     throw new Error(`BLOCKED: deployProxy did not return an address for ${saltLabel}`);

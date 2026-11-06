@@ -3,12 +3,20 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "bin": {
+    "rival-solver": "./bin/index.js"
+  },
   "exports": {
     ".": "./src/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "solver:init": "node bin/index.js init",
+    "solver:dev": "node bin/index.js dev"
+  },
+  "dependencies": {
+    "@rival/solver-sdk": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.7.2",

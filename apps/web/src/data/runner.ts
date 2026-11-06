@@ -1,7 +1,11 @@
 import { PAIR } from "@rival/arkiv";
-import type { Address, Intent } from "@rival/intent";
+import { hardFloorFromQuote, presets, type Address, type Intent, type PresetId } from "@rival/intent";
 import type { Hex } from "viem";
+import { formatUnitsFixed } from "../lib/format.ts";
+import type { CurveChartVM } from "../viewmodels/curve.ts";
+import type { CurveModeId } from "../viewmodels/intent-composer.ts";
 import type { BookSourceRow } from "./book.ts";
+import { requiredOutputsAt } from "./curve.ts";
 import { publicDeployment } from "./public-deployment.ts";
 import { intentToWire, type WireIntent } from "./wire.ts";
 
@@ -77,18 +81,34 @@ function bytes32(value: unknown, label: string): string {
   return value;
 }
 
-/** House token balances, or an explicit `faucet.stocked` flag when the runner adds one. */
+/**
+ * Reachable `/api/health` JSON. The minter does not spend house inventory,
+ * so balances and `faucet.stocked` do not disable Get test tokens.
+ */
 export function faucetIsStocked(health: unknown): boolean {
-  if (!isRecord(health)) return false;
-  const faucet = health.faucet;
-  if (isRecord(faucet) && typeof faucet.stocked === "boolean") return faucet.stocked;
-  const house = health.house;
-  if (!isRecord(house)) return false;
-  return positiveUint(house.tWETH) && positiveUint(house.tUSDC);
+  return isRecord(health);
 }
 
-function positiveUint(value: unknown): boolean {
-  return typeof value === "string" && /^[0-9]+$/.test(value) && BigInt(value) > 0n;
+/** Raw runner code plus message. Status is only used when the body has neither. */
+export function describeFaucetFailure(body: unknown, status: number): string {
+  if (isRecord(body)) {
+    const code = typeof body.code === "string" ? body.code.trim() : "";
+    const message = typeof body.message === "string" ? body.message.trim() : "";
+    const labeled = [code, message].filter((part) => part !== "").join(" ");
+    if (labeled !== "") return labeled;
+  }
+  return `Request failed (${status})`;
+}
+
+/** True when a loaded sell balance covers the sell amount. An unloaded balance does not. */
+export function sellBalanceAllowsSubmit(sell: bigint | null, amount: bigint): boolean {
+  return sell !== null && sell >= amount;
+}
+
+/** Shown when the loaded balance is known and short. Unknown balances stay quiet. */
+export function sellBalanceBlockMessage(sell: bigint | null, amount: bigint | null): string | null {
+  if (sell === null || amount === null || sell >= amount) return null;
+  return "Get test tokens first";
 }
 
 export async function readHealth(): Promise<unknown> {
@@ -201,7 +221,15 @@ export async function postFaucet(args: {
       kind: args.kind,
     }),
   });
-  if (!response.ok) throw new Error(await readApiError(response));
+  if (!response.ok) {
+    let body: unknown = null;
+    try {
+      body = await response.json();
+    } catch {
+      body = null;
+    }
+    throw new Error(describeFaucetFailure(body, response.status));
+  }
   const parsed: unknown = await response.json();
   if (!isRecord(parsed)) throw new Error("faucet response is empty");
   const txHash = bytes32(parsed.txHash, "txHash");
@@ -234,3 +262,77 @@ export function settlementAddress(): Address {
 }
 
 export const PERMIT2 = "0x000000000022D473030F116dDEE9F6B43aC78BA3" as Address;
+
+const CURVE_SAMPLES = 20;
+const CURVE_BUY_DECIMALS = 6;
+const curveBuySymbol = PAIR.split("/")[1] ?? "tUSDC";
+
+function sampleTimestamps(decaySecs: number): number[] {
+  const points: number[] = [];
+  const seen = new Set<number>();
+  const last = CURVE_SAMPLES - 1;
+  for (let i = 0; i < CURVE_SAMPLES; i++) {
+    let ts = Math.round((decaySecs * i) / last);
+    while (seen.has(ts)) ts += 1;
+    seen.add(ts);
+    points.push(ts);
+  }
+  return points;
+}
+
+/** Chart series for the trade page. A missing pool or TWAP is not drawn as a 1 tUSDC quote. */
+export function previewCurve(
+  presetId: PresetId,
+  mode: CurveModeId,
+  poolOut: bigint | null,
+  twapOut: bigint | null,
+): { curve: CurveChartVM; hardMinOut: bigint } {
+  const preset = presets[presetId];
+  const liveBase = mode === "pegged" ? twapOut : poolOut;
+  const money = (value: bigint | null) =>
+    value === null ? "unavailable" : `${formatUnitsFixed(value, CURVE_BUY_DECIMALS, 4)} ${curveBuySymbol}`;
+  if (liveBase === null) {
+    return {
+      hardMinOut: 0n,
+      curve: {
+        requiredOut: [],
+        poolQuote: { label: "Pool", value: money(poolOut) },
+        twap: { label: "TWAP", value: money(twapOut) },
+        hardFloor: { label: "Floor", value: "unavailable" },
+        yUnit: curveBuySymbol,
+        empty: true,
+      },
+    };
+  }
+  const hardMinOut = hardFloorFromQuote(liveBase, preset.hardFloorRatioBps);
+  const timestamps = sampleTimestamps(preset.decaySecs);
+  const outputs = requiredOutputsAt(
+    {
+      mode: mode === "pegged" ? 1 : 0,
+      baseOut: liveBase,
+      startBps: preset.startBps,
+      floorBps: preset.floorBps,
+      startTime: 0,
+      decaySecs: preset.decaySecs,
+      hardMinOut,
+    },
+    timestamps,
+    twapOut ?? 0n,
+  );
+  const requiredOut = outputs.flatMap((value, index) => {
+    const tSec = timestamps[index];
+    if (tSec === undefined) return [];
+    return [{ tSec, value: formatUnitsFixed(value, CURVE_BUY_DECIMALS, 4) }];
+  });
+  return {
+    hardMinOut,
+    curve: {
+      requiredOut,
+      poolQuote: { label: "Pool", value: money(poolOut) },
+      twap: { label: "TWAP", value: money(twapOut) },
+      hardFloor: { label: "Floor", value: formatUnitsFixed(hardMinOut, CURVE_BUY_DECIMALS, 4) },
+      yUnit: curveBuySymbol,
+      empty: requiredOut.length === 0,
+    },
+  };
+}
