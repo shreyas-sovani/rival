@@ -518,7 +518,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: All listed tests green at 10,000 runs; Slither shows no unaddressed high/medium.
 - STARTED: 2026-11-06T07:55:00Z
-- PROOF: forge test --match-path "test/settlement/*" --fuzz-runs 10000 | 24 passed, 0 failed | docs/spikes/S2.md
+- PROOF: 15426a6 | forge test --match-path "test/settlement/*" --fuzz-runs 10000 | 24 passed, 0 failed | docs/spikes/S2.md
 - BLOCKED-BY:
 - NOTES: K3 GO. Witness matches viem and permit2-sdk. Fills in tests use LocalPermit2 because pinned Permit2 is solc 0.8.17 and its solmate checkout is empty. cancelBySig cannot check the signer against the maker: the frozen call has no maker argument, so any valid signature cancels a known hash. Slither is not installed; M-025 still owns the Slither report.
 
