@@ -37,7 +37,7 @@
     "cli:intent": "node --experimental-strip-types scripts/cli/intent.ts",
     "cli:book": "node --experimental-strip-types scripts/cli/book.ts",
     "cli:verify": "node --experimental-strip-types scripts/cli/verify.ts",
-    "e2e": "node -e \"console.error('NOT_IMPLEMENTED(S-011)');process.exit(3)\"",
+    "e2e": "apps/web/node_modules/.bin/playwright test --config apps/web/playwright.config.ts",
     "e2e:synthetic": "node -e \"console.error('NOT_IMPLEMENTED(M-027)');process.exit(3)\""
   },
   "devDependencies": {

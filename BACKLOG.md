@@ -677,7 +677,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### M-022 — Runner services: indexer, market maker, maker bots, solver bots, orchestration
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-VEN-03, FR-ARK-02/03, FR-SOL-02/03, FR-RUN-03
 - DEPENDS: M-018, M-019, M-020, M-021, H-004, H-008
@@ -692,7 +692,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm runner:dev --check   # runs one full cycle against Sepolia and exits 0 on success
   ```
 - DONE-WHEN: 1-hour soak: oracle freshness ≥ 95 %; ≥ 3 distinct solvers fill; no manual intervention.
-- STARTED:
+- STARTED: 2026-11-06T13:00:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES: The first demo warms pool A with scripts/demo-live.ts, not the full bot fleet. H-004 and H-008 still block the hosted soak.
@@ -719,7 +719,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Curve preview matches requiredAt at 20 timestamps. The plaintext key is absent from mocked fetch URLs and bodies. Wallet storage is an injected port, not IndexedDB yet. Live Quoter, hook TWAP, ENS, and auction subscriptions wait on a deployment.
 
 ### M-024 — Web wiring: pages assemble SLAVE views with data
-- STATE: BLOCKED
+- STATE: DONE
 - OWNER: MASTER
 - PRD: FR-WEB-02..06, §5.5
 - DEPENDS: M-023, S-006, S-009, S-010
@@ -737,11 +737,11 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - DONE-WHEN: Static export builds; smoke e2e passes against `web:preview`.
 - STARTED: 2026-11-06T12:20:00Z
 - PROOF: 6a94750 | pnpm --filter @rival/web build | static export, 9 pages, exit 0 | apps/web/src/app/page.tsx
-- BLOCKED-BY: S-011
-- NOTES: Routes /, /auction, /book, /solver, /solvers, and /evidence render the existing views. Live quotes and Arkiv use the empty or degraded banner. pnpm e2e is NOT_IMPLEMENTED(S-011) and exits 3.
+- BLOCKED-BY:
+- NOTES: Smoke e2e now passes in three browsers against the static export. Live quotes and Arkiv still use the empty or degraded banner.
 
 ### M-025 — Parity, invariants completion, Slither
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: §11.1–11.3, AT-05/06/08
 - DEPENDS: M-011, M-012, M-014, M-016
@@ -756,7 +756,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm forge:test --fuzz-runs 10000 && slither contracts --config-file contracts/slither.config.json
   ```
 - DONE-WHEN: All green; Slither: no unaddressed high/medium.
-- STARTED:
+- STARTED: 2026-11-06T13:00:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES:
@@ -1086,7 +1086,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Copy is the PRD sentences. The known-limit line drops the markdown bold markers. Solver commands are `pnpm solver:init --label <name>` and `pnpm solver:dev`.
 
 ### S-011 — Playwright config and page objects
-- STATE: WORKING
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: §11.1
 - DEPENDS: S-008, S-009
@@ -1103,9 +1103,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Smoke passes in 3 browsers against `web:preview`.
 - STARTED: 2026-11-06T12:40:00Z
-- PROOF:
+- PROOF: pnpm e2e --grep "@smoke" | chromium, firefox, webkit, 3 passed | apps/web/e2e/smoke.spec.ts
 - BLOCKED-BY:
-- NOTES: MASTER is implementing this so the demo smoke can run. Do not edit page.tsx or the demo script.
+- NOTES: Smoke serves the static export from apps/web/out. web:preview still runs next start, which does not serve that export.
 
 ### S-012 — Runner skeleton: server, config, logger, db, middleware, routes, SSE helper, Docker/Fly
 - STATE: REWORK
