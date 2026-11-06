@@ -1127,9 +1127,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - DONE-WHEN: Server boots; every endpoint returns **501 NOT_IMPLEMENTED** from stub handlers (never 200); request validation rejects malformed bodies with the spec's error shape; no secrets in logs (test).
 - STARTED: 2026-11-06T11:15:00Z
 - PROOF:
-- BLOCKED-BY: needs-master-decision: `services/deps.ts` probes throw `runner dependency <name> is not configured` before `health()` can return a Health body, so GET /api/health is 500 `{message:"internal error"}`. Smoke does not accept that. SLAVE must not edit `services/**` or invent a Health payload.
+- BLOCKED-BY:
 - REWORK-REASON: F3 handlers/index.ts now implements health, faucet, intents, cancel, and stream. types.ts signatures are unchanged. Do not restore the stubs or remove the new apps/runner dependencies. Smoke must accept those implemented responses and the spec's validation errors. startServices and runCheck still throw NotImplemented, so --check still exits 3.
-- NOTES: MASTER is wiring service deps so GET /api/health returns a Health body instead of 500. Handlers stay MASTER's. Smoke still must not require 501 from the implemented handlers.
+- NOTES: GET /api/health now returns a Health body. Missing RPC or Arkiv is degraded, status 503, not 500. A configured SEPOLIA_RPC_URL puts the head on block.number. Re-run smoke against that. Handlers stay MASTER's.
 
 ### S-013 — ABI generation pipeline and typed deployments loader
 - STATE: DONE
