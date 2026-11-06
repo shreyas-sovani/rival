@@ -1,0 +1,381 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Rival runner",
+    "version": "1.0.0",
+    "description": "Publisher, faucet, cancel relay, degraded intent feed, and health. No cookies. CORS is limited to ALLOWED_ORIGIN. Wire amounts and hashes are decimal or 0x strings so JSON does not lose integer precision. Domain error codes are the PRD §7.5 enum. HTTP 501 is only the pre-M-021 stub."
+  },
+  "servers": [{ "url": "/" }],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "health",
+        "summary": "Process and dependency health",
+        "responses": {
+          "200": {
+            "description": "All required signals are fresh.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Health" }
+              }
+            }
+          },
+          "503": {
+            "description": "Degraded. Body is still a Health document with status degraded.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Health" }
+              }
+            }
+          },
+          "501": { "$ref": "#/components/responses/NotImplemented" }
+        }
+      }
+    },
+    "/api/faucet": {
+      "post": {
+        "operationId": "faucet",
+        "summary": "Mint test tokens or drip a small amount of Sepolia ETH",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/FaucetRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Claim submitted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FaucetResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/DomainError" },
+          "429": { "$ref": "#/components/responses/DomainError" },
+          "501": { "$ref": "#/components/responses/NotImplemented" }
+        }
+      }
+    },
+    "/api/intents": {
+      "post": {
+        "operationId": "intents",
+        "summary": "Validate a signed intent and publish it to Arkiv",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IntentsRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Accepted. degraded is true when Arkiv did not take the write and the runner feed holds it.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IntentsResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/DomainError" },
+          "409": { "$ref": "#/components/responses/DomainError" },
+          "429": { "$ref": "#/components/responses/DomainError" },
+          "503": { "$ref": "#/components/responses/DomainError" },
+          "501": { "$ref": "#/components/responses/NotImplemented" }
+        }
+      }
+    },
+    "/api/cancel": {
+      "post": {
+        "operationId": "cancel",
+        "summary": "Relay a maker-signed cancelBySig",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CancelRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cancel transaction submitted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CancelResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/DomainError" },
+          "501": { "$ref": "#/components/responses/NotImplemented" }
+        }
+      }
+    },
+    "/api/intents/stream": {
+      "get": {
+        "operationId": "stream",
+        "summary": "Degraded feed. Not Arkiv.",
+        "description": "Server-Sent Events. Each message uses event name intent and a JSON IntentStreamData payload. The handler returns an async iterable; the route serializes it.",
+        "responses": {
+          "200": {
+            "description": "SSE stream.",
+            "content": {
+              "text/event-stream": {
+                "schema": { "$ref": "#/components/schemas/IntentStreamData" }
+              }
+            }
+          },
+          "501": { "$ref": "#/components/responses/NotImplemented" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorCode": {
+        "type": "string",
+        "enum": [
+          "INVALID_SIGNATURE",
+          "INVALID_PARAMS",
+          "EXPIRED",
+          "INSUFFICIENT_BALANCE",
+          "NONCE_USED",
+          "FLOOR_TOO_LOW",
+          "RATE_LIMITED",
+          "ORACLE_STALE",
+          "ARKIV_UNAVAILABLE"
+        ]
+      },
+      "ErrorBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "$ref": "#/components/schemas/ErrorCode" },
+          "message": { "type": "string" }
+        }
+      },
+      "NotImplementedBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "type": "string", "const": "NOT_IMPLEMENTED" },
+          "message": { "type": "string" }
+        }
+      },
+      "Address": {
+        "type": "string",
+        "pattern": "^0x[a-fA-F0-9]{40}$"
+      },
+      "Bytes32": {
+        "type": "string",
+        "pattern": "^0x[a-fA-F0-9]{64}$"
+      },
+      "UintString": {
+        "type": "string",
+        "pattern": "^[0-9]+$"
+      },
+      "Intent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "maker",
+          "tokenIn",
+          "tokenOut",
+          "amountIn",
+          "recipient",
+          "mode",
+          "baseOut",
+          "oracleWindow",
+          "startBps",
+          "floorBps",
+          "startTime",
+          "decaySecs",
+          "deadline",
+          "hardMinOut",
+          "gate",
+          "allowlistHash",
+          "nonce"
+        ],
+        "properties": {
+          "maker": { "$ref": "#/components/schemas/Address" },
+          "tokenIn": { "$ref": "#/components/schemas/Address" },
+          "tokenOut": { "$ref": "#/components/schemas/Address" },
+          "amountIn": { "$ref": "#/components/schemas/UintString" },
+          "recipient": { "$ref": "#/components/schemas/Address" },
+          "mode": { "type": "integer", "enum": [0, 1] },
+          "baseOut": { "$ref": "#/components/schemas/UintString" },
+          "oracleWindow": { "type": "integer", "minimum": 0 },
+          "startBps": { "type": "integer" },
+          "floorBps": { "type": "integer" },
+          "startTime": { "type": "integer", "minimum": 0 },
+          "decaySecs": { "type": "integer", "minimum": 0 },
+          "deadline": { "type": "integer", "minimum": 0 },
+          "hardMinOut": { "$ref": "#/components/schemas/UintString" },
+          "gate": { "type": "integer", "enum": [0, 1, 2] },
+          "allowlistHash": { "$ref": "#/components/schemas/Bytes32" },
+          "nonce": { "$ref": "#/components/schemas/UintString" }
+        }
+      },
+      "OraclePool": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ageSec", "obs"],
+        "properties": {
+          "ageSec": { "type": "integer", "minimum": 0 },
+          "obs": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "BotHealth": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ok"],
+        "properties": {
+          "ok": { "type": "boolean" },
+          "lastSeenAt": { "type": ["integer", "null"], "description": "Unix seconds, or null when the bot has never reported." }
+        }
+      },
+      "Health": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "block", "oracle", "bots", "house", "arkiv", "openIntents", "lastFillAt"],
+        "properties": {
+          "status": { "type": "string", "enum": ["ok", "degraded"] },
+          "block": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["number", "lagSec"],
+            "properties": {
+              "number": { "$ref": "#/components/schemas/UintString" },
+              "lagSec": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "oracle": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["A"],
+            "properties": {
+              "A": { "$ref": "#/components/schemas/OraclePool" },
+              "B": { "$ref": "#/components/schemas/OraclePool" }
+            }
+          },
+          "bots": {
+            "type": "object",
+            "additionalProperties": { "$ref": "#/components/schemas/BotHealth" }
+          },
+          "house": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["eth", "tWETH", "tUSDC"],
+            "properties": {
+              "eth": { "$ref": "#/components/schemas/UintString" },
+              "tWETH": { "$ref": "#/components/schemas/UintString" },
+              "tUSDC": { "$ref": "#/components/schemas/UintString" }
+            }
+          },
+          "arkiv": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["ok", "latencyMs"],
+            "properties": {
+              "ok": { "type": "boolean" },
+              "latencyMs": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "openIntents": { "type": "integer", "minimum": 0 },
+          "lastFillAt": { "type": ["integer", "null"] }
+        }
+      },
+      "FaucetRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["wallet", "signature", "day", "kind"],
+        "properties": {
+          "wallet": { "$ref": "#/components/schemas/Address" },
+          "signature": { "type": "string", "pattern": "^0x[a-fA-F0-9]+$" },
+          "day": { "type": "integer", "minimum": 0, "description": "UTC day index floor(unix/86400) covered by the EIP-712 FaucetClaim." },
+          "kind": { "type": "string", "enum": ["tokens", "eth"] }
+        }
+      },
+      "FaucetResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["txHash", "nextEligibleAt"],
+        "properties": {
+          "txHash": { "$ref": "#/components/schemas/Bytes32" },
+          "nextEligibleAt": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "IntentsRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["intent", "signature"],
+        "properties": {
+          "intent": { "$ref": "#/components/schemas/Intent" },
+          "signature": { "type": "string", "pattern": "^0x[a-fA-F0-9]+$" }
+        }
+      },
+      "IntentsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["intentHash", "degraded"],
+        "properties": {
+          "intentHash": { "$ref": "#/components/schemas/Bytes32" },
+          "entityKey": { "type": "string" },
+          "degraded": { "type": "boolean" }
+        }
+      },
+      "CancelRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["intentHash", "deadline", "signature"],
+        "properties": {
+          "intentHash": { "$ref": "#/components/schemas/Bytes32" },
+          "deadline": { "type": "integer", "minimum": 0 },
+          "signature": { "type": "string", "pattern": "^0x[a-fA-F0-9]+$" }
+        }
+      },
+      "CancelResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["txHash"],
+        "properties": {
+          "txHash": { "$ref": "#/components/schemas/Bytes32" }
+        }
+      },
+      "IntentStreamData": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["intentHash", "intent", "signature", "degraded"],
+        "properties": {
+          "intentHash": { "$ref": "#/components/schemas/Bytes32" },
+          "intent": { "$ref": "#/components/schemas/Intent" },
+          "signature": { "type": "string" },
+          "degraded": { "type": "boolean", "const": true }
+        }
+      }
+    },
+    "responses": {
+      "DomainError": {
+        "description": "Domain failure. Status map: 400 INVALID_SIGNATURE, INVALID_PARAMS, EXPIRED, INSUFFICIENT_BALANCE, FLOOR_TOO_LOW; 409 NONCE_USED; 429 RATE_LIMITED; 503 ORACLE_STALE. ARKIV_UNAVAILABLE is not an error on POST /api/intents: that route returns 200 with degraded true. Other routes do not emit ARKIV_UNAVAILABLE.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorBody" }
+          }
+        }
+      },
+      "NotImplemented": {
+        "description": "Stub handler threw NotImplemented. Routes map that exception to HTTP 501. Disappears once M-021 replaces the stubs.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/NotImplementedBody" }
+          }
+        }
+      }
+    }
+  }
+}
