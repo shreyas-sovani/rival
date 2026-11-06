@@ -1,0 +1,46 @@
+{
+  "name": "rival",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "forge:build": "forge build --root contracts",
+    "forge:test": "forge test --root contracts",
+    "gen:abis": "node -e \"console.error('NOT_IMPLEMENTED(S-013)');process.exit(3)\"",
+    "backlog:board": "node -e \"console.error('NOT_IMPLEMENTED(S-002)');process.exit(3)\"",
+    "backlog:verify": "node -e \"console.error('NOT_IMPLEMENTED(S-002)');process.exit(3)\"",
+    "territory:check": "node -e \"console.log('STUB(S-002): territory check not installed');process.exit(0)\"",
+    "freeze:check": "node -e \"console.error('NOT_IMPLEMENTED(S-002)');process.exit(3)\"",
+    "freeze:write": "node -e \"console.error('NOT_IMPLEMENTED(S-002)');process.exit(3)\"",
+    "env:check": "node -e \"console.error('NOT_IMPLEMENTED(S-004)');process.exit(3)\"",
+    "verify:deployments": "node -e \"console.error('NOT_IMPLEMENTED(S-019)');process.exit(3)\"",
+    "audit:egress": "node -e \"console.error('NOT_IMPLEMENTED(S-019)');process.exit(3)\"",
+    "preflight": "node -e \"console.error('NOT_IMPLEMENTED(S-019)');process.exit(3)\"",
+    "licenses:table": "node -e \"console.error('NOT_IMPLEMENTED(S-019)');process.exit(3)\"",
+    "web:dev": "node -e \"console.error('NOT_IMPLEMENTED(S-006)');process.exit(3)\"",
+    "web:build": "node -e \"console.error('NOT_IMPLEMENTED(S-006)');process.exit(3)\"",
+    "web:preview": "node -e \"console.error('NOT_IMPLEMENTED(S-006)');process.exit(3)\"",
+    "runner:dev": "node -e \"console.error('NOT_IMPLEMENTED(S-012)');process.exit(3)\"",
+    "solver:init": "node -e \"console.error('NOT_IMPLEMENTED(S-016)');process.exit(3)\"",
+    "solver:dev": "node -e \"console.error('NOT_IMPLEMENTED(S-016)');process.exit(3)\"",
+    "cli:intent": "node -e \"console.error('NOT_IMPLEMENTED(S-017)');process.exit(3)\"",
+    "cli:book": "node -e \"console.error('NOT_IMPLEMENTED(S-017)');process.exit(3)\"",
+    "cli:verify": "node -e \"console.error('NOT_IMPLEMENTED(S-017)');process.exit(3)\"",
+    "e2e": "node -e \"console.error('NOT_IMPLEMENTED(S-011)');process.exit(3)\"",
+    "e2e:synthetic": "node -e \"console.error('NOT_IMPLEMENTED(M-027)');process.exit(3)\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "eslint": "^9.16.0",
+    "globals": "^15.13.0",
+    "prettier": "^3.4.2",
+    "typescript-eslint": "^8.18.0"
+  }
+}

@@ -1,0 +1,4 @@
+#!/bin/sh
+# Stub until S-002 replaces this with the real territory check.
+set -eu
+pnpm territory:check

@@ -851,7 +851,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 > Every S-task lists `INPUTS`. If an input is not present/frozen, **do not start**; mark `BLOCKED`.
 
 ### S-001 — Monorepo scaffold and toolchain pins
-- STATE: WORKING
+- STATE: BLOCKED
 - OWNER: SLAVE
 - PRD: §9.1, §10.2 (rules 3,5)
 - DEPENDS: —
@@ -873,8 +873,8 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - DONE-WHEN: All commands exit 0 on an empty-logic tree; `contracts/DEPS.md` lists a sha for each dependency.
 - STARTED: 2026-11-06T04:06:21Z
 - PROOF:
-- BLOCKED-BY:
-- NOTES: This unblocks almost everything; do it first.
+- BLOCKED-BY: needs-master-decision
+- NOTES: forge build fails on contracts/src/interfaces/IRivalOracle.sol natspec (solc 6546): a doc comment contains an @uniswap tag. lint, typecheck, and test pass. Rewrite that comment without an @ sign. Scaffold is otherwise in place.
 
 ### S-002 — Backlog tooling: board, verify, territory-check, freeze-check/write
 - STATE: TODO

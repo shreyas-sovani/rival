@@ -1,0 +1,12 @@
+BACKLOG.md
+PRD.md
+research.md
+prizes.txt
+pnpm-lock.yaml
+contracts/lib
+contracts/out
+contracts/cache
+node_modules
+dist
+.next
+coverage
