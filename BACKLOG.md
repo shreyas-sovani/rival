@@ -677,7 +677,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### M-022 — Runner services: indexer, market maker, maker bots, solver bots, orchestration
-- STATE: WORKING
+- STATE: BLOCKED
 - OWNER: MASTER
 - PRD: FR-VEN-03, FR-ARK-02/03, FR-SOL-02/03, FR-RUN-03
 - DEPENDS: M-018, M-019, M-020, M-021, H-004, H-008
@@ -694,8 +694,8 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - DONE-WHEN: 1-hour soak: oracle freshness ≥ 95 %; ≥ 3 distinct solvers fill; no manual intervention.
 - STARTED: 2026-11-06T13:00:00Z
 - PROOF:
-- BLOCKED-BY:
-- NOTES: The first demo warms pool A with scripts/demo-live.ts, not the full bot fleet. H-004 and H-008 still block the hosted soak.
+- BLOCKED-BY: H-004, H-008
+- NOTES: runCheck with RUNNER_SERVICES=on reads hook oldestTimestamp once. Unset RPC or a revert returns 1. startServices still throws NotImplemented. The 1-hour soak and three-solver fill target are not met. Pool A was already warmed by scripts/demo-live.ts.
 
 ### M-023 — Web data layer: wallet, signing, quotes, book, auction, leaderboard
 - STATE: DONE
