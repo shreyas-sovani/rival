@@ -479,7 +479,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C1 gate input.** K2 GO. Flag mask 0x1080. 1000-sequence parity passed. Same-block manipulation does not move consult. Vendored solmate Owned.sol because the v4-core submodule checkout was empty.
 
 ### M-013 — Pools, tokens deployment and liquidity scripts
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-VEN-01/02
 - DEPENDS: S-005, M-012, H-003 (funded operator), M-006
@@ -494,7 +494,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm verify:deployments --only venue
   ```
 - DONE-WHEN: Both pools return expected slot0 via StateView; Quoter returns sane quotes both directions.
-- STARTED:
+- STARTED: 2026-11-06T09:25:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES: Needs operator key funded by human.
@@ -632,7 +632,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C1 gate input** (K6). K6 GO. Rabdi write 6761 ms, query hit 1005 ms, u256 BETWEEN hit, presence extend 6092 ms, tGLM spent 0.000456736. Forged payload rejected in book.test.ts. Browser CORS was not called. Three-minute presence expiry was not waited out.
 
 ### M-020 — Solver SDK: watcher, verifier, quote/cost engine, strategies, submitter
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-SOL-02/03, §8.2 (tx lifecycle)
 - DEPENDS: M-010, M-014, M-015, M-019, S-015
@@ -651,7 +651,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - STARTED: 2026-11-06T08:10:00Z
 - PROOF: 4779123 | pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
 - BLOCKED-BY:
-- NOTES: Curve, strategies, submit plan, nonce manager, and heartbeat are unit-tested. verifyIntent checks an Intent typed-data signature, not the Permit2 witness makers sign. runSolver and the Sepolia fork fills are not done. UniswapSolver now exists.
+- NOTES: Curve, strategies, submit plan, nonce manager, and heartbeat are unit-tested. verifyIntent checks an Intent typed-data signature, not the Permit2 witness makers sign. runSolver and the Sepolia fork fills are not done. UniswapSolver now exists. This pass must not run Foundry while M-013 deploys.
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
 - STATE: DONE
