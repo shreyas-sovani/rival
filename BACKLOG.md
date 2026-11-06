@@ -651,7 +651,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - STARTED: 2026-11-06T08:10:00Z
 - PROOF: 4779123 | pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
 - BLOCKED-BY: fork fills
-- NOTES: 28 unit tests pass, including verifyWitness against the S2 Permit2 digest and runSolver on injected ports. Sprint submits when the quote clears the curve. A Sepolia fork fill of each strategy was not run because M-013 holds Foundry.
+- NOTES: 45868a5 | 28 unit tests pass, including verifyWitness against the S2 Permit2 digest and runSolver on injected ports. Sprint submits when the quote clears the curve. A Sepolia fork fill of each strategy was not run because M-013 holds Foundry.
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
 - STATE: DONE
