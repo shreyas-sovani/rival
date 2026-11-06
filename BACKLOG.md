@@ -719,7 +719,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Curve preview matches requiredAt at 20 timestamps. The plaintext key is absent from mocked fetch URLs and bodies. Wallet storage is an injected port, not IndexedDB yet. Live Quoter, hook TWAP, ENS, and auction subscriptions wait on a deployment.
 
 ### M-024 — Web wiring: pages assemble SLAVE views with data
-- STATE: WORKING
+- STATE: BLOCKED
 - OWNER: MASTER
 - PRD: FR-WEB-02..06, §5.5
 - DEPENDS: M-023, S-006, S-009, S-010
@@ -736,9 +736,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Static export builds; smoke e2e passes against `web:preview`.
 - STARTED: 2026-11-06T12:20:00Z
-- PROOF:
-- BLOCKED-BY:
-- NOTES: Shells and views exist. S-006 is not DONE because the egress scan is dirty. Pages wire the existing offline data functions. Live quotes can show a degraded banner.
+- PROOF: pnpm --filter @rival/web build | static export, 9 pages, exit 0 | apps/web/src/app/page.tsx
+- BLOCKED-BY: S-011
+- NOTES: Routes /, /auction, /book, /solver, /solvers, and /evidence render the existing views. Live quotes and Arkiv use the empty or degraded banner. pnpm e2e is NOT_IMPLEMENTED(S-011) and exits 3.
 
 ### M-025 — Parity, invariants completion, Slither
 - STATE: TODO
