@@ -921,7 +921,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: `actionlint` clean; workflows reference only existing scripts.
 - STARTED: 2026-11-06T05:11:13Z
-- PROOF:
+- PROOF: 016dd8e | pnpm exec actionlint .github/workflows/*.yml | exit 0 | .github/workflows/ci.yml
 - BLOCKED-BY: needs-human: H-001
 - NOTES: actionlint clean. Workflows, PR template, CODEOWNERS, gitattributes, and the MIT LICENSE are in place. The copyright holder stays FILL(FOUNDER_NAME) until H-001 writes FOUNDER_NAME in docs/ENV.md.
 
@@ -948,7 +948,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### S-005 — `TestToken` (Solady ERC20, Permit2-ready) + test
-- STATE: TODO
+- STATE: WORKING
 - OWNER: SLAVE
 - PRD: FR-VEN-01
 - DEPENDS: S-001
@@ -964,10 +964,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm forge:test --match-contract TestTokenTest
   ```
 - DONE-WHEN: Tests pass.
-- STARTED:
+- STARTED: 2026-11-06T05:20:00Z
 - PROOF:
 - BLOCKED-BY:
-- NOTES: If the Solady version lacks `_givePermit2InfiniteAllowance`, BLOCK with `needs-master-decision` (do not hand-roll allowance logic).
+- NOTES: Pinned Solady ERC20 v0.1.26 has `_givePermit2InfiniteAllowance`. This token returns true.
 
 ### S-006 — Web shell: Next.js static export, Tailwind, shadcn, layout, route shells
 - STATE: TODO
