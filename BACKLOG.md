@@ -604,7 +604,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Every address has code; Etherscan verified; JSON validates against F6.
 - STARTED: 2026-11-06T10:20:00Z
-- PROOF: eth_getCode and etherscan getsourcecode | settlement 10821 bytes, solver 3745 bytes, both verified | deployments/sepolia.json
+- PROOF: 48f2eb1 | eth_getCode and etherscan getsourcecode | settlement 10821 bytes, solver 3745 bytes, both verified | deployments/sepolia.json
 - BLOCKED-BY:
 - NOTES: RivalSettlement 0xdD66D017e4B4FfF51aBEf2f559C68065D4FD9850. UniswapSolver 0xDBe8a61e1A4cDd767FfA7C822C242B8E85414e17. RivalMath 0x99596AB09a231A1Da8f1e7B0a42e78dE1EB6EcC9. setSettlement is locked to that settlement. Solver names were not registered. ENS registrar addresses in the JSON remain zero.
 
