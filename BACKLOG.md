@@ -479,7 +479,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C1 gate input.** K2 GO. Flag mask 0x1080. 1000-sequence parity passed. Same-block manipulation does not move consult. Vendored solmate Owned.sol because the v4-core submodule checkout was empty.
 
 ### M-013 — Pools, tokens deployment and liquidity scripts
-- STATE: WORKING
+- STATE: DONE
 - OWNER: MASTER
 - PRD: FR-VEN-01/02
 - DEPENDS: S-005, M-012, H-003 (funded operator), M-006
@@ -495,9 +495,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Both pools return expected slot0 via StateView; Quoter returns sane quotes both directions.
 - STARTED: 2026-11-06T09:25:00Z
-- PROOF:
+- PROOF: pnpm exec tsx scripts/pools-deploy.ts --broadcast | schema ok; slot0 true; quotes true | deployments/sepolia.json
 - BLOCKED-BY:
-- NOTES: Needs operator key funded by human.
+- NOTES: First two creates ran out of gas and deployed no code. The broadcast that landed used an 800 percent gas estimate. Pool A and Pool B share sqrt price 4339505179874779489431521 and tick -196257. Settlement, registry, names, and ENS addresses in the JSON are zero placeholders.
 
 ### M-014 — `RivalSettlement` (+ invariants I1–I10) — spike S2 inside
 - STATE: DONE

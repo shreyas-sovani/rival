@@ -21,3 +21,9 @@ The TypeScript twin is `packages/intent/src/oracle-model.ts`. Foundry replays `p
 | (v) A stale oracle fails closed for PEGGED intents | `consult` / `quote` revert `InsufficientHistory` when the ring does not cover the window (and `WindowOutOfRange` outside `[60, 3600]`). Settlement maps that failure to `OracleUnavailable`; this hook does not catch it | `test_staleFailsClosed` |
 
 `oldestTimestamp` is 0 when the pool has no observations. An uninitialized pool is `InsufficientHistory`, the same error as a window the ring does not cover.
+
+## Sepolia venue
+
+Pool A `0xd302ad11d027e1897d14162ac1d7a583a7c48a12a547a25c12c9bb1da504f13f`. Pool B `0xc990bf9d3e98afd98afafdad812369a1b8dd6822622f49cf9f7a312701c0549b`. Hook `0xb17a547082836fDF87001c1DE031fA8A2D391080`. Flag mask `0x1080`.
+
+`deployments/sepolia.json` leaves settlement, registry, names, and the ENS addresses (`ethRegistrar`, `ethRegistry`, `rootRegistry`, `userRegistryImpl`, `verifiableFactory`, `permissionedResolverImpl`, `universalResolverV2`, `universalResolverProxy`, `solversRegistry`) at the zero address. `uniswapSolvers`, `solvers`, and `arkivWriterAddresses` are empty. Those values are placeholders. They were not deployed.
