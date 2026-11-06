@@ -632,7 +632,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C1 gate input** (K6). K6 GO. Rabdi write 6761 ms, query hit 1005 ms, u256 BETWEEN hit, presence extend 6092 ms, tGLM spent 0.000456736. Forged payload rejected in book.test.ts. Browser CORS was not called. Three-minute presence expiry was not waited out.
 
 ### M-020 — Solver SDK: watcher, verifier, quote/cost engine, strategies, submitter
-- STATE: WORKING
+- STATE: BLOCKED
 - OWNER: MASTER
 - PRD: FR-SOL-02/03, §8.2 (tx lifecycle)
 - DEPENDS: M-010, M-014, M-015, M-019, S-015
@@ -650,8 +650,8 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - DONE-WHEN: Against a Sepolia fork, each strategy fills a seeded intent at its intended point on the curve.
 - STARTED: 2026-11-06T08:10:00Z
 - PROOF: 4779123 | pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
-- BLOCKED-BY:
-- NOTES: Curve, strategies, submit plan, nonce manager, and heartbeat are unit-tested. verifyIntent checks an Intent typed-data signature, not the Permit2 witness makers sign. runSolver and the Sepolia fork fills are not done. UniswapSolver now exists. This pass must not run Foundry while M-013 deploys.
+- BLOCKED-BY: fork fills
+- NOTES: 28 unit tests pass, including verifyWitness against the S2 Permit2 digest and runSolver on injected ports. Sprint submits when the quote clears the curve. A Sepolia fork fill of each strategy was not run because M-013 holds Foundry.
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
 - STATE: DONE
