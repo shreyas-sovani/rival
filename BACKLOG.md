@@ -588,7 +588,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Solvers registry 0xCEec9D7ADcad00e4D842283d9526E75C9440b36f. RivalNames 0xC20a61e830bB91A69C1B6BCcd607299152aDE797 holds 0x11001. SolverRegistry 0x6AD5C78fA2278d397Bb7e04e1e2266Cc39a1109E. solvers.rival.eth does not resolve because rival.eth was not bought. H-006 stays skipped.
 
 ### M-018 — Full deployment script and verification
-- STATE: WORKING
+- STATE: DONE
 - OWNER: MASTER
 - PRD: §9.4
 - DEPENDS: M-013, M-014, M-015, M-016, M-017, H-007
@@ -604,9 +604,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Every address has code; Etherscan verified; JSON validates against F6.
 - STARTED: 2026-11-06T10:20:00Z
-- PROOF:
+- PROOF: eth_getCode and etherscan getsourcecode | settlement 10821 bytes, solver 3745 bytes, both verified | deployments/sepolia.json
 - BLOCKED-BY:
-- NOTES: **Produces the first full Sepolia stack (C2 prerequisite).**
+- NOTES: RivalSettlement 0xdD66D017e4B4FfF51aBEf2f559C68065D4FD9850. UniswapSolver 0xDBe8a61e1A4cDd767FfA7C822C242B8E85414e17. RivalMath 0x99596AB09a231A1Da8f1e7B0a42e78dE1EB6EcC9. setSettlement is locked to that settlement. Solver names were not registered. ENS registrar addresses in the JSON remain zero.
 
 ### M-019 — `packages/arkiv`: publish, query, presence, patch, payload verification (spike S4)
 - STATE: DONE
