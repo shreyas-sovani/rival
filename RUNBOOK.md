@@ -1,6 +1,6 @@
 # Deploy
 
-The contracts below are already on Sepolia. Addresses are in `deployments/sepolia.json`. Do not treat `https://runner.local` as a public host. The static site does not embed that placeholder. Evidence, book, and leaderboard links go to `sepolia.etherscan.io`. H-004 and H-008 are not done. The one-hour soak has not been run.
+The contracts below are already on Sepolia. Addresses are in `deployments/sepolia.json`. The production site is https://rival-flame.vercel.app. Do not treat `https://runner.local` as a public host. Fly assigned https://rival-runner.fly.dev in organization `shreyas-sovani` (slug `shreyas-sovani-944`), and that machine has not booted until a card is added at https://fly.io/dashboard/shreyas-sovani-944/billing. The static site does not embed the runner placeholder. Evidence, book, and leaderboard links go to `sepolia.etherscan.io`. The one-hour soak has not been run.
 
 1. Venue (tokens, hook, pool A, pool B): `contracts/script/DeployVenue.s.sol`, driven by `scripts/pools-deploy.ts`. Hook `0xb17a547082836fDF87001c1DE031fA8A2D391080`, flag mask `0x1080`, salt `0x0000000000000000000000000000000000000000000000000000000000000d1d`. PoolManager `0xE03A1074c86CFeDd5C142C4F04F1a1536e203543`. StateView `0xE1Dd9c3fA50EDB962E442f60DfBc432e24537E4C`. V4Quoter `0x68aFa8b853cAa7a2D40B0F6AEE5C4DbC147C8244`.
 2. Names: `contracts/script/DeployNames.s.sol`. `RivalNames` `0xC20a61e830bB91A69C1B6BCcd607299152aDE797`, `SolverRegistry` `0x6AD5C78fA2278d397Bb7e04e1e2266Cc39a1109E`, solvers `PermissionedRegistry` `0xCEec9D7ADcad00e4D842283d9526E75C9440b36f`. `rival.eth` was not bought. `solvers.rival.eth` does not resolve (`docs/ens-design.md`).
@@ -11,14 +11,14 @@ The contracts below are already on Sepolia. Addresses are in `deployments/sepoli
 
 1. `SolverRegistry.setSettlement` can be called once. A second call reverts. `docs/oracle.md` records `settlementLocked` true, so this registry cannot be pointed at a new settlement. A replacement is a new registry, a new names contract, and a new settlement. The hook and the pools can stay.
 2. `atlas` can `exit` only while the name is unexpired. After expiry, `unregister` reverts `LabelExpired` until `RivalNames.renew` revives it (`docs/ens-design.md`). The 100 tUSDC deposit (`100000000` base units) is refunded on a successful `exit`. Stats are not cleared.
-3. There is no production deploy to roll back. H-008 has not created a Vercel project. H-004 has not created a runner host.
+3. Roll the site back from the Vercel project `rival` in team `shreyas-sovanis-projects`. The current production alias is https://rival-flame.vercel.app. There is no running runner machine to roll back.
 
 # Health
 
 - `apps/runner/src/bots/check.ts` `runCheck` reads `oldestTimestamp` on the hook for pool A. It returns 0 when the call returns a timestamp. It returns 1 when `SEPOLIA_RPC_URL` is unset, the deployment record is unusable, or the call reverts.
 - `apps/runner/src/services/index.ts` `runCheck` throws `NotImplemented` unless `RUNNER_SERVICES=on`. `startServices` throws `NotImplemented`. That path is one timestamp read. It is not the one-hour soak.
 - Pool A was warmed by `scripts/demo-live.ts`. Oldest observation timestamp recorded in `docs/demo.md`: `1793958588`. `consult(pool A, 60)` worked at tick `-196257`.
-- No external uptime monitor is configured. H-009 depends on H-004 and H-008, which are not done.
+- No external uptime monitor is configured. H-009 can watch https://rival-flame.vercel.app now. `https://rival-runner.fly.dev/api/health` stays down until the Fly machine launches.
 
 # Recovery
 

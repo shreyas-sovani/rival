@@ -10,11 +10,11 @@
 
 # Generated changes
 
-Recorded 2026-11-06 for the slave pass on `main` (`6480f04`). A person has not checked this statement. The MIT holder is unset. H-001 has not written a legal name, and `LICENSE` was not edited by M-029.
+Recorded 2026-11-06 for the slave pass on `main` (`6480f04`). A person has not checked this statement. The MIT holder is Shreyas Sovani.
 
 - S-001 monorepo scaffold, toolchain, and vendored Foundry libs (`contracts/DEPS.md`)
 - S-002 backlog, territory, and freeze command-line tools
-- S-003 CI workflows, PR template, CODEOWNERS, `.gitattributes`, MIT license file with the holder still unset
+- S-003 CI workflows, PR template, CODEOWNERS, `.gitattributes`, MIT license file. The holder is Shreyas Sovani.
 - S-005 `TestToken` and `TestToken.t.sol`
 - S-008 display formatters, `sanitizeDisplayText`, and `testIds`
 - S-014 Arkiv client factory and read-key rotation

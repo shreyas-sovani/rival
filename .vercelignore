@@ -1,0 +1,13 @@
+.git
+contracts
+node_modules
+**/node_modules
+secrets
+apps/web/out
+apps/web/.next
+test-results
+playwright-report
+blob-report
+cache
+cache_forge
+broadcast

@@ -1404,8 +1404,8 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - RETURN: `RUNNER_URL` (https) in `secrets/.env.local`
 - CHECK: `pnpm env:check --target runner`
 - PROOF:
-- BLOCKED-BY:
-- NOTES:
+- BLOCKED-BY: needs-human: Fly billing card for organization shreyas-sovani-944
+- NOTES: 2026-11-06 flyctl 0.5.5 logged in. Org display name `shreyas-sovani`, slug `shreyas-sovani-944` (Fly appended the suffix). App `rival-runner`, hostname `https://rival-runner.fly.dev`, volume `runner_data` `vol_4y8l20m7jn58lder` in `iad` (1 GB). Image built and pushed. Runner secrets and `ALLOWED_ORIGIN=https://rival-flame.vercel.app` are staged, not applied, because no VM exists. `RUNNER_URL` is in `secrets/.env.local`. Machine create failed: add a card at https://fly.io/dashboard/shreyas-sovani-944/billing then `fly deploy` from the repo root with `--config apps/runner/fly.toml --dockerfile apps/runner/Dockerfile`. `runnerUrl` in `deployments/sepolia.json` stays `https://runner.local` until `/api/health` returns 200.
 
 ### H-005 — Arkiv access keys and wallets
 - STATE: TODO
@@ -1450,7 +1450,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### H-008 — Vercel project (production, protection OFF) and env vars
-- STATE: TODO
+- STATE: DONE
 - OWNER: FOUNDER
 - PRD: §5.1, §9.2
 - DEPENDS: H-001, S-006
@@ -1459,9 +1459,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   - Create a Vercel project from the repo, root `apps/web`, framework Next.js (static export). In Settings → Deployment Protection: **disable for Production**. Disable Analytics/Speed Insights. Add the `NEXT_PUBLIC_*` variables printed by `pnpm env:check --target web-build --print-names`.
 - RETURN: `WEB_URL` in `secrets/.env.local`
 - CHECK: `curl -sI $WEB_URL | head -1` returns 200 (after first deploy) and no auth wall
-- PROOF:
+- PROOF: 2026-11-06 | curl -sI https://rival-flame.vercel.app and /auction /book /evidence /solver /solvers | HTTP 200, deploymentProtection [] | team shreyas-sovanis-projects project rival
 - BLOCKED-BY:
-- NOTES:
+- NOTES: CLI 65.7.0 as shreyas-sovani. SSO protection disabled. Production alias https://rival-flame.vercel.app. `WEB_URL` is in `secrets/.env.local`. The project root is the repo, install `pnpm install --frozen-lockfile`, build `pnpm --filter @rival/web build`, output `apps/web/out`, because installing inside `apps/web` with npm cannot see the pnpm workspace. The web app does not read `NEXT_PUBLIC_*`. Keyed RPC URLs were not copied into Vercel env. CSP `connect-src` allows the Fly host, the three RPC hosts, Rabdi, and sepolia.etherscan.io.
 
 ### H-009 — Uptime monitor and alert channel
 - STATE: TODO

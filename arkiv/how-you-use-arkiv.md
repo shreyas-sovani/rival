@@ -1,6 +1,6 @@
 # Features
 
-`atlas` is the only registered solver. The one-hour soak has not been run. H-004 and H-008 are not done. The S4 book used pair `s4-1793950742`, not the production pair `tWETH/tUSDC`.
+`atlas` is the only registered solver. The one-hour soak has not been run. The site is https://rival-flame.vercel.app. The runner machine has not booted. The S4 book used pair `s4-1793950742`, not the production pair `tWETH/tUSDC`.
 
 | Feature | Filters | Who can edit | Expiry | What changes for users |
 | --- | --- | --- | --- | --- |

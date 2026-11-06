@@ -1,0 +1,16 @@
+.git
+node_modules
+**/node_modules
+contracts
+apps/web/.next
+apps/web/out
+test-results
+playwright-report
+blob-report
+secrets
+**/.env
+**/.env.*
+**/.vercel
+agent-transcripts
+*.md
+!README.md

@@ -17,6 +17,7 @@ COPY packages/chain/package.json packages/chain/package.json
 COPY packages/solver-sdk/package.json packages/solver-sdk/package.json
 COPY scripts/package.json scripts/package.json
 COPY solver-template/package.json solver-template/package.json
+COPY apps/web/src/components/ui/axe-primitives.mjs apps/web/src/components/ui/axe-primitives.mjs
 
 RUN pnpm install --frozen-lockfile --filter @rival/runner...
 
