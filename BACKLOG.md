@@ -1086,7 +1086,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Copy is the PRD sentences. The known-limit line drops the markdown bold markers. Solver commands are `pnpm solver:init --label <name>` and `pnpm solver:dev`.
 
 ### S-011 — Playwright config and page objects
-- STATE: TODO
+- STATE: WORKING
 - OWNER: SLAVE
 - PRD: §11.1
 - DEPENDS: S-008, S-009
