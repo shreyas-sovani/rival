@@ -43,7 +43,13 @@
     "parentLabel": "rival",
     "solversRegistry": "0xCEec9D7ADcad00e4D842283d9526E75C9440b36f"
   },
-  "solvers": [],
+  "solvers": [
+    {
+      "label": "atlas",
+      "address": "0xD2aA21AF4faa840Dea890DB2C6649AACF2C80Ff3",
+      "strategy": "sprint"
+    }
+  ],
   "arkivWriterAddresses": [],
   "runnerUrl": "https://runner.local",
   "commit": "5f38777993bfdc76858f8487e0fc0659a54c2736"

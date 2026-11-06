@@ -650,8 +650,8 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - DONE-WHEN: Against a Sepolia fork, each strategy fills a seeded intent at its intended point on the curve.
 - STARTED: 2026-11-06T08:10:00Z
 - PROOF: 4779123 | pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
-- BLOCKED-BY: no settlement transaction
-- NOTES: 058e860 | encodeFill builds fill calldata. Live demo step 3 submits one fill through UniswapSolver and RivalSettlement. No settlement transaction yet.
+- BLOCKED-BY: four strategies have not filled
+- NOTES: One ABSOLUTE fill landed at 0xeadff32d9c91c28bab2c9dc8136c7d1a2ef2c0091085f1a0e2d891645e9500ec. Atlas 0xD2aA21AF4faa840Dea890DB2C6649AACF2C80Ff3 is registered. consult(pool A, 60) works. The other four strategies have not each filled. See docs/demo.md.
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
 - STATE: DONE
