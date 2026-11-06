@@ -1462,7 +1462,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - CHECK: `curl -sI $WEB_URL | head -1` returns 200 (after first deploy) and no auth wall
 - PROOF: 2026-11-06 | curl -sI https://rival-flame.vercel.app and /auction /book /evidence /solver /solvers | HTTP 200, deploymentProtection [] | team shreyas-sovanis-projects project rival
 - BLOCKED-BY:
-- NOTES: CLI 65.7.0 as shreyas-sovani. SSO protection disabled. Production alias https://rival-flame.vercel.app. `WEB_URL` is in `secrets/.env.local`. The project root is the repo, install `pnpm install --frozen-lockfile`, build `pnpm --filter @rival/web build`, output `apps/web/out`, because installing inside `apps/web` with npm cannot see the pnpm workspace. The web app does not read `NEXT_PUBLIC_*`. Keyed RPC URLs were not copied into Vercel env. CSP `connect-src` allows the Fly host, the three RPC hosts, Rabdi, and sepolia.etherscan.io.
+- NOTES: CLI 65.7.0 as shreyas-sovani. SSO protection disabled. Production alias https://rival-flame.vercel.app. `WEB_URL` is in `secrets/.env.local`. The project root is the repo, install `pnpm install --frozen-lockfile`, build `pnpm --filter @rival/web build`, output `apps/web/out`, because installing inside `apps/web` with npm cannot see the pnpm workspace. The web app does not read `NEXT_PUBLIC_*`. Keyed RPC URLs were not copied into Vercel env. CSP `connect-src` allows the Fly host, the three RPC hosts, Rabdi, and sepolia.etherscan.io. `script-src` and `style-src` include `'unsafe-inline'` because the static export inlines the Next.js hydration payload and the font CSS variables. A `'self'`-only policy painted the HTML and then left a blank page.
 
 ### H-009 — Uptime monitor and alert channel
 - STATE: TODO
