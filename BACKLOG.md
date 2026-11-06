@@ -851,7 +851,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 > Every S-task lists `INPUTS`. If an input is not present/frozen, **do not start**; mark `BLOCKED`.
 
 ### S-001 — Monorepo scaffold and toolchain pins
-- STATE: TODO
+- STATE: WORKING
 - OWNER: SLAVE
 - PRD: §9.1, §10.2 (rules 3,5)
 - DEPENDS: —
@@ -871,7 +871,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm test && (cd contracts && forge build)
   ```
 - DONE-WHEN: All commands exit 0 on an empty-logic tree; `contracts/DEPS.md` lists a sha for each dependency.
-- STARTED:
+- STARTED: 2026-11-06T04:06:21Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES: This unblocks almost everything; do it first.
