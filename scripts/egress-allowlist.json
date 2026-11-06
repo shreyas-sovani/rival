@@ -1,0 +1,4 @@
+{
+  "comment": "Hosts come from env (sepolia RPC, Rabdi, runner, explorers) and must not invent provider hostnames.",
+  "hosts": []
+}

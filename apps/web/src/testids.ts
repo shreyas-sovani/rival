@@ -16,6 +16,23 @@ export const testIds = {
   evidence: "evidence",
   runSolver: "run-solver",
   txLink: "tx-link",
+  button: "button",
+  card: "card",
+  badge: "badge",
+  chip: "chip",
+  banner: "banner",
+  table: "table",
+  tabs: "tabs",
+  dialog: "dialog",
+  tooltip: "tooltip",
+  skeleton: "skeleton",
+  copyButton: "copy-button",
+  explorerLink: "explorer-link",
+  addressText: "address-text",
+  timeAgo: "time-ago",
+  stat: "stat",
+  emptyState: "empty-state",
+  errorState: "error-state",
 } as const;
 
 export type TestId = (typeof testIds)[keyof typeof testIds];

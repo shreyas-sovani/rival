@@ -57,7 +57,12 @@ function slaveTaskTest(path: string): boolean {
     /^apps\/web\/src\/lib\/.*\.test\.ts$/.test(path) ||
     /^apps\/web\/src\/testids\.test\.ts$/.test(path) ||
     /^packages\/arkiv\/src\/(client|rotation)\.test\.ts$/.test(path) ||
-    /^packages\/solver-sdk\/src\/(rpc-pool|retry)\.test\.ts$/.test(path)
+    /^packages\/solver-sdk\/src\/(rpc-pool|retry)\.test\.ts$/.test(path) ||
+    path === "apps/runner/src/logger.test.ts" ||
+    path === "apps/web/tsconfig.json" ||
+    path === "apps/web/next-env.d.ts" ||
+    path === "apps/web/vitest.config.ts" ||
+    path === "apps/web/connect-src.json"
   );
 }
 
