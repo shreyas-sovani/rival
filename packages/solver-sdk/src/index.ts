@@ -11,6 +11,8 @@ export type { ArkivOpenBook, SettlementFacts, VenueQuoter } from "./ports.ts";
 export { quoteCost } from "./quote.ts";
 export { arb, house, inventory, patient, sprint } from "./strategies.ts";
 export type { StrategyDecision, StrategyInput } from "./strategies.ts";
+export { encodeFill } from "./fill.ts";
+export type { EncodedFill, FillParams } from "./fill.ts";
 export { submitPlan } from "./submit.ts";
 export type { Clock, SubmitSignals, SubmitSnapshot, SubmitState, SubmitStep } from "./submit.ts";
 export type { Address, Gate, Hex, Intent, Mode } from "./types.ts";
