@@ -95,3 +95,21 @@ Stats are not cleared on `exit`. A later registration keeps the counters and the
 ## Fallback
 
 Primary per-record ENS text was not shipped. `com.rival.fills`, `com.rival.makers`, `com.rival.avgImprovementBps`, and `com.rival.lastFill` are the `protocolRecord` view on `RivalNames`. ENS is the identity: register, `ownerOf`, renew, unregister. Gating still uses `ownerOf` and fails closed. This is FR-ENS-06 (b) implemented as protocol storage, not as a child name `stats.<label>.solvers.<parent>.eth`, because that child still needs the resolver and a parent `.eth`.
+
+## Sepolia deployment
+
+Deployed with `contracts/script/DeployNames.s.sol`. `MockLabelStore`, `PermissionedRegistry`, and `EnsPairFactory` are CREATE2 deployments. The factory then CREATE-deploys `RivalNames` and `SolverRegistry`, so each constructor is given the other's predicted address. The label store is `MockLabelStore` from `contracts/test/ens/EnsHarness.sol`. No `.eth` parent was registered. H-006 stays waived.
+
+| Contract | Address |
+| --- | --- |
+| MockLabelStore | `0x3c328efaFa5a2493121e824695C791f78Ee5D360` |
+| PermissionedRegistry (`ens.solversRegistry`) | `0xCEec9D7ADcad00e4D842283d9526E75C9440b36f` |
+| RivalNames (`names`) | `0xC20a61e830bB91A69C1B6BCcd607299152aDE797` |
+| SolverRegistry (`registry`) | `0x6AD5C78fA2278d397Bb7e04e1e2266Cc39a1109E` |
+| EnsPairFactory | `0xF75298ef0e0A42aB92fa6C7ba6ef0bbd0B9C0c02` |
+
+`depositToken` is tUSDC `0x571c992873D31310B11Bf6bF6B44f2748B4bce8C`. `depositAmount` is `100000000` (100 tUSDC, 6 decimals). `house` is `0x79bC47e448b1B52F3DE651a0d102FD73FaDD7B7C`. Resolver is `address(0)`. `parentLabel` remains `rival`.
+
+`RivalNames` holds root `ROLE_REGISTRAR | ROLE_RENEW | ROLE_UNREGISTER` (`0x11001`) on resource 0. The deployer `0xFeAf5C921996FC53f4DEf35e181E766e6D74690A` keeps `ALL_ROLES` from the `PermissionedRegistry` constructor. That residual bitmap is not in `specs/ens-roles.expected.json`.
+
+`solvers.rival.eth` does not resolve. `rival.eth` was not bought, and this solvers registry is not a subregistry of a `.eth` name. A resolver lookup for `solvers.rival.eth` returns no resolver. Universal Resolver has no path to this registry.

@@ -1,17 +1,17 @@
 [
   {
     "role": "ROLE_REGISTRAR",
-    "holder": "RivalNames",
+    "holder": "0xC20a61e830bB91A69C1B6BCcd607299152aDE797",
     "resource": "0"
   },
   {
     "role": "ROLE_RENEW",
-    "holder": "RivalNames",
+    "holder": "0xC20a61e830bB91A69C1B6BCcd607299152aDE797",
     "resource": "0"
   },
   {
     "role": "ROLE_UNREGISTER",
-    "holder": "RivalNames",
+    "holder": "0xC20a61e830bB91A69C1B6BCcd607299152aDE797",
     "resource": "0"
   }
 ]

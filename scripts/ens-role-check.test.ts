@@ -6,6 +6,8 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { grantsFromBitmap } from "./ens-role-check.ts";
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const script = path.join(root, "scripts", "ens-role-check.ts");
 
@@ -53,6 +55,54 @@ test("a missing role exits 1", () => {
   const result = run(expected, actual);
   assert.equal(result.status, 1, `${result.stderr}\n${result.stdout}`);
   assert.match(result.stdout, /MISSING\s+ROLE_RENEW/);
+});
+
+test("0x11001 is exactly the three root roles", () => {
+  const grants = grantsFromBitmap(0x11001n, holder);
+  assert.deepEqual(
+    grants.map((grant) => grant.role).sort(),
+    ["ROLE_REGISTRAR", "ROLE_RENEW", "ROLE_UNREGISTER"],
+  );
+  assert.equal(
+    grants.every((grant) => grant.holder === holder && grant.resource === "0"),
+    true,
+  );
+});
+
+test("an extra registry bit is named", () => {
+  const grants = grantsFromBitmap(0x11001n | (1n << 24n), holder);
+  assert.equal(
+    grants.some((grant) => grant.role === "ROLE_SET_RESOLVER"),
+    true,
+  );
+});
+
+test("a zero solvers registry exits 2", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "ens-roles-"));
+  const expectPath = path.join(dir, "expect.json");
+  const deploymentsPath = path.join(dir, "deployments.json");
+  writeFileSync(expectPath, JSON.stringify(expected));
+  writeFileSync(
+    deploymentsPath,
+    JSON.stringify({
+      names: "0x0000000000000000000000000000000000000000",
+      ens: { solversRegistry: "0x0000000000000000000000000000000000000000" },
+    }),
+  );
+  const env = { ...process.env };
+  delete env.NODE_CHANNEL_FD;
+  delete env.NODE_TEST_CONTEXT;
+  try {
+    const result = spawnSync(
+      process.execPath,
+      ["--import", "tsx", script, "--expect", expectPath, "--deployments", deploymentsPath],
+      { cwd: root, encoding: "utf8", env, timeout: 20000 },
+    );
+    assert.equal(result.status, 2, `${result.stderr}\n${result.stdout}`);
+    assert.match(result.stdout, /BLOCKED: live role read waits for a deployed solvers registry/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test("an unexpected extra role exits 1", () => {

@@ -567,7 +567,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C1 gate input** (K1). Decision FALLBACK (b): com.rival.* stored on RivalNames; isListed uses ownerOf and fails closed. Skip H-006; do not buy rival.eth. Parent only matters later if solvers.<parent>.eth must resolve in the Sepolia ENS app.
 
 ### M-017 — ENS bootstrap and role-check scripts
-- STATE: WORKING
+- STATE: DONE
 - OWNER: MASTER
 - PRD: FR-ENS-01
 - DEPENDS: M-016, H-003, H-006
@@ -583,9 +583,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Role table equals expected; resolution of `solvers.<PARENT>.eth` works in viem.
 - STARTED: 2026-11-06T07:50:00Z
-- PROOF: f4911b5 | pnpm exec tsx scripts/ens-role-check.test.ts | 3 passed, 0 failed | scripts/ens-role-check.ts
+- PROOF: pnpm exec tsx scripts/ens-role-check.ts --expect specs/ens-roles.expected.json | result ok, exit 0 | deployments/sepolia.json
 - BLOCKED-BY:
-- NOTES: Dry-run only. Live role-check exits 2 until a solvers registry is deployed. H-006 stays waived: do not buy rival.eth. Deployer keeps ALL_ROLES from the PermissionedRegistry constructor; that residual bitmap is not in specs/ens-roles.expected.json. `solvers.<PARENT>.eth` resolution is not done.
+- NOTES: Solvers registry 0xCEec9D7ADcad00e4D842283d9526E75C9440b36f. RivalNames 0xC20a61e830bB91A69C1B6BCcd607299152aDE797 holds 0x11001. SolverRegistry 0x6AD5C78fA2278d397Bb7e04e1e2266Cc39a1109E. solvers.rival.eth does not resolve because rival.eth was not bought. H-006 stays skipped.
 
 ### M-018 — Full deployment script and verification
 - STATE: TODO
