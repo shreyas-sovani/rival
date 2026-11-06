@@ -251,7 +251,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 > Targets reference PRD checkpoints: C0 H+1.5 · C1 H+5 · C2 H+14 · C3 H+22 · C4 H+27.
 
 ### M-001 — Freeze F1: Solidity interfaces and shared types
-- STATE: BLOCKED
+- STATE: DONE
 - OWNER: MASTER
 - PRD: §7.1, FR-SET-*, FR-HOK-03, FR-ENS-02/05
 - DEPENDS: —
@@ -269,12 +269,12 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: `forge build` succeeds with only interfaces/types present; ABI JSON exists in `contracts/out`.
 - STARTED: 2026-11-06T03:55:00Z
-- PROOF:
-- BLOCKED-BY: S-001
-- NOTES: Files written (`Types.sol`, six interfaces). PoolKey/PoolId from `@uniswap/v4-core@1.0.2` git `59d3ecf53afa9264a16bba0e38f4c5d2231f80bc`; remapping must be `@uniswap/v4-core/=lib/v4-core/`. `ISolverRegistry.setSettlement` is the one-time binder from PRD §9.4. Permit2 structs copied from Uniswap/permit2 `ISignatureTransfer` on 6 Nov 2026. Resume after S-001 and run `pnpm forge:build`.
+- PROOF: 0729fc2 | pnpm forge:build | compilation skipped, ABIs present in contracts/out | contracts/out/IRivalSettlement.sol/IRivalSettlement.json
+- BLOCKED-BY:
+- NOTES: PoolKey/PoolId from `@uniswap/v4-core@1.0.2` git `59d3ecf`. Remapping `@uniswap/v4-core/=lib/v4-core/`. `setSettlement` is the one-time binder from PRD §9.4. Permit2 structs match pinned `PermitHash.sol`.
 
 ### M-002 — Freeze F2: Arkiv schemas
-- STATE: BLOCKED
+- STATE: DONE
 - OWNER: MASTER
 - PRD: §7.4, FR-ARK-01/03
 - DEPENDS: —
@@ -291,12 +291,12 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Typechecks against `@arkiv-network/sdk@1.0.1`.
 - STARTED: 2026-11-06T04:00:00Z
-- PROOF:
-- BLOCKED-BY: S-001
-- NOTES: `packages/arkiv/src/schemas.ts` and `specs/arkiv-queries.md` written against Arkiv schema/limits/query-language docs fetched 6 Nov 2026. Column counts 19 and 7, under the 31-column named-schema cap. `<now>` replaced with an interpolated `u64` integer. Resume after S-001 and run `pnpm --filter @rival/arkiv typecheck`.
+- PROOF: bd3bd63 | pnpm --filter @rival/arkiv typecheck | tsc --noEmit exit 0 | packages/arkiv/src/schemas.ts
+- BLOCKED-BY:
+- NOTES: 19 and 7 columns, under the 31-column named-schema cap. Queries adjusted to the 6 Nov 2026 grammar. `<now>` is an interpolated `u64`. Documented in `specs/arkiv-queries.md`.
 
 ### M-003 — Freeze F3: Runner API spec and handler types
-- STATE: BLOCKED
+- STATE: DONE
 - OWNER: MASTER
 - PRD: §7.5, FR-RUN-01..03, FR-ARK-05
 - DEPENDS: —
@@ -315,12 +315,12 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Types compile; every endpoint present exactly once in spec and handler map.
 - STARTED: 2026-11-06T04:05:00Z
-- PROOF:
-- BLOCKED-BY: S-001
-- NOTES: OpenAPI 3.1 plus handler/service stubs written. Five paths match the handler map. Domain error status map is in the spec. `NotImplemented` is HTTP 501 and is not a domain code. `tsc --strict` on the handler files passed. Official `pnpm --filter @rival/runner typecheck` waits on S-001.
+- PROOF: 8054ef9 | pnpm --filter @rival/runner typecheck | tsc --noEmit exit 0 | specs/runner-api.json
+- BLOCKED-BY:
+- NOTES: Five paths match the handler map. Domain errors keep the PRD status map. Stubs throw `NotImplemented` and routes must return HTTP 501.
 
 ### M-004 — Freeze F4: view models and route table
-- STATE: BLOCKED
+- STATE: DONE
 - OWNER: MASTER
 - PRD: FR-WEB-01..06, §3.2
 - DEPENDS: —
@@ -338,12 +338,12 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Typechecks; each PRD §5.5 step is renderable from these view models.
 - STARTED: 2026-11-06T04:08:00Z
-- PROOF:
-- BLOCKED-BY: S-001
-- NOTES: View models and `routes.ts` written (Trade, Live auction `?h=`, Solvers, Book, Run a solver, Evidence). Amounts are formatted strings. `tsc --strict` on `viewmodels/index.ts` passed. Official `pnpm --filter @rival/web typecheck` waits on S-001.
+- PROOF: 903dcfa | pnpm --filter @rival/web typecheck | tsc --noEmit exit 0 | apps/web/src/viewmodels/routes.ts
+- BLOCKED-BY:
+- NOTES: Routes are `/`, `/auction?h=`, `/solvers`, `/book`, `/solver`, `/evidence`. Amounts are formatted strings.
 
 ### M-005 — Freeze F5: SDK and intent public APIs
-- STATE: BLOCKED
+- STATE: DONE
 - OWNER: MASTER
 - PRD: FR-SOL-02/04, §6.6
 - DEPENDS: —
@@ -360,12 +360,12 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: `.d.ts` files compile.
 - STARTED: 2026-11-06T04:10:00Z
-- PROOF:
-- BLOCKED-BY: S-001
-- NOTES: `specs/intent-api.d.ts` and `specs/sdk-api.d.ts` written. `tsc --strict --noEmit` on both files passed via `npx typescript@5.7.3`. Official `pnpm exec tsc` waits on S-001. Improvement sentinel is `-2147483648`.
+- PROOF: 2983d52 | pnpm exec tsc --noEmit specs/sdk-api.d.ts specs/intent-api.d.ts | exit 0 | specs/intent-api.d.ts
+- BLOCKED-BY:
+- NOTES: `verifyIntentSignature` returns a promise. Improvement sentinel is `-2147483648`. `hashIntent` is the struct hash, not the Permit2 digest.
 
 ### M-006 — Freeze F6: deployments and env schemas
-- STATE: BLOCKED
+- STATE: DONE
 - OWNER: MASTER
 - PRD: §9.3, §9.4
 - DEPENDS: —
@@ -382,12 +382,12 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Both schemas valid.
 - STARTED: 2026-11-06T04:12:00Z
-- PROOF:
-- BLOCKED-BY: S-001
-- NOTES: Both schemas are draft-07 so default `ajv compile` accepts them. `ajv-cli@5 compile` exited 0 on both files on 6 Nov 2026. `writeOnly` means secret. `$comment` is `humanTask=H-xxx` or `humanTask=none`. `NEXT_PUBLIC_RABDI_RPC` is included so CSP connect-src has a host. Official `pnpm exec ajv` waits on S-001. No values are in the schema.
+- PROOF: 51fd03e | pnpm exec ajv compile -s specs/deployments.schema.json && pnpm exec ajv compile -s specs/env.schema.json | both schemas valid | specs/env.schema.json
+- BLOCKED-BY:
+- NOTES: Draft-07 so default ajv accepts them. `writeOnly` means secret. `$comment` is `humanTask=H-xxx`. `NEXT_PUBLIC_RABDI_RPC` is the CSP host. No values are stored. ajv and typescript were added in `2ffdba7`.
 
 ### M-007 — C0: write the freeze and tag it
-- STATE: TODO
+- STATE: DONE
 - OWNER: MASTER
 - PRD: §10.4 C0
 - DEPENDS: M-001, M-002, M-003, M-004, M-005, M-006, S-002
@@ -403,13 +403,13 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm freeze:check
   ```
 - DONE-WHEN: `freeze:check` exits 0 and reports version 1 with F1–F6 listed.
-- STARTED:
-- PROOF:
+- STARTED: 2026-11-06T07:00:00Z
+- PROOF: 3605a85 | pnpm freeze:check | freeze OK v1 | specs/FREEZE.json
 - BLOCKED-BY:
-- NOTES: SLAVE tasks with `INPUTS: F*` unblock on this.
+- NOTES: Tag `c0-frozen` points at `3605a85`. F1–F6 are listed. SLAVE tasks with `INPUTS: F*` unblock on this. H-010 C0 review is still open.
 
 ### M-010 — `packages/intent`: types, typed data, hashing, curve math, receipts, vectors
-- STATE: WORKING
+- STATE: DONE
 - OWNER: MASTER
 - PRD: FR-SET-01/02/06, §7.2, §7.3 (I3, I4)
 - DEPENDS: S-001, M-005
@@ -428,12 +428,12 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Worked-example table passes; property tests (non-increasing curve, never below hard floor) pass.
 - STARTED: 2026-11-06T04:16:00Z
-- PROOF:
+- PROOF: 726fa0d | pnpm --filter @rival/intent test | vitest 4 passed; node:test 7 passed, 0 failed | packages/intent/vectors.json
 - BLOCKED-BY:
-- NOTES: Curve, receipt, presets, and `vectors.json` (10012 rows, including 10000 random) are in `packages/intent`. `node --experimental-strip-types --test packages/intent/src/math.test.ts` passed, including a recompute of every vector. Still to do: EIP-712 struct hash and Permit2 witness typed data against `@uniswap/permit2-sdk` (needs S-001). Do not mark DONE until `pnpm --filter @rival/intent test` passes. Solidity parity is M-011.
+- NOTES: 10012 vectors, one JSON object per line. Witness digest matches `@uniswap/permit2-sdk@1.4.1`. Math writeup is `docs/intent-math.md`. Solidity parity is M-011.
 
 ### M-011 — `RivalMath.sol` and parity with vectors
-- STATE: TODO
+- STATE: DONE
 - OWNER: MASTER
 - PRD: FR-SET-02/06, §7.2
 - DEPENDS: M-010, S-001
@@ -448,10 +448,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm forge:test --match-contract RivalMathTest
   ```
 - DONE-WHEN: 100 % of vectors equal TypeScript results.
-- STARTED:
-- PROOF:
+- STARTED: 2026-11-06T06:40:00Z
+- PROOF: 80e611b | pnpm forge:test --match-contract RivalMathTest | 1 passed, 0 failed, gas 520157792 | contracts/test/RivalMath.t.sol
 - BLOCKED-BY:
-- NOTES:
+- NOTES: The file is read a line at a time because the full document does not fit in the EVM. Every row matched, including the worked example.
 
 ### M-012 — `RivalOracleHook`, reference model, mining script (spike S1 inside)
 - STATE: TODO
