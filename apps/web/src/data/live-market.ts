@@ -50,7 +50,7 @@ export function quoteSell(tick: number, amountIn: bigint): bigint {
   return getQuoteAtTick(tick, amountIn, true);
 }
 
-async function withRpc<T>(read: (client: PublicClient) => Promise<T>): Promise<T> {
+export async function withSepolia<T>(read: (client: PublicClient) => Promise<T>): Promise<T> {
   let last: unknown;
   for (const url of PUBLIC_SEPOLIA_RPCS) {
     try {
@@ -65,7 +65,7 @@ async function withRpc<T>(read: (client: PublicClient) => Promise<T>): Promise<T
 
 /** Spot tick, 60-second hook TWAP, and which recorded solvers are still listed. */
 export async function readLiveMarket(): Promise<LiveMarket> {
-  return withRpc(async (client) => {
+  return withSepolia(async (client) => {
     const [slot0, twapTick] = await Promise.all([
       client.readContract({
         address: STATE_VIEW,
@@ -95,7 +95,7 @@ export async function readLiveMarket(): Promise<LiveMarket> {
 }
 
 export async function readBalances(owner: Address): Promise<TokenBalances> {
-  return withRpc(async (client) => {
+  return withSepolia(async (client) => {
     const [sell, buy] = await Promise.all([
       client.readContract({
         address: tWeth,

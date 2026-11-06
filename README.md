@@ -1,7 +1,7 @@
 # Judge quick-start
 
-1. Read `deployments/sepolia.json` and `docs/demo.md`. The chain is Sepolia (`11155111`). The production site is https://rival-flame.vercel.app (H-008). The runner is https://rival-runner.fly.dev in the Fly org `personal`. `runnerUrl` in the deployment file is that host. CORS allows the site origin. `/api/health` is `degraded` because the oracle, bot, house, and Arkiv probes are not fully wired. The one-hour soak has not been run.
-2. The one absolute fill hash is in `docs/demo.md`: `0xeadff32d9c91c28bab2c9dc8136c7d1a2ef2c0091085f1a0e2d891645e9500ec` on RivalSettlement `0xdD66D017e4B4FfF51aBEf2f559C68065D4FD9850`. `atlas` (`0xD2aA21AF4faa840Dea890DB2C6649AACF2C80Ff3`) is the only registered solver. `rival.eth` was not bought. `solvers.rival.eth` does not resolve.
+1. Read `deployments/sepolia.json` and `docs/demo.md`. The chain is Sepolia (`11155111`). The production site is https://rival-flame.vercel.app (H-008). The runner is https://rival-runner.fly.dev in the Fly org `personal`. `runnerUrl` in the deployment file is that host. CORS allows the site origin. `/api/health` is `degraded` because the house holds no tWETH or tUSDC and the open book is empty. On 2026-11-07 the oracle age was 70s with 48 observations, Arkiv was up, and the market maker, atlas, and house were heartbeating. The one-hour soak has not been run. The Vercel site is still the previous build.
+2. The one absolute fill hash is in `docs/demo.md`: `0xeadff32d9c91c28bab2c9dc8136c7d1a2ef2c0091085f1a0e2d891645e9500ec` on RivalSettlement `0xdD66D017e4B4FfF51aBEf2f559C68065D4FD9850`. `atlas` (`0xD2aA21AF4faa840Dea890DB2C6649AACF2C80Ff3`) is the only registered solver. `rival.eth` is owned by the operator on the Sepolia ETHRegistry. `solvers.rival.eth` does not resolve yet.
 3. The Arkiv query below is the one that returned a row on 2026-11-06. That entity has expired. A later run can return no rows. Contract tests from this repo: `pnpm forge:test`.
 
 # Architecture
@@ -42,7 +42,7 @@ Line numbers are from the files in this checkout. `v4-core` is BUSL-1.1. These R
 
 # ENS
 
-`rival.eth` was not bought. `solvers.rival.eth` does not resolve. A resolver lookup returns no resolver. Universal Resolver has no path to this registry (`docs/ens-design.md`). `atlas` is the only registered solver. Registration transaction: `0xeb84111137557cecc2fb0954eb8eb8ebd26d6c78aca6174b96b08d91e48d16de`.
+`rival.eth` is registered to the operator. Register transaction: `0x1d9740fccaa1506b12584e4e23c49ecdb92e96293d904b7d7d195a942c4679f6`. `getOwner(keccak256("rival"))` on ETHRegistry `0xd4ebcbbdf463c9c45784603db0ddd499bc44a8b4` returns `0xFeAf5C921996FC53f4DEf35e181E766e6D74690A`. `ownerOf(bytes32)` with the ENSIP-1 namehash reverts on that registry. `solvers.rival.eth` does not resolve yet. A resolver lookup returns no resolver. Universal Resolver has no path to the solvers registry until the bootstrap broadcast (`docs/ens-design.md`). `atlas` is the only registered solver. Solver registration transaction: `0xeb84111137557cecc2fb0954eb8eb8ebd26d6c78aca6174b96b08d91e48d16de`.
 
 | Requirement | Feature | Location | Evidence |
 | --- | --- | --- | --- |
@@ -101,13 +101,14 @@ The product query uses pair `tWETH/tUSDC` and a current unix second in place of 
 
 # Limitations
 
-- The one-hour soak has not been run. The site is https://rival-flame.vercel.app and the runner is https://rival-runner.fly.dev. `/api/health` returns `degraded`. `apps/runner` `startServices` throws `NotImplemented`. `runCheck` is one `oldestTimestamp` read when `RUNNER_SERVICES=on`.
-- `rival.eth` was not bought. `solvers.rival.eth` does not resolve. `atlas` is the only registered solver.
-- One absolute fill hash is in `docs/demo.md`. That page does not record a pegged fill.
-- `com.rival.*` values are `RivalNames.protocolRecord`, not ENS text. `PermissionedResolver` does not compile in this checkout.
+- The one-hour soak has not been run. The site is https://rival-flame.vercel.app and the runner is https://rival-runner.fly.dev. This tree is deployed on Fly with `RUNNER_SERVICES=on`. `GET /api/intents` returns Arkiv rows and a presence count. `/api/health` is still `degraded` while the oracle is older than 120 seconds, the house holds no test tokens, or the book is empty. The Vercel site is still the previous build.
+- `rival.eth` is registered to the operator. `solvers.rival.eth` does not resolve. `atlas` is the only registered solver. The subname bootstrap has not been broadcast.
+- One absolute fill hash is in `docs/demo.md`. That page does not record a pegged fill. The judge-journey table there marks steps 1–6, 10, and 13 as not yet observed.
+- Deployed `RivalNames` still stores `com.rival.*` in `protocolRecord` because its resolver immutable is zero. Source `syncRecords` calls `setText` only when that immutable is set. `NameCoder` is vendored under `contracts/src/ens/vendor/`. `PermissionedResolver` is not, because the rest of that tree does not compile here.
+- The trade page keeps one decay chart, inside the composer. Sign, faucet, auction, book, and solvers are wired in this tree. They are not on the production URL until the site is redeployed.
 - The S4 Arkiv entities were written by `0xFeAf5C921996FC53f4DEf35e181E766e6D74690A`. `arkivWriterAddresses` in `deployments/sepolia.json` is empty. Browser CORS was not exercised. The three-minute presence expiry was not waited out.
 - The V4Quoter `eth_call` in `scripts/demo-live.ts` reverted. The committed demo records the fixed floor, not the revert data.
-- The repository MIT holder is unset.
+- The MIT holder is Shreyas Sovani (`LICENSE`).
 
 # AI usage
 

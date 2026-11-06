@@ -18,6 +18,10 @@ export interface BookSourceRow {
   chainStatus: string;
   fillTx?: string;
   entityKey?: string;
+  /** Raw floor from the feed. Displayed as sent. */
+  floor?: string;
+  /** Overrides the absolute UTC deadline when the page wants a countdown. */
+  deadlineLabel?: string;
 }
 
 function modeLabel(mode: number): string {
@@ -60,8 +64,8 @@ function entityLink(entityKey: string): TxLinkVM {
     chain: "rabdi",
     kind: "entity",
     value: entityKey,
-    href: entityKey,
-    label: shortHex(entityKey),
+    href: `https://rabdi.explorer.arkiv.network/entity/${entityKey}`,
+    label: "View entity",
   };
 }
 
@@ -74,9 +78,10 @@ function toRow(row: BookSourceRow): BookRowVM {
     mode: modeLabel(row.mode),
     gate: gateLabel(row.gate),
     status: row.status,
-    deadline: formatDeadline(row.deadline),
+    deadline: row.deadlineLabel ?? formatDeadline(row.deadline),
     signatureOk: row.signatureOk,
     chainStatus: row.chainStatus,
+    ...(row.floor ? { floor: row.floor } : {}),
     ...(row.fillTx ? { fillLink: fillLink(row.fillTx) } : {}),
     ...(row.entityKey ? { entityLink: entityLink(row.entityKey) } : {}),
   };

@@ -1,19 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IRegistry} from "@ensdomains/contracts-v2/contracts/src/registry/interfaces/IRegistry.sol";
 import {IStandardRegistry} from "@ensdomains/contracts-v2/contracts/src/registry/interfaces/IStandardRegistry.sol";
 
 import {IRivalNames} from "../interfaces/IRivalNames.sol";
 import {LabelUnavailable, Unauthorized} from "../Types.sol";
 
+interface IEnsText {
+    /// @dev Canonical Sepolia PermissionedResolver. The name is DNS-encoded.
+    function setText(bytes calldata name, string calldata key, string calldata value) external;
+}
+
 /// @title RivalNames
 /// @notice Issues solver labels on an ENSv2 `PermissionedRegistry` and stores protocol stats.
-/// @dev The registry role bitmap cannot name individual text keys. PermissionedResolver
-///      can (authorizeTextRoles), but that contract does not compile in this checkout:
-///      the ens-contracts submodule is empty. com.rival.* therefore lives in this
-///      contract. ENS is the identity (register / ownerOf / renew / unregister).
-///      See docs/spikes/S3.md and docs/ens-design.md.
+/// @dev The registry role bitmap cannot name individual text keys. When `resolver` is
+///      set, {syncRecords} also calls `setText` on `label.solvers.rival.eth`. The deployed
+///      constructor argument is still `address(0)`, so that path does not run on Sepolia
+///      until RivalNames is redeployed. Storage remains the record either way.
+///      See docs/ens-design.md.
 contract RivalNames is IRivalNames {
     /// @notice Registry roles granted to the solver on `register`.
     /// @dev Zero omits `ROLE_CAN_TRANSFER_ADMIN` (`(1 << 28) << 128`) and every other
@@ -33,6 +39,9 @@ contract RivalNames is IRivalNames {
     /// @notice ENS token id from the last successful {issue}. Zero after {unregister} or when none.
     mapping(address solver => uint256 tokenId) internal _tokenIds;
 
+    /// @notice Label passed to the last {issue}. Used only to namehash the text node.
+    mapping(address solver => string label) internal _labels;
+
     struct ProtocolRecord {
         uint64 fills;
         uint64 makers;
@@ -40,7 +49,7 @@ contract RivalNames is IRivalNames {
         uint64 lastFill;
     }
 
-    /// @notice Authoritative `com.rival.*` values. Not mirrored to an ENS text record.
+    /// @notice Protocol stats. Mirrored with `setText` when `resolver` is set.
     mapping(address solver => ProtocolRecord record) internal _records;
 
     constructor(address registry_, IStandardRegistry ens_, address resolver_) {
@@ -62,6 +71,7 @@ contract RivalNames is IRivalNames {
     {
         tokenId = ens.register(label, solver, IRegistry(address(0)), resolver, SOLVER_ROLE_BITMAP, expiry);
         _tokenIds[solver] = tokenId;
+        _labels[solver] = label;
     }
 
     /// @inheritdoc IRivalNames
@@ -80,10 +90,14 @@ contract RivalNames is IRivalNames {
         if (tokenId == 0) revert LabelUnavailable();
         ens.unregister(tokenId);
         delete _tokenIds[solver];
+        delete _labels[solver];
     }
 
     /// @inheritdoc IRivalNames
-    /// @dev Stores the four protocol stats. Does not call `setText`.
+    /// @dev Always stores the four stats. Calls resolver `setText` only when `resolver` is set
+    ///      and this solver has a stored label. The name is the DNS encoding of
+    ///      `label.solvers.rival.eth`, which is what the canonical Sepolia resolver expects.
+    ///      A refusing resolver reverts this call, which rolls the storage write back.
     function syncRecords(address solver, uint64 fills, uint64 makers, int256 avgImprovementBps, uint64 lastFill)
         external
         onlyRegistry
@@ -94,6 +108,20 @@ contract RivalNames is IRivalNames {
             avgImprovementBps: avgImprovementBps,
             lastFill: lastFill
         });
+        if (resolver == address(0)) return;
+        string memory label = _labels[solver];
+        if (bytes(label).length == 0) return;
+        bytes memory dnsName = _dnsName(label);
+        IEnsText writer = IEnsText(resolver);
+        writer.setText(dnsName, "com.rival.fills", Strings.toString(fills));
+        writer.setText(dnsName, "com.rival.makers", Strings.toString(makers));
+        writer.setText(dnsName, "com.rival.avgImprovementBps", Strings.toStringSigned(avgImprovementBps));
+        writer.setText(dnsName, "com.rival.lastFill", Strings.toString(lastFill));
+    }
+
+    /// @dev DNS wire form of `label.solvers.rival.eth`. Label length is 3 to 24.
+    function _dnsName(string memory label) internal pure returns (bytes memory) {
+        return abi.encodePacked(uint8(bytes(label).length), label, hex"07736f6c7665727305726976616c0365746800");
     }
 
     /// @inheritdoc IRivalNames

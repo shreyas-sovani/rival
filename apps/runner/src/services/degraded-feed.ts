@@ -15,6 +15,11 @@ export class DegradedFeed {
     for (const listener of [...this.listeners]) listener();
   }
 
+  /** Intents parked while Arkiv refused the write. */
+  snapshot(): IntentStreamData[] {
+    return [...this.items];
+  }
+
   listen(signal?: AbortSignal): AsyncIterable<IntentStreamData> {
     return this.iterate(signal);
   }

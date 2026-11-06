@@ -13,7 +13,9 @@
   "dependencies": {
     "@hono/node-server": "2.1.6",
     "@rival/arkiv": "workspace:*",
+    "@rival/chain": "workspace:*",
     "@rival/intent": "workspace:*",
+    "@rival/solver-sdk": "workspace:*",
     "better-sqlite3": "13.0.3",
     "hono": "4.13.16",
     "pino": "10.4.0",

@@ -1,6 +1,7 @@
 import { DegradedFeed } from "../services/degraded-feed.ts";
 import type { RunnerDeps } from "../services/deps.ts";
 import { FaucetClaims, MakerRateLimit } from "../services/limits.ts";
+import { book } from "./book.ts";
 import { cancel } from "./cancel.ts";
 import { faucet } from "./faucet.ts";
 import { health } from "./health.ts";
@@ -19,5 +20,6 @@ export function createHandlers(deps: RunnerDeps): Handlers {
     intents: (req) => intents(deps, intentLimit, feed, req),
     cancel: (req) => cancel(deps, req),
     stream: (req) => stream(feed, req),
+    book: (req) => book(deps, feed, req),
   };
 }

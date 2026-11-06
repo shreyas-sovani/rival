@@ -86,6 +86,8 @@ export const composer: IntentComposerVM = {
   submitLabel: "Sign & publish",
   faucetLabel: "Get test tokens",
   canFaucet: true,
+  walletAddress: "0x52908400098527886e0f7030069857d2e4169ee7",
+  signingState: "idle",
   banner,
   onChange: noop,
   onSubmit: noop,

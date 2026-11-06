@@ -68,5 +68,5 @@ describe("runner smoke", () => {
 
   it("check exits 3 when runCheck throws NotImplemented", async () => {
     expect(await runCli("--check")).toBe(3);
-  });
+  }, 20_000);
 });

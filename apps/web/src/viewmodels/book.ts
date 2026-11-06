@@ -11,6 +11,8 @@ export interface BookRowVM {
   deadline: string;
   signatureOk: boolean;
   chainStatus: string;
+  /** Display floor from the book feed, when the row includes one. */
+  floor?: string;
   fillLink?: TxLinkVM;
   entityLink?: TxLinkVM;
 }

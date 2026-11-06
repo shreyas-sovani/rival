@@ -9,6 +9,8 @@ export type {
   IntentComposerPatch,
   IntentComposerVM,
   PresetId,
+  PublishedIntentVM,
+  SigningState,
 } from "./intent-composer";
 export type { LeaderboardVM, SolverRowVM } from "./leaderboard";
 export type { ReceiptVM } from "./receipt";

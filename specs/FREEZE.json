@@ -1,19 +1,19 @@
 {
-  "version": 2,
+  "version": 3,
   "files": [
     {
       "path": "apps/runner/src/handlers/index.ts",
-      "sha256": "1b41543053906a3002d9863dc832af3d25cbc810d5499d7138914fcec395badd",
+      "sha256": "22e9023824904569626fc869500b14feaa76b645fa44e58457cd162c789edb37",
       "set": "F3"
     },
     {
       "path": "apps/runner/src/handlers/types.ts",
-      "sha256": "d8f57edcfec3bb84926d7cc6ccf3318957cc4448be682e48983e7f2c8c6a9865",
+      "sha256": "aa92e8b5da2235ddf922fd005627765406c1403432f4e0736f45323822b3f75d",
       "set": "F3"
     },
     {
       "path": "apps/runner/src/services/index.ts",
-      "sha256": "1b9767400c75071d9dba0c04b7857316fd3921d5a4d52275dd63b8a2498fdbb0",
+      "sha256": "cc32610a97c33f9fbb75842cef95ae2d5a562f503e0a4139db064d70ee08d894",
       "set": "F3"
     },
     {
@@ -23,7 +23,7 @@
     },
     {
       "path": "apps/web/src/viewmodels/book.ts",
-      "sha256": "5615fe7026204bffae930244e265dc4077a5a73647f5b259c5fde9575897007e",
+      "sha256": "423ac5876a5ef07f9356070036ff57580017ed9d7c3fbc39b54d1895faa7701d",
       "set": "F4"
     },
     {
@@ -43,17 +43,17 @@
     },
     {
       "path": "apps/web/src/viewmodels/index.ts",
-      "sha256": "26561694fd8618981dd08b5a5a11ef6a20032d1077c55da19e766b52de15b38d",
+      "sha256": "b0a512f176341451e01022634e2e8b65005b9bc53175910efbed5a54491351f4",
       "set": "F4"
     },
     {
       "path": "apps/web/src/viewmodels/intent-composer.ts",
-      "sha256": "af52598edf49f6135fe3da8e9636cea8942f033ea2ef051f160eb57960e88273",
+      "sha256": "c0c8cb9e4ff4fe8f3168b50a244fa5eff4f1f450d23d8aba53f0179832fc7375",
       "set": "F4"
     },
     {
       "path": "apps/web/src/viewmodels/leaderboard.ts",
-      "sha256": "69722688e840bfc43a7bea618c2547fc811b7b519ea3c7a50fa5239b01a57147",
+      "sha256": "d80c1986ccb5d53b616464ffe059e97fc50285db0fcb6622ffd5419172f16a14",
       "set": "F4"
     },
     {
@@ -128,7 +128,7 @@
     },
     {
       "path": "specs/runner-api.json",
-      "sha256": "852ef96e2a1d9872b0827ec2349bcfc69e27ab9cc7ceecdc6e8931b2fe099133",
+      "sha256": "7cbfaec3f0f1cc5072b948ac7fb424eef034759e47aad4ee41451f8ad2db99d7",
       "set": "F3"
     },
     {
@@ -147,6 +147,11 @@
       "version": 2,
       "time": "2026-11-06T08:13:50.868Z",
       "reason": "M-021 replaced handler stubs"
+    },
+    {
+      "version": 3,
+      "time": "2026-11-06T18:03:39.877Z",
+      "reason": "P0 runner book route, web live pages, ENS evidence calls"
     }
   ]
 }

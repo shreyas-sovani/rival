@@ -17,6 +17,10 @@ export interface SolverSourceRow {
   matchesEns: boolean;
   strategy: string;
   label?: string;
+  listed?: boolean;
+  lastFillTx?: string;
+  lastFillLabel?: string;
+  expiresLabel?: string;
 }
 
 function ensLink(row: SolverSourceRow): TxLinkVM {
@@ -29,18 +33,30 @@ function ensLink(row: SolverSourceRow): TxLinkVM {
   };
 }
 
+function lastFillLink(tx: string): TxLinkVM {
+  return {
+    chain: "sepolia",
+    kind: "tx",
+    value: tx,
+    href: `https://sepolia.etherscan.io/tx/${tx}`,
+    label: "View transaction",
+  };
+}
+
 function toRow(row: SolverSourceRow): SolverRowVM {
   const remainingSec = Math.trunc((row.expiresAtUnixMs - row.nowUnixMs) / 1000);
   return {
     label: row.label ?? row.ensName,
     ensName: row.ensName,
-    ensLink: ensLink(row),
+    ...(row.ensName ? { ensLink: ensLink(row) } : {}),
     address: row.address,
     fills: row.fills.toString(),
     makers: row.makers.toString(),
     avgImprovement: bpsToPercentString(row.avgImprovementBps),
-    lastFill: relativeTime(row.lastFillUnixMs, row.nowUnixMs),
-    expiresIn: formatDuration(remainingSec),
+    lastFill: row.lastFillLabel ?? relativeTime(row.lastFillUnixMs, row.nowUnixMs),
+    ...(row.lastFillTx ? { lastFillLink: lastFillLink(row.lastFillTx) } : {}),
+    ...(row.listed === undefined ? {} : { listed: row.listed }),
+    expiresIn: row.expiresLabel ?? formatDuration(remainingSec),
     agent: row.agent,
     role: row.role,
     matchesEns: row.matchesEns,

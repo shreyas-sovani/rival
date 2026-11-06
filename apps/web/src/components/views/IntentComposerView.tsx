@@ -1,5 +1,6 @@
 import type { IntentComposerVM } from "../../viewmodels/intent-composer.ts";
 import { testIds } from "../../testids.ts";
+import { AddressText } from "../ui/AddressText.tsx";
 import { Button } from "../ui/Button.tsx";
 import { ErrorState } from "../ui/ErrorState.tsx";
 import { Skeleton } from "../ui/Skeleton.tsx";
@@ -20,6 +21,9 @@ export function IntentComposerView({ vm }: { vm: IntentComposerVM }) {
       <p>
         Balance {vm.sellBalance} {vm.sellSymbol} · {vm.buyBalance} {vm.buySymbol}
       </p>
+      <p>{vm.walletAddress ? <AddressText value={vm.walletAddress} /> : "Wallet creating"}</p>
+      {vm.signingState === "idle" ? null : <p>Signing {vm.signingState}</p>}
+      {vm.published ? <p>Published {vm.published.intentHash}</p> : null}
       <label>
         Amount
         <input onChange={(event) => vm.onChange({ amountIn: event.target.value })} value={vm.amountIn} />

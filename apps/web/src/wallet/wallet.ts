@@ -117,6 +117,34 @@ function parseStored(raw: string): StoredWallet {
   return record as StoredWallet;
 }
 
+const PASSPHRASE_KEY = "rival.wallet.passphrase.v1";
+
+function randomPassphrase(): string {
+  const bytes = new Uint8Array(32);
+  globalThis.crypto.getRandomValues(bytes);
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * First visit creates an AES-GCM burner wallet and returns it unlocked.
+ * Later visits decrypt the same record. The passphrase stays in the storage port
+ * so the page can open the wallet without a prompt. The private key stays ciphertext.
+ */
+export async function openBurnerWallet(storage: StoragePort): Promise<UnlockedWallet> {
+  const existing = await storage.get(PASSPHRASE_KEY);
+  if (existing) {
+    try {
+      return await unlockWallet(existing, storage);
+    } catch {
+      // Replace a corrupt record below.
+    }
+  }
+  const passphrase = randomPassphrase();
+  await createEncryptedWallet(passphrase, storage);
+  await storage.set(PASSPHRASE_KEY, passphrase);
+  return unlockWallet(passphrase, storage);
+}
+
 /** Create a random viem account and store only the AES-GCM ciphertext. */
 export async function createEncryptedWallet(
   passphrase: string,

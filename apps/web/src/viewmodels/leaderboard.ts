@@ -9,6 +9,10 @@ export interface SolverRowVM {
   makers: string;
   avgImprovement: string;
   lastFill: string;
+  /** Latest Filled transaction, when a log was found. */
+  lastFillLink?: TxLinkVM;
+  /** Registry `isListed`. Absent when the read did not report it. */
+  listed?: boolean;
   expiresIn: string;
   agent: boolean;
   role: "solver" | "house" | "bot";

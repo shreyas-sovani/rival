@@ -43,6 +43,14 @@ export class ApiError extends Error {
   }
 }
 
+/** `eth_call` of `RivalSettlement.fill` reverted before the signature check. Routes map this to HTTP 400. */
+export class FillSimulationFailed extends ApiError {
+  constructor(reason: string) {
+    super("INVALID_PARAMS", reason.length > 0 ? reason : "house fill simulation failed");
+    this.name = "FillSimulationFailed";
+  }
+}
+
 /** Thrown by stub handlers. Routes map it to HTTP 501 `{ code: "NOT_IMPLEMENTED", message }`. */
 export class NotImplemented extends Error {
   readonly code = "NOT_IMPLEMENTED" as const;
@@ -153,10 +161,40 @@ export type IntentsHandler = (req: IntentsRequest) => Promise<IntentsResponse>;
 export type CancelHandler = (req: CancelRequest) => Promise<CancelResponse>;
 export type StreamHandler = (req: StreamRequest) => Promise<AsyncIterable<IntentStreamData>>;
 
+export interface BookRequest {
+  pair?: string;
+  status?: string;
+}
+
+export interface BookRow {
+  intentHash: Bytes32;
+  maker: Address;
+  pair: string;
+  amountIn: UintString;
+  mode: 0 | 1;
+  gate: 0 | 1 | 2;
+  status: "open" | "filled" | "cancelled";
+  deadline: number;
+  signatureOk: boolean;
+  chainStatus: "open" | "filled" | "cancelled" | "unknown";
+  entityKey?: string;
+  floor?: UintString;
+}
+
+export interface BookResponse {
+  rows: BookRow[];
+  presence: number;
+  asOf: number;
+  source: "arkiv" | "degraded";
+}
+
+export type BookHandler = (req: BookRequest) => Promise<BookResponse>;
+
 export interface Handlers {
   health: HealthHandler;
   faucet: FaucetHandler;
   intents: IntentsHandler;
   cancel: CancelHandler;
   stream: StreamHandler;
+  book: BookHandler;
 }

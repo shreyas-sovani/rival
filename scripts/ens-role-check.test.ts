@@ -99,7 +99,8 @@ test("a zero solvers registry exits 2", () => {
       { cwd: root, encoding: "utf8", env, timeout: 20000 },
     );
     assert.equal(result.status, 2, `${result.stderr}\n${result.stdout}`);
-    assert.match(result.stdout, /BLOCKED: live role read waits for a deployed solvers registry/);
+    assert.match(result.stdout, /BLOCKED: solvers registry or RivalNames address is zero/);
+    assert.doesNotMatch(result.stdout, /undeployed/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

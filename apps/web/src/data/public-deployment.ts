@@ -33,10 +33,14 @@ export const publicDeployment = {
   ens: {
     parentLabel: "rival",
     solversRegistry: "0xCEec9D7ADcad00e4D842283d9526E75C9440b36f",
-    universalResolverV2: "0x0000000000000000000000000000000000000000",
-    ethRegistrar: "0x0000000000000000000000000000000000000000",
-    ethRegistry: "0x0000000000000000000000000000000000000000",
-    rootRegistry: "0x0000000000000000000000000000000000000000",
+    ethRegistrar: "0xf633e7fc17e2bbe0d0965d18ec1821dcb754a3d3",
+    ethRegistry: "0xd4ebcbbdf463c9c45784603db0ddd499bc44a8b4",
+    rootRegistry: "0xb458d6a3a77919449d03e7a6903c26827c1ec43f",
+    userRegistryImpl: "0x9bd8a88719068d09ecee662f36c0e3856708366a",
+    verifiableFactory: "0xda70306c98e97ece36f997a21368e53298572991",
+    permissionedResolverImpl: "0x115eb53f0c60696633855f90b138178fb40b2b2c",
+    universalResolverV2: "0x24e1d8e068620b647ca097f961a61055f4f42d72",
+    universalResolverProxy: "0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe",
   },
   solvers: [
     {

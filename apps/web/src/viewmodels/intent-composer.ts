@@ -4,6 +4,13 @@ import type { CurveChartVM } from "./curve";
 export type PresetId = "fast" | "balanced" | "patient";
 export type GateId = "open" | "listed" | "named";
 export type CurveModeId = "absolute" | "pegged";
+export type SigningState = "idle" | "signing" | "publishing" | "published" | "failed";
+
+export interface PublishedIntentVM {
+  intentHash: string;
+  entityKey?: string;
+  redirect: string;
+}
 
 export interface IntentComposerPatch {
   amountIn?: string;
@@ -46,6 +53,11 @@ export interface IntentComposerVM {
   submitLabel: string;
   faucetLabel: string;
   canFaucet: boolean;
+  /** Burner address once the on-device wallet exists. Empty while it is being created. */
+  walletAddress: string;
+  signingState: SigningState;
+  /** Set after the runner accepts the intent, before or as the page routes to `redirect`. */
+  published?: PublishedIntentVM;
   banner?: BannerVM;
   onChange: (patch: IntentComposerPatch) => void;
   onSubmit: () => void;

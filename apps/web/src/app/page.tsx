@@ -1,17 +1,36 @@
 "use client";
 
-import { hardFloorFromQuote, presets, type PresetId } from "@rival/intent";
+import { buildIntent, hardFloorFromQuote, hashIntent, presets, type PresetId } from "@rival/intent";
 import { PAIR } from "@rival/arkiv";
-import { useEffect, useMemo, useState } from "react";
-import { CurveChartView } from "../components/views/CurveChartView.tsx";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { keccak256, toBytes, type Hex } from "viem";
 import { IntentComposerView } from "../components/views/IntentComposerView.tsx";
 import { requiredOutputsAt } from "../data/curve.ts";
-import { browserAccount, quoteSell, readBalances, readLiveMarket, type LiveMarket } from "../data/live-market.ts";
-import { signingSummary } from "../data/signing.ts";
+import { signFaucetClaim, utcDay } from "../data/faucet.ts";
+import { quoteSell, readBalances, readLiveMarket, type LiveMarket } from "../data/live-market.ts";
+import { publicDeployment } from "../data/public-deployment.ts";
+import { recordFromIntent, savePublishedIntent } from "../data/published-intent.ts";
+import {
+  CHAIN_ID,
+  DEGRADED_BOOK_BANNER,
+  PERMIT2,
+  faucetIsStocked,
+  fetchOpenBook,
+  postFaucet,
+  postSignedIntent,
+  readHealth,
+  runnerOrigin,
+  settlementAddress,
+  type BookFeed,
+} from "../data/runner.ts";
+import { signingSummary, signIntent } from "../data/signing.ts";
 import { formatUnitsFixed } from "../lib/format.ts";
+import { browserStorage } from "../wallet/storage.ts";
+import { openBurnerWallet, type UnlockedWallet } from "../wallet/wallet.ts";
 import type { BannerVM } from "../viewmodels/common.ts";
 import type { CurveChartVM } from "../viewmodels/curve.ts";
-import type { CurveModeId, GateId, IntentComposerPatch, IntentComposerVM } from "../viewmodels/intent-composer.ts";
+import type { CurveModeId, GateId, IntentComposerPatch, IntentComposerVM, SigningState } from "../viewmodels/intent-composer.ts";
 import { routes } from "../viewmodels/routes.ts";
 import { RouteShell } from "./page.shell.tsx";
 
@@ -30,10 +49,8 @@ const OFFLINE_BANNER: BannerVM = {
   text: "Live pool quote and TWAP are unavailable, so pegged mode is off. The curve is the offline absolute preview of this preset on a 1 tUSDC base, not a swap quote.",
 };
 
-const LIVE_BANNER: BannerVM = {
-  kind: "info",
-  text: "Pool A spot and the 60-second hook TWAP are live Sepolia reads. The floor is 98.5% of that quote. Pegged mode uses the TWAP. Solver heartbeats are not running, so the feed stays degraded. Balances appear after a wallet is already connected. Signing still needs an on-device key and Arkiv.",
-};
+const LIVE_TEXT =
+  "Pool A spot and the 60-second hook TWAP are live Sepolia reads. The floor is 98.5% of that quote. Pegged mode uses the TWAP.";
 
 function routeTitle(path: (typeof routes)[number]["path"]): string {
   return routes.find((route) => route.path === path)?.title ?? path;
@@ -64,6 +81,21 @@ function sampleTimestamps(decaySecs: number): number[] {
 
 function signedBps(bps: number): string {
   return bps > 0 ? `+${bps}` : String(bps);
+}
+
+function randomNonce(): bigint {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  let value = 0n;
+  for (const byte of bytes) value = (value << 8n) + BigInt(byte);
+  return value === 0n ? 1n : value;
+}
+
+function allowLabels(text: string): Hex[] {
+  return text
+    .split(/[\s,]+/)
+    .filter((label) => label !== "")
+    .map((label) => keccak256(toBytes(label.toLowerCase())));
 }
 
 function previewCurve(
@@ -109,7 +141,15 @@ function previewCurve(
   };
 }
 
+async function paintSummary(): Promise<void> {
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+}
+
 export default function TradePage() {
+  const router = useRouter();
+  const storage = useMemo(() => browserStorage(), []);
   const [amountIn, setAmountIn] = useState("1");
   const [preset, setPreset] = useState<PresetId>("balanced");
   const [gate, setGate] = useState<GateId>("open");
@@ -120,6 +160,16 @@ export default function TradePage() {
   const [market, setMarket] = useState<LiveMarket | null>(null);
   const [marketError, setMarketError] = useState<string | null>(null);
   const [balances, setBalances] = useState<{ sell: string; buy: string } | null>(null);
+  const [wallet, setWallet] = useState<UnlockedWallet | null>(null);
+  const [walletError, setWalletError] = useState<string | null>(null);
+  const [signingState, setSigningState] = useState<SigningState>("idle");
+  const [published, setPublished] = useState<IntentComposerVM["published"]>(undefined);
+  const [feed, setFeed] = useState<BookFeed | null>(null);
+  const [feedError, setFeedError] = useState(false);
+  const [health, setHealth] = useState<unknown>(null);
+  const [faucetBusy, setFaucetBusy] = useState(false);
+  const [forcedDegraded, setForcedDegraded] = useState(false);
+  const submitting = useRef(false);
   const amount = parseAmount(amountIn, SELL_DECIMALS);
   const quotedAmount = amount ?? 10n ** BigInt(SELL_DECIMALS);
   const quotes = useMemo(() => {
@@ -140,41 +190,126 @@ export default function TradePage() {
 
   useEffect(() => {
     let cancelled = false;
-    readLiveMarket()
+    openBurnerWallet(storage)
       .then((next) => {
-        if (!cancelled) {
-          setMarket(next);
-          setMarketError(null);
-        }
+        if (!cancelled) setWallet(next);
       })
       .catch(() => {
-        if (!cancelled) setMarketError("The Sepolia pool read failed.");
-      });
-    browserAccount()
-      .then((account) => (account ? readBalances(account) : null))
-      .then((next) => {
-        if (cancelled || !next) return;
-        setBalances({
-          sell: formatUnitsFixed(next.sell, SELL_DECIMALS, 4),
-          buy: formatUnitsFixed(next.buy, BUY_DECIMALS, 4),
-        });
-      })
-      .catch(() => {
-        if (!cancelled) setBalances(null);
+        if (!cancelled) setWalletError("The on-device wallet could not be opened.");
       });
     return () => {
       cancelled = true;
     };
+  }, [storage]);
+
+  useEffect(() => {
+    if (!wallet) return;
+    let cancelled = false;
+    const tick = () => {
+      if (document.visibilityState === "hidden") return;
+      readBalances(wallet.address)
+        .then((next) => {
+          if (cancelled) return;
+          setBalances({
+            sell: formatUnitsFixed(next.sell, SELL_DECIMALS, 4),
+            buy: formatUnitsFixed(next.buy, BUY_DECIMALS, 4),
+          });
+        })
+        .catch(() => {
+          if (!cancelled) setBalances(null);
+        });
+    };
+    tick();
+    const timer = window.setInterval(tick, 15_000);
+    const onVis = () => {
+      if (document.visibilityState === "visible") tick();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [wallet]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const tick = () => {
+      if (document.visibilityState === "hidden") return;
+      readLiveMarket()
+        .then((next) => {
+          if (!cancelled) {
+            setMarket(next);
+            setMarketError(null);
+          }
+        })
+        .catch(() => {
+          if (!cancelled) setMarketError("The Sepolia pool read failed.");
+        });
+    };
+    tick();
+    const timer = window.setInterval(tick, 15_000);
+    const onVis = () => {
+      if (document.visibilityState === "visible") tick();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVis);
+    };
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const tick = () => {
+      if (document.visibilityState === "hidden") return;
+      fetchOpenBook()
+        .then((next) => {
+          if (cancelled) return;
+          setFeed(next);
+          setFeedError(false);
+        })
+        .catch(() => {
+          if (!cancelled) setFeedError(true);
+        });
+      readHealth()
+        .then((next) => {
+          if (!cancelled) setHealth(next);
+        })
+        .catch(() => {
+          if (!cancelled) setHealth(null);
+        });
+    };
+    tick();
+    const timer = window.setInterval(tick, 10_000);
+    const onVis = () => {
+      if (document.visibilityState === "visible") tick();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, []);
+
   const namedMissing = gate === "named" && namedLabels.trim() === "";
   const validationMessages = [
+    ...(walletError ? [walletError] : []),
     ...(formError ? [formError] : []),
     ...(namedMissing ? ["Enter the named solver labels."] : []),
     ...(signingPreview ? [signingPreview] : []),
   ];
+  const busy = signingState === "signing" || signingState === "publishing";
+  const reference = mode === "pegged" ? quotes.twapOut : quotes.poolOut;
+  const stocked = health !== null && faucetIsStocked(health);
 
   function onChange(patch: IntentComposerPatch) {
-    setSigningPreview(null);
+    if (!busy) {
+      setSigningPreview(null);
+      setSigningState("idle");
+    }
     if (patch.amountIn !== undefined) setAmountIn(patch.amountIn);
     if (patch.preset !== undefined) setPreset(patch.preset);
     if (patch.gate !== undefined) setGate(patch.gate);
@@ -194,22 +329,39 @@ export default function TradePage() {
     }
   }
 
-  function onSubmit() {
+  async function onSubmit() {
+    if (busy || submitting.current) return;
+    submitting.current = true;
+    if (!wallet) {
+      submitting.current = false;
+      setFormError(walletError ?? "The on-device wallet is not ready.");
+      return;
+    }
     if (amount === null) {
+      submitting.current = false;
       setFormError(`Enter an amount of ${sellSymbol}.`);
       setSigningPreview(null);
       return;
     }
     if (namedMissing) {
+      submitting.current = false;
       setFormError(null);
       setSigningPreview(null);
       return;
     }
+    if (reference === null) {
+      submitting.current = false;
+      setFormError("A live quote is required before this intent can be signed.");
+      setSigningPreview(null);
+      return;
+    }
     const row = presets[preset];
-    const deadline = Math.floor(Date.now() / 1000) + row.decaySecs + row.deadlineBufferSecs;
+    const startTime = Math.floor(Date.now() / 1000);
+    const deadline = startTime + row.decaySecs + row.deadlineBufferSecs;
+    const hardMinOut = preview.hardMinOut;
     const summary = signingSummary({
       amountIn: amount,
-      hardMinOut: preview.hardMinOut,
+      hardMinOut,
       deadline,
       sellSymbol,
       buySymbol,
@@ -217,23 +369,118 @@ export default function TradePage() {
       buyDecimals: BUY_DECIMALS,
     });
     setFormError(null);
-    setSigningPreview(
-      quotes.twapOut === null
-        ? `Not signed or published. ${summary} A live quote, an on-device wallet, and Arkiv are required before this intent can be committed.`
-        : `Not signed or published. ${summary} An on-device wallet and Arkiv are still required before this intent can be committed.`,
-    );
+    setSigningPreview(summary);
+    setSigningState("signing");
+    await paintSummary();
+    try {
+      const intent = buildIntent({
+        maker: wallet.address,
+        tokenIn: publicDeployment.tokens.tWETH as Hex,
+        tokenOut: publicDeployment.tokens.tUSDC as Hex,
+        amountIn: amount,
+        preset,
+        mode: mode === "pegged" ? 1 : 0,
+        baseOut: mode === "pegged" ? 0n : reference,
+        oracleWindow: mode === "pegged" ? 60 : 0,
+        startTime,
+        deadline,
+        hardMinOut,
+        gate: gate === "named" ? 2 : gate === "listed" ? 1 : 0,
+        allowLabels: gate === "named" ? allowLabels(namedLabels) : [],
+        nonce: randomNonce(),
+      });
+      const signed = await signIntent({
+        account: wallet.account,
+        intent,
+        permit2: PERMIT2,
+        settlement: settlementAddress(),
+        chainId: CHAIN_ID,
+        sellSymbol,
+        buySymbol,
+        sellDecimals: SELL_DECIMALS,
+        buyDecimals: BUY_DECIMALS,
+      });
+      setSigningState("publishing");
+      const result = await postSignedIntent({
+        endpoint: `${runnerOrigin()}/api/intents`,
+        intent,
+        signature: signed.signature,
+        wallet,
+      });
+      const localHash = hashIntent(intent, {
+        name: "RivalSettlement",
+        version: "1",
+        chainId: CHAIN_ID,
+        verifyingContract: settlementAddress(),
+      });
+      const intentHash = result.intentHash || localHash;
+      await savePublishedIntent(
+        storage,
+        intentHash,
+        recordFromIntent({
+          intent,
+          poolOut: quotes.poolOut,
+          twapOut: quotes.twapOut,
+          poolDirectAtSign:
+            quotes.poolOut === null
+              ? "Pool A direct swap at signing time: unavailable"
+              : `Pool A direct swap at signing time: ${formatUnitsFixed(quotes.poolOut, BUY_DECIMALS, 4)} ${buySymbol}`,
+          ...(result.entityKey ? { entityKey: result.entityKey } : {}),
+          degraded: result.degraded,
+        }),
+      );
+      const redirect = `/auction?h=${intentHash}`;
+      setPublished({
+        intentHash,
+        ...(result.entityKey ? { entityKey: result.entityKey } : {}),
+        redirect,
+      });
+      setSigningState("published");
+      if (result.degraded) setForcedDegraded(true);
+      router.push(redirect);
+    } catch (err) {
+      submitting.current = false;
+      setSigningState("failed");
+      setFormError(err instanceof Error ? err.message : "The intent was not published.");
+    }
   }
 
-  const selected = presets[preset];
+  async function onFaucet() {
+    if (!wallet || faucetBusy || !stocked) return;
+    setFaucetBusy(true);
+    setFormError(null);
+    try {
+      const day = utcDay();
+      const signature = await signFaucetClaim({ account: wallet.account, day, kind: "tokens" });
+      await postFaucet({ wallet: wallet.address, signature, day, kind: "tokens" });
+      const next = await readBalances(wallet.address);
+      setBalances({
+        sell: formatUnitsFixed(next.sell, SELL_DECIMALS, 4),
+        buy: formatUnitsFixed(next.buy, BUY_DECIMALS, 4),
+      });
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "The faucet claim failed.");
+    } finally {
+      setFaucetBusy(false);
+    }
+  }
+
   const live = quotes.poolOut !== null && quotes.twapOut !== null;
-  const listed = market?.listed ?? [];
   const quoteText = (value: bigint | null) =>
     value === null ? (marketError ? "unavailable" : "") : `${formatUnitsFixed(value, BUY_DECIMALS, 4)} ${buySymbol}`;
+  const degraded = forcedDegraded || feed?.source === "degraded";
+  const banner: BannerVM = degraded
+    ? { kind: "warn", text: DEGRADED_BOOK_BANNER }
+    : live
+      ? { kind: "info", text: health !== null && !stocked ? `${LIVE_TEXT} The faucet is empty.` : LIVE_TEXT }
+      : marketError
+        ? OFFLINE_BANNER
+        : { kind: "info", text: "Reading Sepolia pool A." };
   const vm: IntentComposerVM = {
     sellSymbol,
     buySymbol,
-    sellBalance: balances?.sell ?? "no wallet",
-    buyBalance: balances?.buy ?? "no wallet",
+    sellBalance: wallet ? (balances?.sell ?? "unavailable") : "no wallet",
+    buyBalance: wallet ? (balances?.buy ?? "unavailable") : "no wallet",
     amountIn,
     preset,
     presets: (["fast", "balanced", "patient"] as const).map((id) => ({
@@ -251,43 +498,44 @@ export default function TradePage() {
     mode,
     peggedEnabled: quotes.twapOut !== null,
     oracleWindowSec: "60",
-    startBps: String(selected.startBps),
-    floorBps: String(selected.floorBps),
-    hardFloorPercent: (selected.hardFloorRatioBps / 100).toFixed(1),
+    startBps: String(presets[preset].startBps),
+    floorBps: String(presets[preset].floorBps),
+    hardFloorPercent: (presets[preset].hardFloorRatioBps / 100).toFixed(1),
     poolQuote: quoteText(quotes.poolOut),
     twap: quoteText(quotes.twapOut),
-    solversOnline: market ? `${listed.length} listed` : marketError ? "unavailable" : "",
+    solversOnline: feed ? (degraded ? "degraded feed" : `${feed.presence} solvers online`) : feedError ? "unavailable" : "",
     presence: {
-      count: String(listed.length),
+      count: feed ? String(feed.presence) : feedError ? "unavailable" : "…",
       pair: PAIR,
-      degraded: true,
-      names: listed.map((solver) => solver.label),
+      degraded: degraded || feedError,
+      names: [],
     },
     preview: preview.curve,
     floorLine: live
       ? `${preview.curve.hardFloor.value} ${buySymbol} on ${amountIn || "1"} ${sellSymbol} at the ${mode} quote`
       : `${preview.curve.hardFloor.value} ${buySymbol} on a 1 ${buySymbol} absolute base`,
     validationMessages,
-    canSubmit: amount !== null && !namedMissing,
-    submitLabel: "Sign & publish",
-    faucetLabel: "Get test tokens",
-    canFaucet: false,
-    banner: live
-      ? LIVE_BANNER
-      : marketError
-        ? OFFLINE_BANNER
-        : { kind: "info", text: "Reading Sepolia pool A." },
+    canSubmit: amount !== null && !namedMissing && wallet !== null && reference !== null && !busy,
+    submitLabel:
+      signingState === "signing" ? "Signing…" : signingState === "publishing" ? "Publishing…" : signingState === "published" ? "Published" : "Sign & publish",
+    faucetLabel: faucetBusy ? "Claiming…" : "Get test tokens",
+    canFaucet: wallet !== null && stocked && !faucetBusy,
+    walletAddress: wallet?.address ?? "",
+    signingState,
+    ...(published ? { published } : {}),
+    banner,
     onChange,
-    onSubmit,
+    onSubmit: () => {
+      void onSubmit();
+    },
     onFaucet: () => {
-      setFormError("The faucet is unavailable.");
+      void onFaucet();
     },
   };
 
   return (
     <RouteShell title={routeTitle("/")}>
       <IntentComposerView vm={vm} />
-      <CurveChartView curve={preview.curve} />
     </RouteShell>
   );
 }

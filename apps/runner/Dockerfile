@@ -22,6 +22,7 @@ COPY apps/web/src/components/ui/axe-primitives.mjs apps/web/src/components/ui/ax
 RUN pnpm install --frozen-lockfile --filter @rival/runner...
 
 COPY specs specs
+COPY deployments deployments
 COPY apps/runner apps/runner
 COPY packages packages
 COPY tsconfig.base.json tsconfig.base.json

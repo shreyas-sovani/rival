@@ -12,4 +12,4 @@
 | Token balances and the fill | Funds move through Permit2 and `RivalSettlement` on Sepolia. The absolute fill `0xeadff32d9c91c28bab2c9dc8136c7d1a2ef2c0091085f1a0e2d891645e9500ec` is a chain transaction (`docs/demo.md`). Arkiv `status` is an advisory patch. |
 | Solver reputation | `fills`, `makers`, `sumImprovementBps`, and `lastFill` are stored on `RivalNames` and exposed as `protocolRecord`. They are not ENS text and they are not Arkiv columns (`docs/ens-design.md`, `docs/spikes/S3.md`). |
 | Keys | `OPERATOR_PRIVATE_KEY` and `ARKIV_ACCESS_KEY_WRITE` stay in `secrets/.env.local`. The signed intent in `payload` is public by design (`packages/arkiv/src/schemas.ts`). |
-| The ENS parent | `rival.eth` was not bought. Identity for the one registered solver, `atlas`, is the solvers `PermissionedRegistry` this repo deployed. |
+| The ENS parent | `rival.eth` is registered to the operator on Sepolia ENSv2. `solvers.rival.eth` does not resolve yet. Identity for the one registered solver, `atlas`, is still the solvers `PermissionedRegistry` this repo deployed. |

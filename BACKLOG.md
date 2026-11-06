@@ -1582,3 +1582,562 @@ First 30 minutes, concretely:
 | Everything green before submit | `pnpm preflight` |
 
 **Final rule for both agents:** a task is not done because the code looks right. It is done when `VERIFY` passes on `main`, the `PROOF` line is written, and the `STATE` line says `DONE`.
+
+---
+
+## IMPROVEMENTS
+
+> Added 2026-11-06 ~21:55 IST by the audit pass (verified against source, live URLs, git, tests, and sponsor docs fetched today). Time remaining: **freeze H+28 = Sat 06:00 IST** (~8 h of build), **submission deadline Sat 09:00 IST**. Blocks follow the §6.3 grammar (`IMP-###` matches the parser's `TASK_HEADING`; extra `PRIORITY:`/`WHY:` lines are ignored by `pnpm backlog:board`). Work P0 top-to-bottom, then P1, then P2. Everything here sits **above the frozen protocol core** — no changes to settlement, oracle math, signatures, curve, or `RivalSettlement`/`RivalOracleHook`/`SolverRegistry`/`RivalNames` semantics. Freeze bumps required by these blocks are listed in "Freeze impact" below; MASTER bumps via `pnpm freeze:write --bump "<reason>"` and sets `REWORK` on affected S-tasks (§4.3).
+
+### Audit verdict (evidence-backed, blunt)
+
+What is real and verified: contracts complete, 69/69 runnable forge tests green; TS packages complete (74 vitest); parity vectors; one real Sepolia fill (`0xeadf…00ec`); live static site with working pool/TWAP reads (`https://rival-flame.vercel.app`); runner deployed (`https://rival-runner.fly.dev`); honest docs.
+
+What is broken or missing (verified in source, not claimed):
+
+1. **The core judge loop does not exist.** Trade page `onSubmit` only prints "Not signed or published." (`apps/web/src/app/page.tsx:222-223`); the tested signers (`src/data/signing.ts:54-82`, `src/data/egress.ts:7-25`) are imported only by tests; the burner-wallet module (`src/wallet/wallet.ts:121-146`) is imported by no page; `/auction` is a permanent "Waiting for chain events" stub (`auction/page.tsx:60-72`); `/book` and `/solvers` render permanent empty rows; the faucet button is disabled with `canFaucet: false` (`page.tsx:274,282-284`).
+2. **Runner services are unimplemented.** `startServices` throws `NotImplemented("M-022")` (`apps/runner/src/services/index.ts:5-7`); every chain dep in `services/deps.ts:134-177` throws `unconfigured`; `/api/health` emits hard-coded degraded numbers. A valid `POST /api/intents` 500s at `nonceUsed`. There is no oracle watcher, market maker, solver bot, house bot, or Arkiv loop anywhere.
+3. **The judge-facing solver path is dead.** `solver:init`, `solver:dev`, `cli:intent`, `cli:book`, `cli:verify` all exit 3 (`NOT_IMPLEMENTED(M-020)` via `scripts/cli/io.ts:94-109`) because `packages/solver-sdk/src/index.ts` exports none of `initSolver`/`signAndPublish`/`getBook`/`verifyFill`/`watchIntents` that the frozen F5 (`specs/sdk-api.d.ts:24,47,64,96,114`) declares. `runSolver` exists but takes ports no concrete adapter provides (`run.ts:65` vs `scripts/cli/solver-dev.ts`). `solver-template/src/index.ts` is a scaffold marker.
+4. **The product is not on ENSv2.** All eight canonical ENS addresses in `deployments/sepolia.json:34-45` are zero; `rival.eth` was never registered; `solvers.rival.eth` does not resolve; the live deploy uses `MockLabelStore`; `PermissionedResolver` never compiled (empty submodule). Verified today: **ENSv2 is canonically live on Sepolia** — ETHRegistrar `0xf633e7fc17e2bbe0d0965d18ec1821dcb754a3d3`, ETHRegistry `0xd4ebcbbdf463c9c45784603db0ddd499bc44a8b4`, UniversalResolverV2 `0x24e1d8e068620b647ca097f961a61055f4f42d72`, upgradable proxy `0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe` (same on mainnet), PermissionedResolverImpl `0x115eb53f0c60696633855f90b138178fb40b2b2c`, VerifiableFactory `0xda70306c98e97ece36f997a21368e53298572991`, fee token MockUSDC `0x240b0316df57887dbbe58b586508b19e633a14aa` (free mint, per docs.ens.domains/learn/deployments and /ensv2/tutorial-app-developers). The ENS card requires "built on ENSv2 on mainnet or Sepolia"; a standalone registry with zero canonical addresses fails that reading.
+5. **Arkiv is a library, not a loop.** `packages/arkiv` is complete and the S4 spike proved write+read, but nothing live publishes or reads; `arkivWriterAddresses` is `[]`; the Book page never queries. The Arkiv card explicitly does not count "the SDK installed but never used to read, or Arkiv used only as a log."
+6. **Submission itself is at risk.** H-001 (public repo) is TODO — all three partner cards require an open-source repo; H-012 (Uniswap feedback form, a printed qualification) is TODO; H-013 (submission + video) is TODO. Missing the form or the repo link risks $0 across the board.
+7. Small but visible: the decay chart renders twice on `/` (`page.tsx:290` renders `CurveChartView` and `IntentComposerView.tsx:72` renders it again from `vm.preview`); `deployments/sepolia.json` `commit` is stale (`5f38777` vs HEAD); `scripts/ens-role-check.ts:22` still says the registry is undeployed.
+
+**Code status after the 2026-11-06 P0 terminals** (this does not replace the audit; the Vercel site is still the previous build):
+
+- IMP-033 is done. `/` renders one chart, inside the composer.
+- IMP-001, IMP-002, and the runner half of IMP-005 are implemented and unit-tested (`@rival/runner` 50 passed, 1 skipped). Fly is running this tree with `RUNNER_SERVICES=on`. On 2026-11-07 `GET /api/intents` returned 200 from Arkiv with `presence: 2` and no rows. Health was `degraded`: oracle age 70s with 48 observations, Arkiv up, market maker, atlas, and house heartbeating, maker bots not seen, house tWETH and tUSDC still 0.
+- IMP-003, IMP-004, IMP-005 web, and IMP-006 are implemented. `@rival/web` 52 passed. No production browser pass. `docs/demo.md` marks judge steps 1–6, 10, and 13 as not yet observed.
+- IMP-010 is done. `rival.eth` is owned by the operator. Register tx `0x1d9740fccaa1506b12584e4e23c49ecdb92e96293d904b7d7d195a942c4679f6`. IMP-011 filled the eight canonical ENS addresses and points `syncRecords` at `setText` only when the resolver immutable is non-zero (the live deployment is still zero). The subname bootstrap was not broadcast, so `atlas.solvers.rival.eth` does not resolve. IMP-012's Evidence buttons use `eth_call`.
+- IMP-H01 and IMP-H02 were already true: https://github.com/shreyas-sovani/rival is public, and every `apps/runner/.env.example` name is deployed on Fly, including both Arkiv key names.
+- IMP-H03 and IMP-H04 are still founder actions.
+
+### Winnability (cash view, not vanity)
+
+| Track | Pool | Now | After P0s | Blunt read |
+| --- | --- | --- | --- | --- |
+| Uniswap (from-scratch) | $10k (4 places) | Form unsubmitted → audit risk; demo has 1 fill, no live loop | Live fills + receipts + receipts-vs-UniswapX story + FEEDBACK.md form done | Strong fit (new hook + Permit2 witness + flash-accounting solver + tooling; winners historically are hooks with a safety property — ours never-reverts in `beforeSwap`, fuzz-tested). 1st is a stretch vs hook-only projects; places 2–4 realistic. **Without the form (IMP-H03): likely $0.** |
+| ENS Best Use of ENSv2 | $7k (3k/2k/1k/1k) | **~$0** — not on ENSv2, names don't resolve | Canonical resolution + ENSIP-25/26 agent records + on-chain gating + non-transferable/expiring names | Gating (`isListed` ← `ownerOf`) and "agents as namespaces" are the central-not-cosmetic argument; they only count if names resolve through the canonical Sepolia deployment. Post-IMP-010..012 credible 2nd–4th. |
+| Arkiv (from scratch) | $4k (3k/1k) | Docs exist (25% × 4 files) but read path not user-visible | Live book + presence + solvers-read-Arkiv proof + writers listed | Thin historical field (no Arkiv winners identified across Lisbon/Tokyo/NY 2026). Most winnable of the three if the loop runs. |
+| Finalist (solo) | 250 USDC + perks | — | Live 4-min demo | Decision rests on the demo working end-to-end. |
+
+Realistic range if all P0s land by freeze: **$2.5k–$8k**. If the demo stays degraded and the form/repo are missed: **~$0**. Every P0 below is ordered by cash per hour.
+
+### Execution order
+
+```
+Now:          IMP-H01 (public repo) + IMP-H02 (Arkiv keys on Fly) + IMP-H03 (Uniswap form)   [human, parallel]
+MASTER:       IMP-001 (runner deps) → IMP-002 (live services + bots) → IMP-003 (web sign path)
+              → IMP-004 (auction+receipt live) → IMP-005b (book handler) → IMP-006 (solvers page)
+              → IMP-010 (ENS parent script) → IMP-011 (resolution + records) → IMP-012 (evidence demos)
+SLAVE:        IMP-005a (book route, after F3 bump) ∥ IMP-036 (smoke specs) ∥ IMP-031 (solver-template bin)
+Any time:     IMP-033 (chart dup fix, 10 min) — MASTER, do first as a warm-up
+Before 07:30: IMP-H04 (submission + video) — human; agents supply IMP-034 (docs/deployments freshness)
+```
+
+### Freeze impact
+
+- **F3 bump** (MASTER, once): add `GET /api/intents` (book/presence proxy read) to `specs/runner-api.json` + `handlers/types.ts`; SLAVE route file follows (IMP-005).
+- **F4 bump** (MASTER, once): extend `viewmodels/intent-composer.ts` (wallet state, faucet action, signing/publishing states, submit result → redirect), `viewmodels/auction.ts` (live event feed), `viewmodels/book.ts` (live rows), `viewmodels/leaderboard.ts` (registry rows) as needed. Presentational view changes for new props go to SLAVE as `REWORK` only if MASTER cannot express the state with existing views.
+- **F5: no bump** — `sdk-api.d.ts` already declares every missing export; this is an implementation gap (IMP-030).
+- **F6: no bump** — `deployments.schema.json` already has the `ens.*` fields; they get real values (IMP-011).
+- F1/F2 untouched. `contracts/src/**` untouched except vendored ENS sources under `contracts/src/ens/vendor/` if the submodule cannot be repaired (IMP-011 path B), which adds no new interface files.
+
+---
+
+### IMP-001 — Runner real dependencies: make `POST /api/intents` actually work
+- STATE: WORKING
+- PRIORITY: P0
+- OWNER: MASTER
+- WHY: Judges' signed intents currently 500 at `nonceUsed` (`services/deps.ts:156-167` throws `unconfigured`). Every downstream demo step depends on this endpoint.
+- PRD: FR-RUN-01/02, FR-ARK-01
+- DEPENDS: H-005 keys on Fly (IMP-H02)
+- INPUTS: `deployments/sepolia.json`, `specs/env.schema.json`, `packages/arkiv/src/book.ts`
+- TOUCHES: `apps/runner/src/services/deps.ts`, `apps/runner/src/services/**`
+- BUDGET: 1.5
+- AUTO: yes
+- DO:
+  - Replace every `unconfigured(...)` dep with real adapters built from env + `packages/chain` `loadDeployments()`: `nonceUsed`/`balanceOf` via settlement/token reads on the RPC pool; `oracleQuote` via hook `quote`/`consult` reads; `simulateFill` via `eth_call` to `RivalSettlement.fill` with the decoded `FillParams` (revert reason surfaced as the handler's `FillSimulationFailed`); `mint` via the tWETH/tUSDC minter (faucet); `verifyCancel` via `@rival/intent`; `publish` via `packages/arkiv` `publishIntent` with the write key from env.
+  - Real probes in `deps.ts:170-175`: oracle age/obs from `oldestTimestamp`+`consult`, arkiv latency from a 1-row `count` query, house balances from `balanceOf`, `openIntents` from `countPresence`/open-intent query, `lastFillAt` from the settlement's last `Filled` log.
+  - Zero-address chain config (`deps.ts:138-150`) from the deployment file, not literals.
+- VERIFY:
+  ```bash
+  pnpm --filter @rival/runner test
+  curl -s -X POST https://rival-runner.fly.dev/api/intents -H 'content-type: application/json' -H 'origin: https://rival-flame.vercel.app' -d @<intent.json>   # expect 200 with arkiv:true (or degraded:true), not 500/501
+  ```
+- DONE-WHEN: A CLI-signed intent POSTs successfully against the deployed runner and the entity appears in Arkiv; `pnpm --filter @rival/runner test` green.
+- STARTED: 2026-11-06T17:06:00Z
+- PROOF: 2026-11-06 local `pnpm --filter @rival/runner test` 50 passed, 1 skipped. Branch `p0/runner` `a2717a4`. Fly deploy of this tree succeeded (`rival-runner`, machine reached a good state). `GET /api/health` returned block lag 4–10s, Arkiv `ok` at ~150ms, and bot heartbeats. `POST /api/intents` was not retried with a signed intent.
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: Deploy to Fly after the change (`fly deploy` per RUNBOOK.md). The handler logic (`handlers/intents.ts:110-183`) is already correct — do not rewrite it, only feed it. Terminal: Rival P0 · Runner. Dockerfile now copies `deployments/` so `loadDeployments()` exists in the image.
+
+### IMP-002 — Minimal live services: MM keep-alive, atlas solver, presence, real health
+- STATE: WORKING
+- PRIORITY: P0
+- OWNER: MASTER
+- WHY: PRD §5.4/5.5 judge journey requires moving price, "N solvers online", and fills within 10–60 s. Today `/api/health` is `degraded` with hard-coded numbers, and there has been exactly one fill ever (produced by `scripts/demo-live.ts`, not the loop). Judges opening the site see "degraded feed" everywhere. This is the single highest-impact item for all three sponsor tracks.
+- PRD: FR-VEN-03, FR-SOL-02/03, FR-RUN-03, §5.4
+- DEPENDS: IMP-001
+- INPUTS: `packages/solver-sdk/src/run.ts` (port-driven loop), `packages/arkiv/src/book.ts`, `packages/solver-sdk/src/rpc-pool.ts`, env keys (MM, SOLVER_ATLAS, HOUSE, MAKERBOT_1..3)
+- TOUCHES: `apps/runner/src/services/index.ts`, `apps/runner/src/bots/**`, `apps/runner/src/services/deps.ts`
+- BUDGET: 3.0
+- AUTO: no
+- DO (reduced M-022 scope — skip indexer, skip five solvers; ship liveness):
+  - Implement `startServices` (replace the `NotImplemented` throw at `services/index.ts:5-7`) booting exactly: (a) **MM keep-alive**: every ~45–60 s alternate a small tWETH↔tUSDC swap on pool A via the v4 Quoter/PoolManager path already exercised by `scripts/demo-live.ts` — this keeps hook observations fresh (oracle age < 120 s) and the spot price alive; (b) **atlas solver**: one process running `runSolver(ports)` with concrete adapters — `ArkivOpenBook` from `packages/arkiv` (`queryOpenIntents`/`readIntent` via payload verify), `VenueQuoter` = hook `quote` + `StateView.getSlot0` (reuse `packages/solver-sdk/src/adapters.ts` candidates), `SettlementSubmitter` = wallet client sending `UniswapSolver` fill txs (`encodeFill`), `PresencePort` = `upsertPresence` on the 60 s heartbeat; (c) **house backstop**: `house` strategy solver bound to the floor (already a strategy in `strategies.ts`), funded wallet from env; (d) **maker bots**: 2 of the 3 maker keys post tiny open intents on a 3–5 min cadence via the same publish path so the book is never empty (rate-limited by `MakerRateLimit`); (e) throttles: stop MM when operator ETH < 0.15, stop bots on 3 consecutive submit failures (K5 discipline).
+  - `runCheck` (services/index.ts:15-20): with `RUNNER_SERVICES=on`, one cycle = oracle fresh + presence count ≥ 1 + book has ≥ 1 open intent.
+  - All loops log through the existing pino logger with the bot label; no result is ever fabricated — a bot that cannot act logs and skips.
+- VERIFY:
+  ```bash
+  RUNNER_SERVICES=on pnpm runner:dev --check        # exit 0
+  curl -s https://rival-runner.fly.dev/api/health    # "status":"ok" sustained ≥ 10 min
+  # watch ≥ 2 distinct fills from the live loop in the settlement Filled logs over 30 min
+  ```
+- DONE-WHEN: Health `ok` for 10+ minutes unattended; ≥ 1 atlas fill and ≥ 1 house-or-maker interaction observed from the loop (not `demo-live.ts`); no manual intervention. Full 1-hour soak stays optional (M-026 remains its own task).
+- STARTED: 2026-11-06T17:06:00Z
+- PROOF: 2026-11-06 `startServices` no longer throws. Runner tests 50 passed. Solver SDK tests 38 passed. After Fly deploy with `RUNNER_SERVICES=on`, health showed heartbeats for `mm`, `atlas`, `house`, and two makers. Oracle age fell from ~19581s to 40s. Book `presence` was 2 and `source` was `arkiv`. Status stayed `degraded` because house tWETH and tUSDC are 0 and open intents are 0. No 10-minute `ok` and no new fill.
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: Everything needed (strategies, submit state machine, heartbeat, encodeFill, rpc-pool) is written and tested in `packages/solver-sdk` — this task is adapters + process wiring, not new logic. Fund check: MM wallet `0x16A1…0062` has 1.0 ETH; solvers 0.1 each (H-002 proofs). Terminal: Rival P0 · Runner.
+
+### IMP-003 — Web sign path: burner wallet, faucet, sign & publish on the Trade page
+- STATE: WORKING
+- PRIORITY: P0
+- OWNER: MASTER
+- WHY: The PRD's entire USP ("sign one gas-free intent → solvers compete") is invisible: `onSubmit` prints "Not signed or published." (`page.tsx:222-223`). Judges must complete steps 1–3 of §5.5 in ≤ 2 minutes with no extension and no ETH.
+- PRD: FR-WEB-01..04, §5.3, §5.5 steps 1–3
+- DEPENDS: IMP-001 (endpoint live), F4 bump
+- INPUTS: `src/wallet/wallet.ts` (exists, unused), `src/wallet/storage.ts` (port), `src/data/signing.ts`, `src/data/egress.ts` (exist, unused)
+- TOUCHES: `apps/web/src/app/page.tsx`, `apps/web/src/wallet/**`, `apps/web/src/data/**`, `apps/web/src/viewmodels/intent-composer.ts` (F4 bump), `apps/web/src/hooks/**`
+- BUDGET: 1.5
+- AUTO: yes
+- DO:
+  - Implement the localStorage storage port for `wallet/storage.ts` (fallback to the existing `memoryStorage`); on first visit create the burner wallet (PRD §5.2/5.3) and show the address; keep the AES-GCM module as-is.
+  - Extend `IntentComposerVM` (bump F4): wallet address state, `onFaucet`, signing state (`idle|signing|publishing|published|failed`), published result (`intentHash`, `entityKey`, redirect target). Reuse existing view components; if a presentational prop is genuinely missing, set the owning S-task (`S-009`) to `REWORK` with the exact prop diff — do not edit views directly.
+  - Wire `onSubmit` → `buildIntent` (already produces the curve) → `signIntent` → `postSignedIntent` → on success route to `/auction?h=<intentHash>`; on Arkiv-publish `degraded:true` show the existing `BannerVM` "Book degraded: using runner feed" (PRD §5.9 row 1).
+  - Faucet: enable the button when the runner health says the faucet is stocked; `onFaucet` → EIP-712 `FaucetClaim` signature from the burner key → `POST /api/faucet` (handler `handlers/faucet.ts:42-92` is complete). Refresh balances on success.
+  - Balances: poll `balanceOf` for the burner address every ~15 s while the tab is visible (replace the never-prompting `browserAccount()` probe with the burner wallet as primary, keep the probe as an import path).
+- VERIFY:
+  ```bash
+  pnpm --filter @rival/web build && pnpm e2e --grep "@smoke"
+  # manual (record as PROOF): fresh browser profile → Get test tokens → 1 tWETH Balanced intent → Sign & publish → landed on /auction
+  ```
+- DONE-WHEN: A clean-profile browser session reaches the auction page with a published intent in ≤ 2 minutes; faucet mints; no console errors.
+- STARTED: 2026-11-06T17:06:00Z
+- PROOF: 2026-11-06 `pnpm --filter @rival/web test` 52 passed. Branch `p0/web` `a6817da`. Sign path posts `{intent, signature}`, faucet posts `FaucetRequest`, success routes to `/auction?h=`. No clean-profile browser session against the production URL. The public runner still returns health 503 with house balances 0, so the faucet stays disabled until deploy.
+- BLOCKED-BY: web-deploy
+- REWORK-REASON:
+- NOTES: CSP already allows the runner host (`connect-src` in root `vercel.json`). Keep `public-deployment.ts` as the single address source for the web build. Terminal: Rival P0 · Web.
+
+### IMP-004 — Auction page live: fill event → receipt card, gasless cancel
+- STATE: WORKING
+- PRIORITY: P0
+- OWNER: MASTER
+- WHY: Step 4–5 of the judge journey ("watch solvers react; read the receipt") is a permanent stub (`auction/page.tsx:60-72`). The receipt with **improvement bps vs the hook TWAP** is the product's differentiating artifact — no judge can currently see one.
+- PRD: FR-WEB-05, §5.5 steps 4–5, 10
+- DEPENDS: IMP-002, IMP-003
+- INPUTS: `packages/chain` settlement ABI (`generated/RivalSettlement.ts`), `ReceiptVM`, `AuctionStatusVM`, `EventStreamView`
+- TOUCHES: `apps/web/src/app/auction/page.tsx`, `apps/web/src/data/**` (new auction adapter), `apps/web/src/viewmodels/auction.ts` (F4 bump if needed)
+- BUDGET: 1.5
+- AUTO: yes
+- DO:
+  - From `?h=<intentHash>`: reconstruct the curve client-side (`@rival/intent` `requiredAt` over elapsed time, same as the preview), poll the settlement `Filled`/`Cancelled`/`Expired` logs for the hash (4 s `getLogs` on the RPC pool — static export cannot hold sockets; SSE `/api/intents/stream` optional enhancement).
+  - On `Filled`: build `ReceiptVM` from the event + a `receipt()` recomputation via `RivalMath`-parity TS (`packages/intent`) — amountOut, curve bps at fill, fair (TWAP) reference, improvement bps, solver address (+ ENS name once IMP-011 lands), Sepolia Etherscan `View transaction` link.
+  - Cancel button: gasless `cancelBySig` — sign `Cancel` typed data in-page, `POST /api/cancel` (handler exists); on success show status `cancelled` and stop the poll.
+- VERIFY:
+  ```bash
+  pnpm --filter @rival/web build
+  # manual: publish a Patient intent, watch the curve run, cancel one; publish a Balanced one, receive a fill from atlas/house ≤ 90 s, receipt shows improvement bps + tx link
+  ```
+- DONE-WHEN: One published intent visibly fills (receipt card with non-zero improvement bps and a valid Etherscan link) and one cancel round-trips, both from the production URL.
+- STARTED: 2026-11-06T17:06:00Z
+- PROOF: 2026-11-06 auction page polls `Filled`/`Cancelled` and builds a receipt only from a log plus `receiptMath`. `pnpm --filter @rival/web test` 52 passed, including `auction.test.ts`. No production fill or cancel was observed. Branch `p0/web` `a6817da`.
+- BLOCKED-BY: web-deploy
+- REWORK-REASON:
+- NOTES: If no solver fills (floor too tight), the house backstop from IMP-002 must — that is its job. Do not fake a receipt. Terminal: Rival P0 · Web.
+
+### IMP-005 — Book page + presence chip read Arkiv live (runner proxy)
+- STATE: WORKING
+- PRIORITY: P0
+- OWNER: MASTER (handler + page) / SLAVE (route)
+- WHY: The Arkiv card does not count an integration where nothing user-visible reads Arkiv. The Book page currently renders `rows: []` forever with the query printed as text; the trade page presence chip is hard-coded "degraded feed". This item is the Arkiv prize's make-or-break.
+- PRD: FR-ARK-05, FR-WEB-06, §5.5 step 13
+- DEPENDS: IMP-001, IMP-002 (maker intents exist to show), F3 bump
+- INPUTS: `packages/arkiv/src/book.ts` (`queryOpenIntents`, `countPresence`), `specs/runner-api.json`
+- TOUCHES: MASTER: `specs/runner-api.json`, `apps/runner/src/handlers/types.ts`, `apps/runner/src/handlers/**` (new `book` handler), `apps/web/src/app/book/page.tsx`, `apps/web/src/data/book.ts`, `apps/web/src/app/page.tsx` (presence). SLAVE: `apps/runner/src/routes/**` (new route file per the bumped F3 spec).
+- BUDGET: 1.0
+- AUTO: yes
+- DO:
+  - MASTER: bump F3 adding `GET /api/intents?pair=&status=open` returning `{rows, presence, asOf, source:"arkiv"|"degraded"}`; implement the handler over `queryOpenIntents` + `countPresence` (read keys, rotation via `packages/arkiv/src/rotation.ts`); on Arkiv error return the `DegradedFeed` snapshot with `source:"degraded"` and HTTP 200.
+  - SLAVE (after the bump lands): add the route file importing the frozen handler map; extend `smoke.spec.ts` for the new route.
+  - MASTER web: `/book` fetches the endpoint every 10 s, renders rows (pair, size, floor, deadline countdown, gate, `View entity` link to the Rabdi explorer entity URL from the README scheme, copyable query stays); trade-page presence chip consumes `presence` from the same endpoint ("N solvers online" when > 0, degraded banner when `source:"degraded"`).
+- VERIFY:
+  ```bash
+  curl -s 'https://rival-runner.fly.dev/api/intents?pair=tWETH/tUSDC' | head -c 400   # rows:[...≥1...] presence:≥1
+  pnpm --filter @rival/web build && pnpm e2e --grep flows
+  ```
+- DONE-WHEN: Book page shows live maker intents and the presence chip shows a real count for ≥ 10 minutes while the loop runs; blocking Rabdi in devtools flips the banner to "Book degraded" (PRD step 12).
+- STARTED: 2026-11-06T17:06:00Z
+- PROOF: 2026-11-06 `GET https://rival-runner.fly.dev/api/intents?pair=tWETH/tUSDC&status=open` returned HTTP 200 `{"rows":[],"presence":2,"asOf":…,"source":"arkiv"}`. Web tests 52 passed. The production site is still the previous build, so the Book page itself was not observed. `docs/demo.md` still marks step 13 as not yet observed.
+- BLOCKED-BY: web-deploy
+- REWORK-REASON:
+- NOTES: This also satisfies the README's "runnable query" promise with a live row. Record the entity key of a live row in `docs/demo.md` (IMP-034). Terminals: Rival P0 · Runner and Rival P0 · Web.
+
+### IMP-006 — Solvers page live from the registry + fills
+- STATE: WORKING
+- PRIORITY: P0
+- OWNER: MASTER
+- WHY: `/solvers` renders `rows: []` with a warning banner forever (`solvers/page.tsx:11-17`). The leaderboard ("openness is testable") is a PRD §2.6 advantage and the ENS story lands here once names resolve.
+- PRD: FR-WEB-06, FR-ENS-05
+- DEPENDS: IMP-002 (fills happening); IMP-011 for ENS names (works without, names blank)
+- INPUTS: `packages/chain` `SolverRegistry` ABI, `RivalNames` ABI
+- TOUCHES: `apps/web/src/app/solvers/page.tsx`, `apps/web/src/data/leaderboard.ts`
+- BUDGET: 0.5
+- AUTO: yes
+- DO:
+  - Rows from on-chain truth: registered solvers (`registry` events / label list), per-solver `fills`/`volume`/`improvement` stats from `SolverRegistry.syncRecords` counters (written by `onFill`), each with `isListed` state, address, ENS name when available, and last-fill Etherscan link. Sort by fills; keep the `makers` disclosure from `KNOWN_LIMIT` copy.
+- VERIFY:
+  ```bash
+  pnpm --filter @rival/web build
+  # curl the page or headless check: atlas row present with ≥ 1 fill once IMP-002 has filled
+  ```
+- DONE-WHEN: Leaderboard shows atlas (and house when it fills) with numbers that match `docs/demo.md`/Etherscan.
+- STARTED: 2026-11-06T17:06:00Z
+- PROOF: 2026-11-06 `/solvers` reads `SolverRegistry` label, `isListed`, and `stats`, sorted by fills. ENS name stays blank. `pnpm --filter @rival/web test` 52 passed. Not checked in a browser against production. Branch `p0/web` `a6817da`.
+- BLOCKED-BY: web-deploy
+- REWORK-REASON:
+- NOTES: Registry read helpers may already exist in `scripts/verify-deployments.ts` — reuse, don't duplicate. Terminal: Rival P0 · Web.
+
+### IMP-010 — Register the ENS parent name on canonical Sepolia ENSv2
+- STATE: DONE
+- PRIORITY: P0
+- OWNER: MASTER (script) + FOUNDER (broadcast)
+- WHY: Without a parent under the canonical Sepolia ENSv2 registry, nothing Rival does can resolve through the Universal Resolver — the ENS card's "built on ENSv2 on mainnet or Sepolia" is unmet and the $7k track is effectively forfeited. Registration is cheap and mechanical: fee is MockUSDC with an open `mint`.
+- PRD: FR-ENS-01, H-006
+- DEPENDS: H-002 (operator funded — verified 1.179 ETH)
+- INPUTS: ETHRegistrar `0xf633e7fc17e2bbe0d0965d18ec1821dcb754a3d3`, MockUSDC `0x240b0316df57887dbbe58b586508b19e633a14aa`, docs.ens.domains/ensv2 (fetched 2026-11-06)
+- TOUCHES: `scripts/ens-register-parent.ts` (new, MASTER territory)
+- BUDGET: 0.75
+- AUTO: no
+- DO:
+  - MASTER writes `scripts/ens-register-parent.ts` following the documented ETHRegistrar flow: mint MockUSDC to OPERATOR → `approve` registrar → commit → register `rival.eth` (fallback label from a checked list if taken: `rivalx`, `rivalmarket`); print tx hashes and the final `ENS_PARENT_LABEL`.
+  - FOUNDER broadcasts from the OPERATOR key (`secrets/.env.local`), confirms `ownerOf`/registry record in the Sepolia ENS app (sepolia.app.ens.domains), puts `ENS_PARENT_LABEL` in `secrets/.env.local` (closes H-006), and records the PROOF line here.
+- VERIFY:
+  ```bash
+  cast call 0xd4ebcbbdf463c9c45784603db0ddd499bc44a8b4 'ownerOf(bytes32 node)' $(cast namehash rival.eth) --rpc-url $SEPOLIA_RPC_URL
+  # expect the OPERATOR address, not zero
+  ```
+- DONE-WHEN: `rival.eth` (or the fallback) is owned by OPERATOR on the canonical Sepolia ETHRegistry.
+- STARTED: 2026-11-06T17:06:00Z
+- PROOF: 2026-11-06 register tx `0x1d9740fccaa1506b12584e4e23c49ecdb92e96293d904b7d7d195a942c4679f6` status 0x1 on ETHRegistrar `0xf633e7fc17e2bbe0d0965d18ec1821dcb754a3d3`. Commit `0xf723504d673737192ebdf37e220bfc1f1b8bacbe8de3ce7e9447ca39ff945195`. `getOwner(keccak256("rival"))` on ETHRegistry `0xd4ebcbbdf463c9c45784603db0ddd499bc44a8b4` returns operator `0xFeAf5C921996FC53f4DEf35e181E766e6D74690A`. `ownerOf(bytes32)` with the ENSIP-1 namehash reverts on that registry. `ENS_PARENT_LABEL=rival`.
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: Do this first in the ENS chain — IMP-011 and IMP-012 depend on it. If registration is somehow blocked, the fallback is documenting (honestly, in README + Evidence) that names live on a self-deployed ENSv2 `PermissionedRegistry` — but expect the ENS track to discount it. Terminal: Rival P0 · ENS. The main checkout has `OPERATOR_PRIVATE_KEY` and `SEPOLIA_RPC_URL` in `secrets/.env.local`.
+
+### IMP-011 — Canonical resolution + ENSv2 records for solver names
+- STATE: WORKING
+- PRIORITY: P0
+- OWNER: MASTER (semantics) / SLAVE (submodule repair, mechanical)
+- WHY: ENS judges will resolve `atlas.solvers.rival.eth` in the Sepolia ENS app/explorer and via `viem`. Today it does not resolve, `PermissionedResolver` never compiled, live stats live in contract storage instead of ENS text, and the card's bonus ("agents as namespaces", ENSIP-25/26 records) is unclaimed. Past ENSv2 winners (ENS Subname Manager, Tokyo) shipped exactly this shape on Sepolia.
+- PRD: FR-ENS-02..05, §5.8 ENS row
+- DEPENDS: IMP-010
+- INPUTS: canonical Sepolia ENSv2 addresses (verified 2026-11-06, in the verdict table above), `packages/chain/src/generated/PermissionedRegistry.ts` (ABI already generated), docs.ens.domains/ensv2/permissioned-registry + /permissioned-resolver + /enhanced-access-control
+- TOUCHES: `contracts/lib/**` (SLAVE: submodule repair only), `contracts/src/ens/vendor/**` (MASTER, path B only), `scripts/ens-bootstrap.ts` (finish the broadcast at `ens-bootstrap.ts:75`), `scripts/ens-role-check.ts`, `deployments/sepolia.json`, `apps/web/src/data/public-deployment.ts`, `apps/web/src/data/**` (ENS reads)
+- BUDGET: 3.0
+- AUTO: no
+- DO:
+  - Path A (preferred): SLAVE repairs the `ens-contracts` submodule (`git submodule update --init --recursive`; verify `NameCoder`/`PermissionedResolver` sources exist). MASTER then finishes `scripts/ens-bootstrap.ts`: set `rival.eth`'s records so `solvers` resolves to the deployed ENSv2 `PermissionedRegistry` (`0xCEec…b36f`) as its own subname registry (the "deploy your own subname registry" pattern from the card), give solver names a `PermissionedResolver` (self-deployed from the now-compiling sources, or canonical impl `0x115e…b2c` via `VerifiableFactory` `0xda70…2991`), and configure roles per `docs/ens-design.md` (bitmap `0x11001` plan already written).
+  - Path B (if the submodule cannot be made to compile tonight): MASTER vendors only the needed ENSv2 sources (`NameCoder`, `PermissionedResolver`) into `contracts/src/ens/vendor/` with license headers + `THIRD_PARTY.md` update (SLAVE owns that file — coordinate via a one-line `REWORK` on S-019's licenses scope), and proceeds identically.
+  - Records: at registration write ENSIP-25/26 agent text records (`agent-context`, `agent-endpoint[web]`, `agent-registration[<chain>]`) per solver; keep `com.rival.*` stats as protocol-only writes — point `RivalNames.syncRecords` at real `setText` now that a resolver exists, keeping the protocol-only permission so the "forge a track record" revert demo stays true.
+  - Fill the eight canonical ENS addresses in `deployments/sepolia.json` (`ethRegistrar`, `ethRegistry`, `rootRegistry`, `userRegistryImpl`, `verifiableFactory`, `permissionedResolverImpl`, `universalResolverV2`, `universalResolverProxy` = `0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe`) and mirror into `apps/web/src/data/public-deployment.ts`.
+  - Web: ENS reads via the canonical proxy (viem resolves Sepolia ENSv2 natively — no address config needed per the app-developers tutorial); Solvers page shows names; receipt solver field shows the name.
+- VERIFY:
+  ```bash
+  cast resolve-name atlas.solvers.rival.eth --rpc-url $SEPOLIA_RPC_URL          # = atlas address 0xD2aA…0Ff3
+  cast call 0x24e1d8e068620b647ca097f961a61055f4f42d72 'text(bytes32,string)' … 'com.rival.fills' … # reads the record
+  pnpm verify:deployments                                                        # ens fields non-zero, schema-valid
+  # negative: a non-protocol account's setText on com.rival.* must revert (record the tx/reason for IMP-012)
+  ```
+- DONE-WHEN: `atlas.solvers.rival.eth` resolves through the canonical Sepolia Universal Resolver; at least one ENSIP-26 agent record and one `com.rival.*` stat are readable; the unauthorized write reverts.
+- STARTED: 2026-11-06T17:06:00Z
+- PROOF: 2026-11-06 canonical ENS addresses are in `deployments/sepolia.json` and `public-deployment.ts`. `NameCoder` is vendored. `forge test --match-path test/ens/*.sol` 24 passed, 1 skipped, on the ENS worktree. `cast resolve-name atlas.solvers.rival.eth` returned no resolver. `syncRecords` calls `setText` only when the resolver immutable is non-zero. The deployed RivalNames resolver is still zero. Branch `p0/ens` `dd2bb69`.
+- BLOCKED-BY: IMP-010
+- REWORK-REASON:
+- NOTES: `MockLabelStore` in the live deploy can stay for the `PermissionedRegistry`'s internal label bookkeeping if the ENSv2 `LabelStore` path requires more than wiring — resolution is what judges check. Budget-box path A at 1 h before switching to B. Terminal: Rival P0 · ENS.
+
+### IMP-012 — Evidence page: real ENS roles + live revert demos
+- STATE: WORKING
+- PRIORITY: P0
+- OWNER: MASTER
+- WHY: The Evidence page's two "attack" buttons print static "not simulated" strings (`evidence/page.tsx:134-139`) and the ENS role table reads zero addresses. PRD §5.5 steps 8–9 (the ENS "central, not cosmetic" proof) currently show nothing verifiable.
+- PRD: §5.5 steps 8–9, §5.8
+- DEPENDS: IMP-011
+- INPUTS: settlement ABI (`simulateFill` pattern), resolver ABI, `scripts/ens-role-check.ts`
+- TOUCHES: `apps/web/src/app/evidence/page.tsx`, `apps/web/src/data/**`, `scripts/ens-role-check.ts`
+- BUDGET: 1.0
+- AUTO: yes
+- DO:
+  - Replace the static strings with real `eth_call` simulations: (a) unlisted-solver gated fill — `RivalSettlement.fill` call with the unlisted bot as msg.sender → surface the `NotListed`/`NotAllowlisted` revert reason; (b) forge-record — a `setText` on `com.rival.*` from a random address → surface the access-control revert. Show the calldata + revert string, link the simulated tx in a "why this reverts" explainer.
+  - Un-stale `scripts/ens-role-check.ts:22` (registry is deployed) and run it; render its output (live role table) on the page; add the canonical ENS addresses + `rival.eth` node to the address list.
+- VERIFY:
+  ```bash
+  pnpm --filter @rival/web build
+  # headless: click both buttons on the production URL → revert reasons rendered, no static strings
+  ```
+- DONE-WHEN: Both buttons produce real revert reasons on the production URL; role table shows live on-chain roles.
+- STARTED: 2026-11-06T17:06:00Z
+- PROOF: 2026-11-06 Evidence buttons call `eth_call`. A public simulation of a listed fill from `0x1111…1111` reverted `NotListed()`. `setText` of `com.rival.fills` from `0x2222…2222` on the canonical resolver implementation reverted `EACUnauthorizedAccountRoles`. `pnpm --filter @rival/web test` 52 passed, including `simulate.test.ts`. Not clicked on the production URL. `scripts/ens-role-check.ts` no longer says the registry is undeployed. Branch `p0/ens` `dd2bb69`.
+- BLOCKED-BY: web-deploy
+- REWORK-REASON:
+- NOTES: Use `eth_call` from the browser via the RPC pool (already CSP-allowed); no keys needed. Terminal: Rival P0 · ENS.
+
+### IMP-030 — Implement the F5-declared SDK exports; make `solver:init` / `solver:dev` / `cli:*` real
+- STATE: TODO
+- PRIORITY: P1
+- OWNER: MASTER
+- WHY: "Anyone can compete" (PRD §2.6.3) is the openness USP and the Level C/D judge paths (§5.7). Every CLI currently exits 3 (`scripts/cli/io.ts:94-109`); the frozen F5 spec already declares the exact functions — only the implementations are missing. Also fixes `runSolver`'s config-vs-ports mismatch by shipping the adapter.
+- PRD: FR-SOL-04, §5.7 levels C/D, H-011
+- DEPENDS: IMP-002 shares the adapters — build them once in the SDK, consume from the runner
+- INPUTS: `specs/sdk-api.d.ts` (frozen signatures), `packages/solver-sdk/src/adapters.ts` (candidates exist)
+- TOUCHES: `packages/solver-sdk/src/index.ts`, `packages/solver-sdk/src/adapters.ts`, `packages/solver-sdk/src/**` (except `rpc-pool.ts`, `retry.ts` — SLAVE's)
+- BUDGET: 2.0
+- AUTO: yes
+- DO:
+  - Export `initSolver` (register label on `SolverRegistry` + name via RivalNames, return address/listed), `signAndPublish` (build + sign + POST to runner or direct Arkiv publish), `getBook` (`queryOpenIntents`), `verifyFill` (recompute required/fair/improvement from the `Filled` receipt, mirroring `RivalMath.receipt`), `watchIntents` (poll `queryOpenIntents` as an async iterable).
+  - Add the concrete ports adapter (viem public/wallet clients + RPC pool + Arkiv book) and a thin `runSolverFromConfig(config, ports)` used by both the CLI and IMP-002's runner bot so there is exactly one loop implementation.
+- VERIFY:
+  ```bash
+  pnpm solver:init --label verifytest && pnpm cli:book && pnpm cli:verify 0xeadff32d9c91c28bab2c9dc8136c7d1a2ef2c0091085f1a0e2d891645e9500ec
+  # solver:init registers on Sepolia; cli:book prints live rows; cli:verify prints improvement bps matching docs/demo.md
+  ```
+- DONE-WHEN: All three commands succeed from a clean clone with only `.env` filled; `pnpm --filter @rival/solver-sdk test` green.
+- STARTED:
+- PROOF:
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: Enables H-011 (non-author dry-run) — the founder should run it while recording the video (IMP-H04). No F5 change: signatures are already frozen.
+
+### IMP-031 — solver-template becomes a real runnable package
+- STATE: TODO
+- PRIORITY: P1
+- OWNER: SLAVE
+- WHY: The `/solver` page and README send judges to `pnpm solver:init` + `pnpm solver:dev`; the template's own `src/index.ts` is a scaffold marker. A judge who clones the template hits a dead end.
+- PRD: FR-SOL-04, §5.7 level D
+- DEPENDS: IMP-030
+- INPUTS: F5 (`specs/sdk-api.d.ts`), `scripts/cli/**` (existing wrapper patterns)
+- TOUCHES: `solver-template/bin/**`, `solver-template/package.json`, `solver-template/README.md`, `solver-template/src/**`
+- BUDGET: 0.5
+- AUTO: yes
+- DO:
+  - Real bin entry that parses flags (arg parsing/printing only — SLAVE rules) and calls the frozen SDK exports; `.env.example` already correct; README gets the 5-minute quickstart copied from the `/solver` page content.
+- VERIFY:
+  ```bash
+  cd solver-template && pnpm install && pnpm build && node bin/index.js --help
+  ```
+- DONE-WHEN: `--help` and `init --label <x>` run from a clean clone without touching repo-internal scripts.
+- STARTED:
+- PROOF:
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: No logic in this package — everything delegates to `@rival/solver-sdk`.
+
+### IMP-032 — One pegged-mode fill and one gated fill, recorded
+- STATE: TODO
+- PRIORITY: P1
+- OWNER: MASTER
+- WHY: The one existing fill is ABSOLUTE-mode and the V4Quoter `eth_call` in the demo reverted (FEEDBACK.md:34). The pegged mode (TWAP-referenced pricing) is the protocol's novel claim; a judge or the video must be able to point at a real pegged fill. The gated fill proves the ENS-gating story on-chain.
+- PRD: FR-SET (pegged), FR-ENS-05, §5.5 step 7
+- DEPENDS: IMP-002 (oracle fresh — pegged requires a live TWAP), IMP-003 (or CLI path from IMP-030)
+- INPUTS: live loop, `docs/demo.md` writer (`scripts/demo-live.ts:232 writeDocs` pattern — or append manually)
+- TOUCHES: `docs/demo.md`, `apps/web/src/content/**` (no — copy is SLAVE; MASTER only appends evidence facts)
+- BUDGET: 0.75
+- AUTO: no
+- DO:
+  - Publish one PEGGED balanced intent from the web (or `cli:intent`) and let the live loop fill it; publish one gate=`NAMED` (atlas-only) intent and one attempt from a second solver showing the skip/revert.
+  - Record hashes + parameters in `docs/demo.md` next to the absolute fill.
+- VERIFY:
+  ```bash
+  grep -c "0x" docs/demo.md   # new pegged + gated fill tx hashes present and resolvable on Etherscan
+  ```
+- DONE-WHEN: `docs/demo.md` lists a pegged fill and a gated-fill outcome, both verifiable on Sepolia Etherscan.
+- STARTED:
+- PROOF:
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: This is the video's 1:10–2:30 segment made real. Requires the oracle to be fresh (age < 120 s) at publish time.
+
+### IMP-033 — Fix the duplicated decay chart on `/`
+- STATE: DONE
+- PRIORITY: P0 (10-minute fix, do first)
+- OWNER: MASTER
+- WHY: The curve chart renders twice in the DOM (`page.tsx:290` renders `CurveChartView` standalone and `IntentComposerView.tsx:72` renders it again from `vm.preview`), which reads as a bug to every judge and doubled screen-reader noise.
+- PRD: usability criterion (details page)
+- DEPENDS: —
+- TOUCHES: `apps/web/src/app/page.tsx`
+- BUDGET: 0.2
+- AUTO: yes
+- DO: Delete the standalone render at `page.tsx:290` (keep the composer-internal one) — or the inverse if the standalone has the better aria context; exactly one chart in the DOM.
+- VERIFY:
+  ```bash
+  pnpm --filter @rival/web build && pnpm e2e --grep "@smoke"
+  # headless: document.querySelectorAll for the chart testid → length 1
+  ```
+- DONE-WHEN: One chart instance; smoke green.
+- STARTED: 2026-11-06T17:06:00Z
+- PROOF: 2026-11-06 `apps/web/src/app/page.tsx` no longer renders `CurveChartView`. The composer view still renders one chart. `pnpm --filter @rival/web test` 52 passed. The web agent's static export of commit `a6817da` contained one `curve-chart`.
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: Terminal: Rival P0 · Web.
+
+### IMP-034 — Deployment record + README freshness at release
+- STATE: TODO
+- PRIORITY: P1
+- OWNER: MASTER
+- WHY: `deployments/sepolia.json` has `arkivWriterAddresses: []` (Arkiv card: "README: wallet addresses that wrote entities + one query we can run"), a stale `commit: 5f38777`, and the README's runnable query references an expired entity. Judges run these checks.
+- PRD: §12.2 Arkiv row, §12.7
+- DEPENDS: IMP-002 (writers actually writing), IMP-005 (live row to reference)
+- TOUCHES: `deployments/sepolia.json`, `README.md`, `docs/demo.md`
+- BUDGET: 0.5
+- AUTO: no
+- DO:
+  - Fill `arkivWriterAddresses` (operator/publisher + maker bots + atlas), set `commit` to the release sha, re-run the README query live and paste a fresh row/timestamp, refresh the limitations section to match the final state (soak run or not — stay honest), add the pegged/gated fills from IMP-032.
+- VERIFY:
+  ```bash
+  pnpm verify:deployments
+  # run the README's SQL against Rabdi with a read key → returns the referenced row
+  ```
+- DONE-WHEN: `verify:deployments` green; README query demonstrably returns a live row.
+- STARTED:
+- PROOF:
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: Do at the release commit, after code freeze.
+
+### IMP-035 — Uptime monitor (human)
+- STATE: TODO
+- PRIORITY: P1
+- OWNER: FOUNDER
+- WHY: Availability window runs to Mon 23:59 IST; partners judge submitted materials asynchronously (details page) — a dead site during that window silently zeroes the demo.
+- PRD: FR-RUN-03, §5.1 (H-009)
+- DEPENDS: —
+- TOUCHES: none (external service)
+- BUDGET: 0.2
+- AUTO: no
+- DO: Free uptime monitor (e.g. Better Stack/UptimeRobot) on `https://rival-flame.vercel.app` and `https://rival-runner.fly.dev/api/health`, 5-min interval, phone alert; record URLs in PROOF.
+- VERIFY: monitor dashboard shows both up.
+- DONE-WHEN: Monitor live with alerts.
+- STARTED:
+- PROOF:
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: Also keep the Fly machine alive through Monday (`auto_stop off` already set — verify after deploys).
+
+### IMP-036 — Smoke/a11y specs cover the new live states
+- STATE: TODO
+- PRIORITY: P1
+- OWNER: SLAVE
+- WHY: New wallet/faucet/signing/published states and the book route need regression cover before the freeze; a11y gate must not regress on the new receipt/auction content.
+- PRD: AT-01/15 (M-027 scope)
+- DEPENDS: IMP-003, IMP-004, IMP-005
+- TOUCHES: `apps/web/e2e/smoke.spec.ts`, `apps/web/e2e/a11y.spec.ts`, `apps/web/e2e/support/**`
+- BUDGET: 0.5
+- AUTO: yes
+- DO: Extend page objects (Trade: wallet + faucet + submit states; Book: rows/banner; Auction: receipt testid) and the smoke/a11y assertions. Flows beyond smoke stay MASTER's (`flows.spec.ts`).
+- VERIFY:
+  ```bash
+  pnpm e2e --grep "@smoke" && pnpm e2e --grep a11y
+  ```
+- DONE-WHEN: Both green against the rebuilt export.
+- STARTED:
+- PROOF:
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: Playwright config reuses `out/` if present — rebuild first (`pnpm web:build`) so the suite tests current markup.
+
+### IMP-043 — Keep `arkiv/friction.md` a live log through tonight
+- STATE: TODO
+- PRIORITY: P1
+- OWNER: MASTER
+- WHY: Arkiv judging is 25% on `friction.md` specifically; it currently ends at the S4 spike. The integration work in IMP-001/002/005 will surface new real friction (rotation behavior under the live loop, `extendEntity` cadence for presence over hours, degraded-mode transitions) that judges expect to see captured.
+- PRD: §12.4
+- DEPENDS: IMP-002, IMP-005
+- TOUCHES: `arkiv/friction.md`
+- BUDGET: 0.25
+- AUTO: no
+- DO: Append dated entries for everything the live loop hits tonight (latency, quotas, key rotation, expiry behavior); update the single highest-impact improvement line if the live loop changed it.
+- VERIFY: `pnpm preflight --only docs` (no `FILL(` markers); entries dated 2026-11-06/07 present.
+- DONE-WHEN: Friction log reflects the live loop, not only the spike.
+- STARTED:
+- PROOF:
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: Honest friction is graded, not penalized — the card asks for it.
+
+### IMP-H01 — Make the GitHub repo public NOW (H-001)
+- STATE: DONE
+- PRIORITY: P0
+- OWNER: FOUNDER
+- WHY: All three partner cards require an open-source repo; the ETHGlobal submission needs the repository link; Uniswap audits README pointers. This is a hard gate on 100% of the prize money and takes minutes.
+- DEPENDS: —
+- DO: Create the public repo (suggested `rival`), push `main`, set the MIT holder name (LICENSE currently unresolved — README limitation), record `GITHUB_REPO_URL` in `secrets/.env.local`. Verify `pnpm env:check --target ci`.
+- VERIFY: anonymous browser opens the repo; commit history visible (104 commits ≥ the 40-commit bar).
+- DONE-WHEN: Repo public with full history.
+- STARTED: 2026-11-06T17:06:00Z
+- PROOF: 2026-11-06 `gh repo view shreyas-sovani/rival` visibility=PUBLIC isPrivate=false; unauthenticated GET https://github.com/shreyas-sovani/rival and the API both returned 200. URL https://github.com/shreyas-sovani/rival. main has 104 commits at 5d2bcfc. FEEDBACK.md is on that URL. No visibility change was required.
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: Do this before the Uniswap form (IMP-H03) — the form needs the FEEDBACK.md GitHub link. Terminal: Rival P0 · Human gates. LICENSE copyright line is already "Copyright (c) 2026 Shreyas Sovani".
+
+### IMP-H02 — Confirm Arkiv keys + all runner secrets are live on Fly (closes H-005)
+- STATE: DONE
+- PRIORITY: P0
+- OWNER: FOUNDER
+- WHY: IMP-001/002 publish and read through Arkiv; if `ARKIV_ACCESS_KEY_WRITE`/`READS` are not among the deployed Fly secrets the loop degrades on boot. S4 proved the keys work from the operator machine — the runner needs its own.
+- DEPENDS: —
+- DO: `fly secrets list -a rival-runner` against the 15 vars in `apps/runner/.env.example`; import any missing from `secrets/.env.local`; note in PROOF which wallets hold the write/read keys.
+- VERIFY: `fly ssh console -a rival-runner -- 'env | grep -c ARKIV'` ≥ 2 (names only, never values in logs).
+- DONE-WHEN: All runner env vars deployed.
+- STARTED: 2026-11-06T17:06:00Z
+- PROOF: 2026-11-06 `flyctl secrets list -a rival-runner` (names only, all Deployed). Every key in apps/runner/.env.example is present, including ARKIV_ACCESS_KEY_WRITE and ARKIV_ACCESS_KEYS_READ. No import was required. tGLM balances were not rechecked.
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: Also confirm tGLM on the publisher wallet(s) from https://hub.arkiv.network/faucet (left open in H-002 NOTES). Terminal: Rival P0 · Human gates.
+
+### IMP-H03 — Submit the Uniswap Developer Feedback Form (H-012)
+- STATE: TODO
+- PRIORITY: P0
+- OWNER: FOUNDER
+- WHY: Printed Uniswap qualification: "A public GitHub repository with open-source code, a FEEDBACK.md file, and a completed submission of the … feedback form that includes the link to your FEEDBACK.md file. Submissions without it will be reviewed and audited before winners are finalized." `FEEDBACK.md` exists and is honest (verified: hook salt mining, Permit2 witness linking, quoter revert). Not submitting it risks the entire $10k track.
+- DEPENDS: IMP-H01
+- DO: Read `FEEDBACK.md` once for voice/honesty; submit https://developers.uniswap.org/hackathon-feedback (verified live today, HTTP 200) with the GitHub link to FEEDBACK.md; save the confirmation screenshot to `docs/uniswap-feedback-receipt.png`.
+- VERIFY: screenshot exists in `docs/`.
+- DONE-WHEN: Form submitted; screenshot committed.
+- STARTED:
+- PROOF:
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: 15 minutes. Highest cash-per-minute item in this entire section.
+
+### IMP-H04 — Record the video and submit on ETHGlobal before 09:00 IST (H-013)
+- STATE: TODO
+- PRIORITY: P0
+- OWNER: FOUNDER (agents supply IMP-034 docs; MASTER puts the video link in README)
+- WHY: No submission = no judging, no finalist slot, no partner prizes. Late submissions are not accepted.
+- DEPENDS: IMP-004 (the flow the video shows), IMP-032 (pegged/gated segments), IMP-034
+- DO: Follow PRD §12.5 script (real-time, own voice, ≥720p, 2:00–4:00, ≤4 bullet slides, ≤20 s backstory; no TTS). Submit on the dashboard: title, ≤150-word description (draft in PRD §12.1), repo link, partner picks **Uniswap Foundation / ENS / Arkiv** (the only way partners see the project — verify all three are selected). Target submission by **07:30 IST**.
+- VERIFY: dashboard shows the submission with 3 partner picks.
+- DONE-WHEN: Submitted with video + 3 picks.
+- STARTED:
+- PROOF:
+- BLOCKED-BY:
+- REWORK-REASON:
+- NOTES: Plan to be at the Uniswap, ENS and Arkiv booths Saturday morning regardless — one organizer page implies booth presentations for partner prizes (unresolved conflict in `research.md`); attending costs nothing.
+
+### Cut line (explicitly NOT doing tonight)
+
+- Indexer service, 5-solver fleet, 6/24-hour soaks (M-026 full scope) — liveness beats completeness tonight; the one-hour soak stays nice-to-have only if IMP-002 lands early.
+- `e2e:synthetic` / CI un-stubbing (S-003 scope) — no judge touches CI.
+- Swarm bonus (H-014 default no), any fourth sponsor, redesigns, new product surfaces.
+- The `catalog.tsx` design-system page and unused content (`troubleshooting.ts`, `SPONSOR_EVIDENCE`) can ship unrendered — cosmetic.
+
+**Measurement for this section:** after freeze, re-run the §5.5 judge journey steps 1–10 against the production URL with a clean profile and record pass/fail per step in `docs/demo.md`. That table — not this file — is what the submission stands on.

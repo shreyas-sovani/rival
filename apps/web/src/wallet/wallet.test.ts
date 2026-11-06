@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { memoryStorage } from "./storage.ts";
-import { createEncryptedWallet, unlockWallet } from "./wallet.ts";
+import { createEncryptedWallet, openBurnerWallet, unlockWallet } from "./wallet.ts";
 
 describe("encrypted wallet", () => {
   it("round-trips the address and keeps the private key out of storage", async () => {
@@ -15,6 +15,19 @@ describe("encrypted wallet", () => {
     for (const value of map.values()) {
       expect(value.includes(opened.privateKey)).toBe(false);
       expect(value.toLowerCase().includes(opened.privateKey.slice(2).toLowerCase())).toBe(false);
+    }
+  });
+
+  it("creates a burner on first open and unlocks the same address later", async () => {
+    const map = new Map<string, string>();
+    const storage = memoryStorage(map);
+    const first = await openBurnerWallet(storage);
+    const second = await openBurnerWallet(storage);
+
+    expect(second.address).toBe(first.address);
+    for (const value of map.values()) {
+      expect(value.includes(first.privateKey)).toBe(false);
+      expect(value.toLowerCase().includes(first.privateKey.slice(2).toLowerCase())).toBe(false);
     }
   });
 

@@ -8,7 +8,7 @@ import type { RunnerDeps } from "../services/deps.ts";
 import { createHandlers } from "./create.ts";
 import { FAUCET_CLAIM_TYPES, faucetClaimTypedData } from "./faucet.ts";
 import { MAX_BLOCK_LAG_SEC, MAX_ORACLE_AGE_SEC } from "./health.ts";
-import { ApiError, NotImplemented, type ErrorCode, type FaucetRequest, type Handlers, type IntentJson } from "./types.ts";
+import { ApiError, type ErrorCode, type FaucetRequest, type Handlers, type IntentJson } from "./types.ts";
 
 const CHAIN_ID = 11155111;
 const PERMIT2 = "0x000000000022D473030F116dDEE9F6B43aC78BA3" as const;
@@ -646,8 +646,9 @@ describe("stream", () => {
 });
 
 describe("service stubs", () => {
-  it("leaves boot and the Sepolia check on M-022", async () => {
-    await expect(startServices()).rejects.toBeInstanceOf(NotImplemented);
+  it("does not throw on boot and keeps the check unimplemented until services are on", async () => {
+    vi.stubEnv("RUNNER_SERVICES", "");
+    await expect(startServices()).resolves.toBeUndefined();
     await expect(runCheck()).rejects.toMatchObject({ message: "NOT_IMPLEMENTED(M-022)" });
   });
 });

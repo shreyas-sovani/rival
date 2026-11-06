@@ -37,6 +37,7 @@ export const schemas = {
   CancelRequest: component("CancelRequest"),
   CancelResponse: component("CancelResponse"),
   IntentStreamData: component("IntentStreamData"),
+  BookResponse: component("BookResponse"),
   ErrorBody: component("ErrorBody"),
   NotImplementedBody: component("NotImplementedBody"),
 };

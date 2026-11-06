@@ -39,6 +39,7 @@ export function BookView({ vm }: { vm: BookVM }) {
                 </td>
                 <td>
                   {row.pair} {row.amountIn} {row.mode} {row.gate}
+                  {row.floor ? ` floor ${row.floor}` : ""}
                 </td>
                 <td>
                   {row.status} {row.chainStatus} {row.signatureOk ? "signature ok" : "signature failed"} {row.deadline}

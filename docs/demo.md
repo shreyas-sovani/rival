@@ -53,3 +53,18 @@ Fill: 0xeadff32d9c91c28bab2c9dc8136c7d1a2ef2c0091085f1a0e2d891645e9500ec
 msg.sender is the atlas solver. That transaction delegates the account to UniswapSolver so settlement's callback runs the solver swap.
 
 Cleared the temporary solver delegation: 0x9ab62bb28557604429282780370e39499c62645fc2b8e075b65aea456a781d05
+
+## Judge journey on the web pages
+
+Status of PRD §5.5 steps 1–6, 10, and 13 after the trade, auction, book, and solvers pages were wired. No new transaction hashes were produced in this pass. Steps that need the live runner or a real fill are marked not yet observed.
+
+| Step | What the page does now | Observed |
+| --- | --- | --- |
+| 1 | Trade creates an on-device burner wallet and shows its address. Get test tokens is enabled only when runner health reports a stocked faucet (`faucet.stocked`, or house tWETH and tUSDC both above zero). The claim is an EIP-712 `FaucetClaim` posted to `/api/faucet`. The deployed runner verifies that claim against the tWETH address. | Not yet observed in a browser. `GET /api/health` on 2026-11-07 still shows house tWETH `0` and tUSDC `0`, so the button stays disabled. No mint transaction from this pass. |
+| 2 | Trade reads the Sepolia pool and the hook TWAP for the curve preview. The presence chip reads `GET /api/intents?pair=tWETH/tUSDC&status=open`. `source: "arkiv"` and `presence > 0` shows "N solvers online". `source: "degraded"` shows the banner `Book degraded: using runner feed`. | The public GET on 2026-11-07 returned HTTP 200, `source: "arkiv"`, `presence: 2`, and zero rows. The production site has not been redeployed, so the chip on that URL was not observed. |
+| 3 | Sign & publish shows the plain-language signing summary, then signs the Permit2 witness and posts `{intent, signature}` to `/api/intents`. Success routes to `/auction?h=<intentHash>`. `degraded: true` stores the book-degraded banner. | Not yet observed. No intent was published from this worktree. |
+| 4 | `/auction?h=` rebuilds the curve with `@rival/intent` `requiredAt` from the signed intent stored in this browser, and polls settlement `Filled` and `Cancelled` logs about every 4 seconds. | Not yet observed. No new fill. The absolute fill already listed above is not loaded as a receipt unless its log is read for that hash. |
+| 5 | A `Filled` log builds the receipt with `receiptMath`: amount out, curve bps, fair output, improvement bps, solver address, and a Sepolia Etherscan link. The solver ENS name stays blank. There is no receipt when the log is missing. | Not yet observed. |
+| 6 | `/solvers` reads `SolverRegistry` `labelOf`, `isListed`, and `stats`, sorted by fills. ENS names stay blank. The makers disclosure stays on the page. A successful read with rows does not show the registry-unavailable warning. | Not yet observed in a browser. No fill count was copied from chain into this file. |
+| 10 | Cancel signs settlement `Cancel` typed data and posts `{intentHash, deadline, signature}` to `/api/cancel`. Success shows cancelled and stops the poll. | Not yet observed. |
+| 13 | `/book` polls the same open-intents endpoint every 10 seconds and shows pair, size, floor, deadline countdown, gate, a View entity link, and the copyable Arkiv query. | The public endpoint on 2026-11-07 returned HTTP 200 with `presence: 2` and no open rows. The production Book page is still the previous build, so the page itself was not observed. |

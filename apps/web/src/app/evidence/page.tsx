@@ -1,7 +1,8 @@
 "use client";
 
 import { PAIR, buildIntentQuery, buildPresenceQuery } from "@rival/arkiv";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { parentNode, readLiveRoles, simulateForgeRecord, simulateUnlistedFill } from "./simulate.ts";
 import { EvidenceView } from "../../components/views/EvidenceView.tsx";
 import { KNOWN_LIMIT } from "../../content/evidence-copy.ts";
 import { PUBLIC_INTENTS_NOTICE } from "../../content/disclaimers.ts";
@@ -85,14 +86,23 @@ const queries = [
 
 const banner: BannerVM = {
   kind: "warn",
-  text: isLiveAddress(deployment.ens?.universalResolverV2)
-    ? "Arkiv queries and chain calls are unavailable from this page. The queries below are not being run."
-    : "Arkiv queries and chain calls are unavailable from this page. The queries below are not being run. The ENS resolver address is unset, so ENS reads are unavailable.",
+  text: "Arkiv queries on this page are not executed. The buttons run Sepolia eth_call simulations and do not send transactions. Name reads use the canonical universal resolver proxy.",
 };
 
 export default function EvidencePage() {
   const [unlistedResult, setUnlistedResult] = useState("");
   const [forgeResult, setForgeResult] = useState("");
+  const [liveRoles, setLiveRoles] = useState("reading Sepolia roles…");
+
+  useEffect(() => {
+    let cancelled = false;
+    void readLiveRoles().then((text) => {
+      if (!cancelled) setLiveRoles(text);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const solverRows = (deployment.solvers ?? []).map((solver, index) =>
     addressRow(solver.label ? `Solver ${solver.label}` : `Solver ${index + 1}`, solver.address),
   );
@@ -113,6 +123,15 @@ export default function EvidencePage() {
       addressRow("Settlement", deployment.settlement),
       addressRow("Registry", deployment.registry),
       addressRow("Names", deployment.names),
+      addressRow("ETH registrar", deployment.ens?.ethRegistrar),
+      addressRow("ETH registry", deployment.ens?.ethRegistry),
+      addressRow("Root registry", deployment.ens?.rootRegistry),
+      addressRow("User registry implementation", deployment.ens?.userRegistryImpl),
+      addressRow("Verifiable factory", deployment.ens?.verifiableFactory),
+      addressRow("Permissioned resolver implementation", deployment.ens?.permissionedResolverImpl),
+      addressRow("Universal resolver v2", deployment.ens?.universalResolverV2),
+      addressRow("Universal resolver proxy", deployment.ens?.universalResolverProxy),
+      textRow("rival.eth node", parentNode(deployment.ens?.parentLabel)),
       ...uniswapRows,
       ...solverRows,
       ...writerRows,
@@ -121,10 +140,7 @@ export default function EvidencePage() {
     ensRoles: [
       textRow("Parent", deployment.ens?.parentLabel),
       addressRow("Solvers registry", deployment.ens?.solversRegistry),
-      addressRow("Universal resolver", deployment.ens?.universalResolverV2),
-      addressRow("ETH registrar", deployment.ens?.ethRegistrar),
-      addressRow("ETH registry", deployment.ens?.ethRegistry),
-      addressRow("Root registry", deployment.ens?.rootRegistry),
+      textRow("Live roles", liveRoles),
     ],
     queries,
     limitations: [KNOWN_LIMIT, PUBLIC_INTENTS_NOTICE],
@@ -132,10 +148,16 @@ export default function EvidencePage() {
     unlistedResult,
     forgeResult,
     onUnlistedFill: () => {
-      setUnlistedResult("Chain call unavailable. The gated-fill revert was not simulated.");
+      setUnlistedResult("eth_call in flight");
+      void simulateUnlistedFill().then(setUnlistedResult, (error: unknown) => {
+        setUnlistedResult(error instanceof Error ? error.message : "eth_call failed");
+      });
     },
     onForgeRecord: () => {
-      setForgeResult("Chain call unavailable. The forge-record revert was not simulated.");
+      setForgeResult("eth_call in flight");
+      void simulateForgeRecord().then(setForgeResult, (error: unknown) => {
+        setForgeResult(error instanceof Error ? error.message : "eth_call failed");
+      });
     },
   };
 

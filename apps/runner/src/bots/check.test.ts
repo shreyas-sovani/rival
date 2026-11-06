@@ -95,19 +95,28 @@ describe("runCheck", () => {
 describe("services runCheck", () => {
   it("stays NotImplemented unless RUNNER_SERVICES is on", async () => {
     vi.stubEnv("RUNNER_SERVICES", "off");
-    vi.stubEnv("SEPOLIA_RPC_URL", FAKE_RPC);
-    await expect(startServices()).rejects.toBeInstanceOf(NotImplemented);
-    await expect(runServicesCheck()).rejects.toMatchObject({ message: "NOT_IMPLEMENTED(M-022)" });
+    vi.stubEnv("SEPOLIA_RPC_URL", "");
+    vi.stubEnv("MM_PRIVATE_KEY", "");
+    vi.stubEnv("HOUSE_PRIVATE_KEY", "");
+    vi.stubEnv("SOLVER_KEYS_JSON", "");
+    vi.stubEnv("MAKERBOT_KEYS_JSON", "");
+    await expect(runServicesCheck()).rejects.toBeInstanceOf(NotImplemented);
+    await expect(startServices()).resolves.toBeUndefined();
     expect(mocks.createPublicClient).not.toHaveBeenCalled();
   });
 
-  it("runs one local cycle when RUNNER_SERVICES is on and does not boot bots", async () => {
+  it("returns non-zero when the oracle, presence, or book is not ready", async () => {
     vi.stubEnv("RUNNER_SERVICES", "on");
     vi.stubEnv("SEPOLIA_RPC_URL", FAKE_RPC);
+    vi.stubEnv("ARKIV_ACCESS_KEYS_READ", "");
+    vi.stubEnv("ARKIV_ACCESS_KEY_WRITE", "");
+    vi.stubEnv("MM_PRIVATE_KEY", "");
+    vi.stubEnv("HOUSE_PRIVATE_KEY", "");
+    vi.stubEnv("SOLVER_KEYS_JSON", "");
+    vi.stubEnv("MAKERBOT_KEYS_JSON", "");
     mocks.readContract.mockResolvedValue(1_700_000_000n);
 
-    await expect(runServicesCheck()).resolves.toBe(0);
-    await expect(startServices()).rejects.toBeInstanceOf(NotImplemented);
-    expect(mocks.readContract).toHaveBeenCalledTimes(1);
+    await expect(runServicesCheck()).resolves.not.toBe(0);
+    await expect(startServices()).resolves.toBeUndefined();
   });
 });

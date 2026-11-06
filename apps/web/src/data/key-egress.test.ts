@@ -28,7 +28,12 @@ describe("wallet key egress", () => {
         url: capturedUrl(input),
         body: typeof init?.body === "string" ? init.body : "",
       });
-      return Promise.resolve(new Response(null, { status: 204 }));
+      return Promise.resolve(
+        new Response(JSON.stringify({ intentHash: `0x${"ab".repeat(32)}`, degraded: false }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      );
     });
 
     const storage = memoryStorage(new Map());
@@ -61,11 +66,15 @@ describe("wallet key egress", () => {
     await postSignedIntent({
       endpoint: "https://publisher.example/api/intents",
       wallet,
+      intent,
       signature: signed.signature,
-      summary: signed.summary,
     });
 
     expect(calls.length).toBeGreaterThan(0);
+    const sent = JSON.parse(calls[0]?.body ?? "{}") as { intent?: { amountIn?: string }; signature?: string };
+    expect(Object.keys(sent).sort()).toEqual(["intent", "signature"]);
+    expect(sent.signature).toBe(signed.signature);
+    expect(sent.intent?.amountIn).toBe(intent.amountIn.toString());
     const bare = wallet.privateKey.slice(2).toLowerCase();
     for (const call of calls) {
       expect(call.url.includes(wallet.privateKey)).toBe(false);

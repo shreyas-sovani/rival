@@ -108,6 +108,81 @@ describe("GET /api/health", () => {
   });
 });
 
+describe("runner deps", () => {
+  it("reads chain addresses from the sepolia deployment", async () => {
+    const { loadDeployments } = await import("@rival/chain");
+    const { defaultRunnerDeps } = await import("./deps.ts");
+    const deployment = loadDeployments();
+    expect(defaultRunnerDeps.chain.settlement.toLowerCase()).toBe(deployment.settlement.toLowerCase());
+    expect(defaultRunnerDeps.chain.tokens.weth.toLowerCase()).toBe(deployment.tokens.tWETH.toLowerCase());
+    expect(defaultRunnerDeps.chain.tokens.usdc.toLowerCase()).toBe(deployment.tokens.tUSDC.toLowerCase());
+    expect(defaultRunnerDeps.chain.permit2.toLowerCase()).toBe("0x000000000022d473030f116ddee9f6b43ac78ba3");
+    expect(defaultRunnerDeps.chain.settlement).not.toBe("0x0000000000000000000000000000000000000000");
+  });
+
+  it("degrades quotes and refuses a fake publish when rpc and arkiv are unset", async () => {
+    vi.stubEnv("SEPOLIA_RPC_URL", "");
+    vi.stubEnv("SEPOLIA_RPC_URL_2", "");
+    vi.stubEnv("SEPOLIA_RPC_URL_3", "");
+    vi.stubEnv("ARKIV_ACCESS_KEYS_READ", "");
+    vi.stubEnv("ARKIV_ACCESS_KEY_WRITE", "");
+    vi.stubEnv("RELAYER_PRIVATE_KEY", "");
+    vi.stubEnv("HOUSE_PRIVATE_KEY", "");
+    const { FillSimulationFailed } = await import("../handlers/types.ts");
+    const { defaultRunnerDeps } = await import("./deps.ts");
+    const { nonceBitUsed, fillReachedSignature } = await import("./chain.ts");
+
+    expect(nonceBitUsed(1n, 0n)).toBe(true);
+    expect(nonceBitUsed(1n, 1n)).toBe(false);
+    expect(fillReachedSignature(new Error("InvalidSigner"))).toBe(true);
+    expect(fillReachedSignature(new Error("OracleUnavailable"))).toBe(false);
+    await expect(defaultRunnerDeps.oracleQuote({ oracleWindow: 60, amountIn: 1n, tokenIn: defaultRunnerDeps.chain.tokens.weth } as never)).resolves.toBeNull();
+    await expect(defaultRunnerDeps.nonceUsed(defaultRunnerDeps.chain.settlement, 1n)).rejects.toThrow(/nonce unread/);
+    await expect(defaultRunnerDeps.simulateFill({} as never)).rejects.toBeInstanceOf(FillSimulationFailed);
+    await expect(defaultRunnerDeps.publish(defaultRunnerDeps.arkiv, {} as never)).rejects.toThrow();
+  });
+
+  it("verifies a Cancel signature through the settlement domain", async () => {
+    const { privateKeyToAccount } = await import("viem/accounts");
+    const { defaultRunnerDeps } = await import("./deps.ts");
+    const account = privateKeyToAccount("0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d");
+    const intentHash = `0x${"ab".repeat(32)}` as const;
+    const deadline = 1_700_000_000;
+    const signature = await account.signTypedData({
+      domain: {
+        name: "RivalSettlement",
+        version: "1",
+        chainId: defaultRunnerDeps.chain.chainId,
+        verifyingContract: defaultRunnerDeps.chain.settlement,
+      },
+      types: {
+        Cancel: [
+          { name: "intentHash", type: "bytes32" },
+          { name: "deadline", type: "uint256" },
+        ],
+      },
+      primaryType: "Cancel",
+      message: { intentHash, deadline: BigInt(deadline) },
+    });
+    await expect(defaultRunnerDeps.verifyCancel({ intentHash, deadline, signature })).resolves.toBe(true);
+    await expect(
+      defaultRunnerDeps.verifyCancel({ intentHash, deadline, signature: `0x${"11".repeat(65)}` }),
+    ).resolves.toBe(false);
+  });
+
+  it("returns the degraded book when Arkiv is unset", async () => {
+    vi.stubEnv("ARKIV_ACCESS_KEYS_READ", "");
+    vi.stubEnv("ARKIV_ACCESS_KEY_WRITE", "");
+    const response = await healthApp().request("/api/intents?pair=tWETH/tUSDC&status=open");
+    const body: unknown = await response.json();
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("application/json");
+    expect(schemas.BookResponse.safeParse(body).success).toBe(true);
+    expect(body).toMatchObject({ rows: [], presence: 0, source: "degraded" });
+    expect((body as { asOf: number }).asOf).toEqual(expect.any(Number));
+  });
+});
+
 async function readHeadNumber(): Promise<bigint> {
   const rpc = process.env.SEPOLIA_RPC_URL?.trim();
   if (!rpc) throw new Error("sepolia head read failed");

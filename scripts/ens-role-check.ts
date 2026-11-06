@@ -16,7 +16,7 @@ export type RoleDiff = {
   grant: RoleGrant;
 };
 
-const BLOCKED = "BLOCKED: live role read waits for a deployed solvers registry";
+const BLOCKED = "BLOCKED: solvers registry or RivalNames address is zero";
 const ZERO = "0x0000000000000000000000000000000000000000";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -153,6 +153,8 @@ export function solversRegistryFromDeployment(raw: unknown): { registry: string;
 }
 
 function loadRpc(): string {
+  const fromEnv = process.env.SEPOLIA_RPC_URL?.trim();
+  if (fromEnv) return fromEnv;
   let text: string;
   try {
     text = readFileSync(path.join(root, "secrets/.env.local"), "utf8");
