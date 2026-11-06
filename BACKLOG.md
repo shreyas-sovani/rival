@@ -783,7 +783,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C3 gate input.**
 
 ### M-027 — E2E flows, synthetic monitor, failure drills
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: §11.2 AT-01/15, FR-OPS-01
 - DEPENDS: M-024, S-011, M-022
@@ -798,13 +798,13 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm e2e
   ```
 - DONE-WHEN: Suite green on production URL with a clean profile.
-- STARTED:
+- STARTED: 2026-11-06T13:55:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES:
 
 ### M-029 — Final docs content (README with line map, FEEDBACK.md, arkiv/*.md, evidence)
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: §12
 - DEPENDS: S-018, M-018, M-019, M-026
@@ -819,7 +819,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm preflight --only docs
   ```
 - DONE-WHEN: `grep -R "FILL(" README.md FEEDBACK.md AI_USAGE.md RUNBOOK.md LICENSE arkiv` returns nothing (LICENSE holder resolved via H-001); links resolve.
-- STARTED:
+- STARTED: 2026-11-06T13:55:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES:
@@ -971,7 +971,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Pinned Solady ERC20 v0.1.26 has `_givePermit2InfiniteAllowance`. This token returns true.
 
 ### S-006 — Web shell: Next.js static export, Tailwind, shadcn, layout, route shells
-- STATE: TODO
+- STATE: WORKING
 - OWNER: SLAVE
 - PRD: FR-OPS-01, §6.6
 - DEPENDS: S-001, M-004
