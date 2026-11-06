@@ -1,16 +1,11 @@
-import { NotImplemented, type Handlers } from "./types";
+import { defaultRunnerDeps } from "../services/deps.ts";
+import { createHandlers } from "./create.ts";
+import type { Handlers } from "./types.ts";
 
-function unimplemented(taskId: string): () => Promise<never> {
-  return async () => {
-    throw new NotImplemented(taskId);
-  };
-}
+/**
+ * Live handlers. Effects come from `defaultRunnerDeps`, which never dials a network.
+ * Tests build a separate set with `createHandlers` and do not call this object.
+ */
+export const handlers: Handlers = createHandlers(defaultRunnerDeps);
 
-/** Every endpoint. Stubs until M-021. Routes must map `NotImplemented` to HTTP 501, never to 200. */
-export const handlers: Handlers = {
-  health: unimplemented("M-021"),
-  faucet: unimplemented("M-021"),
-  intents: unimplemented("M-021"),
-  cancel: unimplemented("M-021"),
-  stream: unimplemented("M-021"),
-};
+export { createHandlers };

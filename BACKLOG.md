@@ -654,7 +654,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Unit-tested against injected fakes while M-014 is writing settlement. No fork fills until M-014 and M-015 exist. Do not edit the lockfile.
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
-- STATE: WORKING
+- STATE: DONE
 - OWNER: MASTER
 - PRD: FR-RUN-01..03, FR-ARK-05, §7.5
 - DEPENDS: M-003, M-010, M-019, S-012
@@ -671,8 +671,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Contract tests for each endpoint incl. error codes; forged/expired/insufficient-balance intents rejected.
 - STARTED: 2026-11-06T07:50:00Z
-- PROOF:
+- PROOF: pnpm --filter @rival/runner test && pnpm --filter @rival/runner typecheck | 32 passed, 0 failed | apps/runner/src/handlers/handlers.test.ts
 - BLOCKED-BY:
+- NOTES: Signatures in handlers/types.ts are unchanged. services/index.ts still throws NotImplemented for M-022. Freeze bumped because handlers/index.ts is in F3.
 - NOTES:
 
 ### M-022 — Runner services: indexer, market maker, maker bots, solver bots, orchestration
@@ -1107,7 +1108,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### S-012 — Runner skeleton: server, config, logger, db, middleware, routes, SSE helper, Docker/Fly
-- STATE: TODO
+- STATE: REWORK
 - OWNER: SLAVE
 - PRD: FR-RUN-*, §9.2
 - DEPENDS: S-001, M-003
@@ -1127,6 +1128,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - STARTED:
 - PROOF:
 - BLOCKED-BY:
+- REWORK-REASON: F3 handlers/index.ts now implements health, faucet, intents, cancel, and stream. types.ts signatures are unchanged. Do not restore the stubs or remove the new apps/runner dependencies. Smoke must accept those implemented responses and the spec's validation errors. startServices and runCheck still throw NotImplemented, so --check still exits 3.
 - NOTES: Handlers are MASTER's (`handlers/**`). Do not create them.
 
 ### S-013 — ABI generation pipeline and typed deployments loader

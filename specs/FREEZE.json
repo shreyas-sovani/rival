@@ -1,9 +1,9 @@
 {
-  "version": 1,
+  "version": 2,
   "files": [
     {
       "path": "apps/runner/src/handlers/index.ts",
-      "sha256": "7fe22fd2bab2ed21a3c4e2c3c98869cba46189f466781e4e7ff0a006f99a58a4",
+      "sha256": "1b41543053906a3002d9863dc832af3d25cbc810d5499d7138914fcec395badd",
       "set": "F3"
     },
     {
@@ -142,6 +142,11 @@
       "version": 1,
       "time": "2026-11-06T07:00:33.444Z",
       "reason": "C0"
+    },
+    {
+      "version": 2,
+      "time": "2026-11-06T08:13:50.868Z",
+      "reason": "M-021 replaced handler stubs"
     }
   ]
 }
