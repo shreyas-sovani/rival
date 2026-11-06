@@ -495,7 +495,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Both pools return expected slot0 via StateView; Quoter returns sane quotes both directions.
 - STARTED: 2026-11-06T09:25:00Z
-- PROOF: pnpm exec tsx scripts/pools-deploy.ts --broadcast | schema ok; slot0 true; quotes true | deployments/sepolia.json
+- PROOF: e64c447 | pnpm exec tsx scripts/pools-deploy.ts --broadcast | schema ok; slot0 true; quotes true | deployments/sepolia.json
 - BLOCKED-BY:
 - NOTES: First two creates ran out of gas and deployed no code. The broadcast that landed used an 800 percent gas estimate. Pool A and Pool B share sqrt price 4339505179874779489431521 and tick -196257. Settlement, registry, names, and ENS addresses in the JSON are zero placeholders.
 
