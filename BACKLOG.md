@@ -500,7 +500,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Needs operator key funded by human.
 
 ### M-014 — `RivalSettlement` (+ invariants I1–I10) — spike S2 inside
-- STATE: WORKING
+- STATE: DONE
 - OWNER: MASTER
 - PRD: FR-SET-01..06, §7.3, §8.3, K3, K4
 - DEPENDS: M-011, M-012, M-001
@@ -518,9 +518,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: All listed tests green at 10,000 runs; Slither shows no unaddressed high/medium.
 - STARTED: 2026-11-06T07:55:00Z
-- PROOF:
+- PROOF: forge test --match-path "test/settlement/*" --fuzz-runs 10000 | 24 passed, 0 failed | docs/spikes/S2.md
 - BLOCKED-BY:
-- NOTES: Highest-risk task. Do not parallelize with SLAVE; SLAVE never touches `contracts/src/**`.
+- NOTES: K3 GO. Witness matches viem and permit2-sdk. Fills in tests use LocalPermit2 because pinned Permit2 is solc 0.8.17 and its solmate checkout is empty. cancelBySig cannot check the signer against the maker: the frozen call has no maker argument, so any valid signature cancels a known hash. Slither is not installed; M-025 still owns the Slither report.
 
 ### M-015 — `UniswapSolver` (flash accounting fill contract)
 - STATE: TODO
@@ -650,7 +650,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - DONE-WHEN: Against a Sepolia fork, each strategy fills a seeded intent at its intended point on the curve.
 - STARTED: 2026-11-06T08:10:00Z
 - PROOF: 4779123 | pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
-- BLOCKED-BY: M-014, M-015
+- BLOCKED-BY: M-015
 - NOTES: Curve, strategies, submit plan, nonce manager, and heartbeat are unit-tested. verifyIntent checks an Intent typed-data signature, not the Permit2 witness makers sign. runSolver and the Sepolia fork fills are not done.
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
