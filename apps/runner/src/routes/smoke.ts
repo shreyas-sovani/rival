@@ -7,7 +7,10 @@ export interface SmokeCall {
   body?: unknown;
 }
 
-/** One request per operation. POST bodies are invalid so validation can succeed without configured chain deps. */
+/**
+ * One request per operation. POST bodies are invalid so validation can succeed without configured chain deps.
+ * Implemented health, faucet, intents, cancel, and stream responses pass. HTTP 501 is not required.
+ */
 export const SMOKE_CALLS: readonly SmokeCall[] = [
   { method: "GET", path: "/api/health" },
   { method: "POST", path: "/api/faucet", body: {} },

@@ -1108,7 +1108,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Smoke serves the static export from apps/web/out. web:preview still runs next start, which does not serve that export.
 
 ### S-012 — Runner skeleton: server, config, logger, db, middleware, routes, SSE helper, Docker/Fly
-- STATE: WORKING
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: FR-RUN-*, §9.2
 - DEPENDS: S-001, M-003
@@ -1126,10 +1126,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Server boots; every endpoint returns **501 NOT_IMPLEMENTED** from stub handlers (never 200); request validation rejects malformed bodies with the spec's error shape; no secrets in logs (test).
 - STARTED: 2026-11-06T11:15:00Z
-- PROOF:
+- PROOF: pnpm runner:dev --smoke | exit 0 | apps/runner/src/routes/smoke.ts
 - BLOCKED-BY:
 - REWORK-REASON: F3 handlers/index.ts now implements health, faucet, intents, cancel, and stream. types.ts signatures are unchanged. Do not restore the stubs or remove the new apps/runner dependencies. Smoke must accept those implemented responses and the spec's validation errors. startServices and runCheck still throw NotImplemented, so --check still exits 3.
-- NOTES: GET /api/health now returns a Health body. Missing RPC or Arkiv is degraded, status 503, not 500. A configured SEPOLIA_RPC_URL puts the head on block.number. Re-run smoke against that. Handlers stay MASTER's.
+- NOTES: Smoke accepts live health (503 degraded), faucet, intents, cancel validation errors, and the stream. It boots without the full runner env. --check still exits 3 when runCheck throws NotImplemented. The old 501-only done line is superseded by this rework.
 
 ### S-013 — ABI generation pipeline and typed deployments loader
 - STATE: DONE

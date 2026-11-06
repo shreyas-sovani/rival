@@ -14,6 +14,7 @@ import { acceptHealth, acceptPost, acceptStream, SMOKE_CALLS } from "./routes/sm
 import { runCheck, startServices } from "./services/index.ts";
 
 const PORT = 8080;
+const SMOKE_ORIGIN = "http://localhost:3000";
 
 export function createApp(config: RunnerConfig): Hono {
   const origin = configValue(config, "ALLOWED_ORIGIN");
@@ -86,13 +87,29 @@ async function check(): Promise<number> {
   }
 }
 
+/**
+ * Route smoke does not need chain secrets. A missing runner env still boots
+ * with a local CORS origin so health can report degraded and POST bodies can
+ * fail validation. A valid env is used as-is.
+ */
+function smokeConfig(): RunnerConfig {
+  try {
+    return loadConfig();
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "";
+    if (!message.startsWith("runner env invalid")) throw err;
+    logger.warn({}, message);
+    return { ALLOWED_ORIGIN: SMOKE_ORIGIN };
+  }
+}
+
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   if (argv.includes("--check")) {
     process.exit(await check());
   }
 
-  const config = loadConfig();
+  const config = argv.includes("--smoke") ? smokeConfig() : loadConfig();
   const db = openDatabase(resolveSqlitePath());
   bindRateLimit(db);
   const app = createApp(config);
