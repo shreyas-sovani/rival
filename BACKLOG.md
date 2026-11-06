@@ -804,7 +804,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Local flows cover the trade composer, the book shell with Arkiv and Rabdi blocked, and the evidence title. The static book page does not call Arkiv, so the block does not exercise a live degraded read. e2e:synthetic is still NOT_IMPLEMENTED. No production URL was tested.
 
 ### M-029 — Final docs content (README with line map, FEEDBACK.md, arkiv/*.md, evidence)
-- STATE: WORKING
+- STATE: BLOCKED
 - OWNER: MASTER
 - PRD: §12
 - DEPENDS: S-018, M-018, M-019, M-026
@@ -820,9 +820,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: `grep -R "FILL(" README.md FEEDBACK.md AI_USAGE.md RUNBOOK.md LICENSE arkiv` returns nothing (LICENSE holder resolved via H-001); links resolve.
 - STARTED: 2026-11-06T13:55:00Z
-- PROOF:
-- BLOCKED-BY:
-- NOTES:
+- PROOF: grep FILL on the release docs | no markers in README, FEEDBACK, AI_USAGE, RUNBOOK, or arkiv/*.md | README.md
+- BLOCKED-BY: H-001, M-026
+- NOTES: Release docs name the real Sepolia addresses, the atlas fill, and the skipped parent name. The soak was not run. LICENSE was not edited because the holder is unset. Skeleton files still contain FILL(.
 
 ### M-030 — Preflight completion and clean-environment E2E
 - STATE: TODO
