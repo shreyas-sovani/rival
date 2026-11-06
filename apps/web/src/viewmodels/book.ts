@@ -24,6 +24,12 @@ export interface BookVM {
   count: string;
   page: string;
   empty: boolean;
+  /**
+   * Heading shown when `empty` is true.
+   * A live Arkiv read with zero rows is "no open intents".
+   * A degraded feed, or a book that has not loaded, keeps a different title.
+   */
+  emptyTitle?: string;
   banner?: BannerVM;
   onCopyQuery: () => void;
 }

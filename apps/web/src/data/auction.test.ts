@@ -1,6 +1,8 @@
 import { receiptMath } from "@rival/intent";
 import { describe, expect, it } from "vitest";
-import { curveForIntent, receiptFromFill, type FillLog } from "./auction.ts";
+import { auctionStatusCopy, curveForIntent, receiptFromFill, type FillLog } from "./auction.ts";
+
+const NO_SIGNED_INTENT = "This browser has no signed intent for this hash. Sign on the Trade page.";
 
 const HASH = `0x${"cd".repeat(32)}` as const;
 const SOLVER = "0xD2aA21AF4faa840Dea890DB2C6649AACF2C80Ff3" as const;
@@ -22,6 +24,43 @@ const fill: FillLog = {
   txHash: `0x${"ef".repeat(32)}`,
   blockNumber: 1n,
 };
+
+describe("auction status without a local signed intent", () => {
+  it("tells this browser to sign on the Trade page", () => {
+    const status = auctionStatusCopy({
+      hashValid: true,
+      hasStoredIntent: false,
+      phase: "waiting",
+      curveEmpty: true,
+    });
+    expect(status.phaseLabel).toBe(NO_SIGNED_INTENT);
+    expect(status.banner).toBe(NO_SIGNED_INTENT);
+    expect(`${status.phaseLabel} ${status.banner ?? ""}`).not.toMatch(/Waiting for chain events|still being read|racing/i);
+  });
+
+  it("keeps a distinct message when the intent hash is missing", () => {
+    const status = auctionStatusCopy({
+      hashValid: false,
+      hasStoredIntent: false,
+      phase: "waiting",
+      curveEmpty: true,
+    });
+    expect(status.phaseLabel).toBe("Open this page with an intent hash.");
+    expect(status.banner).toBeUndefined();
+  });
+
+  it("keeps a filled receipt status without saying a solver is still racing", () => {
+    const status = auctionStatusCopy({
+      hashValid: true,
+      hasStoredIntent: false,
+      phase: "filled",
+      curveEmpty: true,
+    });
+    expect(status.phaseLabel).toBe("Filled");
+    expect(status.banner).toBe(NO_SIGNED_INTENT);
+    expect(`${status.phaseLabel} ${status.banner ?? ""}`).not.toMatch(/Waiting for chain events|still being read|racing/i);
+  });
+});
 
 describe("auction receipt", () => {
   it("recomputes improvement with receiptMath and leaves the solver name blank", () => {

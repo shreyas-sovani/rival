@@ -21,7 +21,7 @@ export function BookView({ vm }: { vm: BookVM }) {
       <p>
         {vm.count} · page {vm.page}
       </p>
-      {vm.empty ? <EmptyState title="No intents" /> : null}
+      {vm.empty ? <EmptyState title={vm.emptyTitle ?? "No intents"} /> : null}
       {vm.empty ? null : (
         <Table caption="Intents">
           <thead>

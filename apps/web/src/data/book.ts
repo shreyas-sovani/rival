@@ -87,6 +87,14 @@ function toRow(row: BookSourceRow): BookRowVM {
   };
 }
 
+/** Where the book rows came from. Absent until the page has a feed. */
+export type BookFeedSource = "arkiv" | "degraded";
+
+function emptyTitleFor(source: BookFeedSource | undefined): string {
+  if (source === "arkiv") return "no open intents";
+  return "No intents";
+}
+
 /** Map injected book rows into `BookVM`. The query string comes from `@rival/arkiv`. */
 export function toBookVM(args: {
   rows: readonly BookSourceRow[];
@@ -94,14 +102,17 @@ export function toBookVM(args: {
   page?: number;
   onCopyQuery?: () => void;
   banner?: BannerVM;
+  source?: BookFeedSource;
 }): BookVM {
   const rows = args.rows.map(toRow);
+  const empty = rows.length === 0;
   return {
     query: buildIntentQuery(args.queryArgs),
     rows,
     count: String(rows.length),
     page: String(args.page ?? 1),
-    empty: rows.length === 0,
+    empty,
+    ...(empty ? { emptyTitle: emptyTitleFor(args.source) } : {}),
     ...(args.banner ? { banner: args.banner } : {}),
     onCopyQuery: args.onCopyQuery ?? (() => {}),
   };

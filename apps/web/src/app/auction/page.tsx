@@ -5,6 +5,7 @@ import { AuctionStatusView } from "../../components/views/AuctionStatusView.tsx"
 import { EmptyState } from "../../components/ui/EmptyState.tsx";
 import {
   auctionEvents,
+  auctionStatusCopy,
   curveForIntent,
   readAuction,
   receiptFromFill,
@@ -56,7 +57,9 @@ export default function AuctionPage() {
   const storage = useMemo(() => browserStorage(), []);
   const [hash, setHash] = useState<string | null>(null);
   const [wallet, setWallet] = useState<UnlockedWallet | null>(null);
-  const [record, setRecord] = useState<StoredIntent | null>(null);
+  const [lookup, setLookup] = useState<{ status: "pending" } | { status: "absent" } | { status: "present"; record: StoredIntent }>({
+    status: "pending",
+  });
   const [snap, setSnap] = useState<AuctionSnapshot | null>(null);
   const [chainError, setChainError] = useState<string | null>(null);
   const [localPhase, setLocalPhase] = useState<"cancelled" | null>(null);
@@ -87,17 +90,18 @@ export default function AuctionPage() {
 
   useEffect(() => {
     if (!hash || !isIntentHash(hash)) {
-      setRecord(null);
+      setLookup({ status: "pending" });
       return;
     }
     let cancelled = false;
-    setRecord(null);
+    setLookup({ status: "pending" });
     loadPublishedIntent(storage, hash)
       .then((next) => {
-        if (!cancelled) setRecord(next);
+        if (cancelled) return;
+        setLookup(next ? { status: "present", record: next } : { status: "absent" });
       })
       .catch(() => {
-        if (!cancelled) setRecord(null);
+        if (!cancelled) setLookup({ status: "absent" });
       });
     return () => {
       cancelled = true;
@@ -153,11 +157,21 @@ export default function AuctionPage() {
   if (hash === "" || !isIntentHash(hash)) {
     return (
       <RouteShell title={routeTitle("/auction")}>
-        <AuctionStatusView vm={missingAuction("Open this page with an intent hash.")} />
+        <AuctionStatusView vm={missingAuction(auctionStatusCopy({ hashValid: false, hasStoredIntent: false, phase: "waiting", curveEmpty: true }).phaseLabel)} />
       </RouteShell>
     );
   }
 
+  if (lookup.status === "pending") {
+    return (
+      <RouteShell title={routeTitle("/auction")}>
+        <EmptyState title="Live auction">Reading the intent link.</EmptyState>
+      </RouteShell>
+    );
+  }
+
+  const record = lookup.status === "present" ? lookup.record : null;
+  const hasStoredIntent = lookup.status === "present";
   const intent = record ? storedToIntent(record) : null;
   deadlineRef.current = record?.intent.deadline;
   const poolOut = record ? quoteBigint(record.poolOut) : null;
@@ -186,6 +200,12 @@ export default function AuctionPage() {
         })
       : emptyCurve;
   const phase = localPhase ?? snap?.phase ?? "waiting";
+  const statusCopy = auctionStatusCopy({
+    hashValid: true,
+    hasStoredIntent,
+    phase,
+    curveEmpty: curve.empty,
+  });
   const makerMatches = Boolean(wallet && intent && wallet.address.toLowerCase() === intent.maker.toLowerCase());
   const filledWithoutLog = phase === "filled" && !snap?.fill;
   const banner = auctionBanner({
@@ -194,6 +214,7 @@ export default function AuctionPage() {
     chainError,
     hasCurve: !curve.empty,
     degraded: record?.degraded === true,
+    ...(statusCopy.banner ? { noLocalBanner: statusCopy.banner } : {}),
   });
   const receipt =
     snap?.fill && phase === "filled"
@@ -206,17 +227,8 @@ export default function AuctionPage() {
       : undefined;
   const vm: AuctionStatusVM = {
     intentHash: hash,
-    phase: phase === "waiting" ? "live" : phase,
-    phaseLabel:
-      phase === "filled"
-        ? "Filled"
-        : phase === "cancelled"
-          ? "Cancelled"
-          : phase === "expired"
-            ? "Expired"
-            : curve.empty
-              ? "Waiting for chain events"
-              : "Live auction",
+    phase: phase === "waiting" ? (hasStoredIntent ? "live" : "waiting") : phase,
+    phaseLabel: statusCopy.phaseLabel,
     curve,
     events: auctionEvents({
       ...(record ? { publishedAt: new Date(record.intent.startTime * 1000).toISOString(), ...(record.entityKey ? { entityKey: record.entityKey } : {}) } : {}),
@@ -262,6 +274,7 @@ function auctionBanner(args: {
   chainError: string | null;
   hasCurve: boolean;
   degraded: boolean;
+  noLocalBanner?: string;
 }): BannerVM | undefined {
   if (args.cancelError) return { kind: "error", text: args.cancelError };
   if (args.filledWithoutLog) {
@@ -270,6 +283,7 @@ function auctionBanner(args: {
       text: "Filled on chain, but the Filled log was not returned, so there is no receipt.",
     };
   }
+  if (args.noLocalBanner) return { kind: "info", text: args.noLocalBanner };
   if (args.chainError) {
     return {
       kind: "warn",

@@ -77,6 +77,7 @@ export default function BookPage() {
   const vm = toBookVM({
     rows,
     queryArgs,
+    ...(feed ? { source: feed.source } : {}),
     ...(banner ? { banner } : {}),
     onCopyQuery: () => {
       const query = toBookVM({ rows: [], queryArgs }).query;

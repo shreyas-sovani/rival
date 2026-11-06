@@ -60,4 +60,21 @@ describe("book adapter", () => {
     vm.onCopyQuery();
     expect(copied).toBe(1);
   });
+
+  it("titles an empty Arkiv book as no open intents and does not use that title when the feed is degraded", () => {
+    const queryArgs = {
+      status: "open",
+      pair: "tWETH/tUSDC",
+      now: 1_700_000_000,
+      sortDeadlineAsc: true,
+    } as const;
+
+    const arkiv = toBookVM({ rows: [], queryArgs, source: "arkiv" });
+    expect(arkiv.empty).toBe(true);
+    expect(arkiv.emptyTitle).toBe("no open intents");
+
+    const degraded = toBookVM({ rows: [], queryArgs, source: "degraded" });
+    expect(degraded.empty).toBe(true);
+    expect(degraded.emptyTitle).not.toBe("no open intents");
+  });
 });

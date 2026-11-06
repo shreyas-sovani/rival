@@ -9,6 +9,33 @@ import { withSepolia } from "./live-market.ts";
 import { publicDeployment } from "./public-deployment.ts";
 import { settlementAddress } from "./runner.ts";
 
+const NO_SIGNED_INTENT = "This browser has no signed intent for this hash. Sign on the Trade page.";
+
+/** Status a judge reads when this browser has no stored signed intent for a valid hash. */
+export function auctionStatusCopy(args: {
+  hashValid: boolean;
+  hasStoredIntent: boolean;
+  phase: "waiting" | "filled" | "cancelled" | "expired";
+  curveEmpty: boolean;
+}): { phaseLabel: string; banner?: string } {
+  if (!args.hashValid) return { phaseLabel: "Open this page with an intent hash." };
+  const noLocal = !args.hasStoredIntent;
+  const phaseLabel =
+    args.phase === "filled"
+      ? "Filled"
+      : args.phase === "cancelled"
+        ? "Cancelled"
+        : args.phase === "expired"
+          ? "Expired"
+          : noLocal
+            ? NO_SIGNED_INTENT
+            : args.curveEmpty
+              ? "Waiting for chain events"
+              : "Live auction";
+  if (noLocal) return { phaseLabel, banner: NO_SIGNED_INTENT };
+  return { phaseLabel };
+}
+
 const BUY_DECIMALS = 6;
 const SELL_DECIMALS = 18;
 const POOL_FEE = publicDeployment.pools.A.fee;

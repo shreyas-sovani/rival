@@ -12,10 +12,10 @@ export const CHAIN_ID = 11155111;
 
 /**
  * EIP-712 verifying contract for `FaucetClaim`.
- * The live runner's `chain.faucet` is still the unconfigured zero address:
- * a settlement-domain signature is rejected and a zero-address signature passes verification.
+ * The runner sets `chain.faucet` to the tWETH token (`apps/runner/src/services/chain.ts`).
+ * A zero-address domain does not recover on that runner.
  */
-export const FAUCET_VERIFYING_CONTRACT = "0x0000000000000000000000000000000000000000" as Address;
+export const FAUCET_VERIFYING_CONTRACT = publicDeployment.tokens.tWETH as Address;
 
 export const DEGRADED_BOOK_BANNER = "Book degraded: using runner feed";
 
