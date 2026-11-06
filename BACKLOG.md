@@ -1239,7 +1239,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### S-018 — Documentation skeletons and architecture doc
-- STATE: WORKING
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: §12, FR-WEB-06
 - DEPENDS: S-001
@@ -1257,7 +1257,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Files exist; headings match the PRD; no prose claims, only structure and `FILL(`.
 - STARTED: 2026-11-06T05:34:00Z
-- PROOF:
+- PROOF: 76de832 | node -e "const fs=require('fs');for(const f of ['README.skeleton.md','FEEDBACK.skeleton.md','arkiv/schema.skeleton.md','arkiv/friction.skeleton.md','arkiv/reach.skeleton.md','arkiv/why-arkiv.skeleton.md','arkiv/how-you-use-arkiv.skeleton.md']){if(!fs.existsSync(f))throw new Error('missing '+f)};console.log('OK')" | OK | docs/architecture.md
 - BLOCKED-BY:
 - NOTES: Diagrams in docs/architecture.md are copied from PRD §6.1–§6.5. Skeletons are headings and FILL( tokens.
 
