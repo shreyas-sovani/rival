@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://rival.local/schemas/deployments.json",
+  "title": "Rival Sepolia deployment record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "chainId",
+    "tokens",
+    "hook",
+    "pools",
+    "settlement",
+    "registry",
+    "names",
+    "uniswapSolvers",
+    "ens",
+    "solvers",
+    "arkivWriterAddresses",
+    "runnerUrl",
+    "commit"
+  ],
+  "properties": {
+    "chainId": { "type": "integer", "enum": [11155111] },
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tWETH", "tUSDC"],
+      "properties": {
+        "tWETH": { "$ref": "#/$defs/address" },
+        "tUSDC": { "$ref": "#/$defs/address" }
+      }
+    },
+    "hook": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address", "flagBitsHex", "salt"],
+      "properties": {
+        "address": { "$ref": "#/$defs/address" },
+        "flagBitsHex": { "type": "string", "pattern": "^0x[a-fA-F0-9]+$" },
+        "salt": { "$ref": "#/$defs/bytes32" }
+      }
+    },
+    "pools": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["A", "B"],
+      "properties": {
+        "A": { "$ref": "#/$defs/pool" },
+        "B": { "$ref": "#/$defs/pool" }
+      }
+    },
+    "settlement": { "$ref": "#/$defs/address" },
+    "registry": { "$ref": "#/$defs/address" },
+    "names": { "$ref": "#/$defs/address" },
+    "uniswapSolvers": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/address" }
+    },
+    "ens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ethRegistrar",
+        "ethRegistry",
+        "rootRegistry",
+        "userRegistryImpl",
+        "verifiableFactory",
+        "permissionedResolverImpl",
+        "universalResolverV2",
+        "universalResolverProxy",
+        "parentLabel",
+        "solversRegistry"
+      ],
+      "properties": {
+        "ethRegistrar": { "$ref": "#/$defs/address" },
+        "ethRegistry": { "$ref": "#/$defs/address" },
+        "rootRegistry": { "$ref": "#/$defs/address" },
+        "userRegistryImpl": { "$ref": "#/$defs/address" },
+        "verifiableFactory": { "$ref": "#/$defs/address" },
+        "permissionedResolverImpl": { "$ref": "#/$defs/address" },
+        "universalResolverV2": { "$ref": "#/$defs/address" },
+        "universalResolverProxy": { "$ref": "#/$defs/address" },
+        "parentLabel": { "type": "string", "pattern": "^[a-z0-9-]{3,24}$" },
+        "solversRegistry": { "$ref": "#/$defs/address" }
+      }
+    },
+    "solvers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "address", "strategy"],
+        "properties": {
+          "label": { "type": "string", "pattern": "^[a-z0-9-]{3,24}$" },
+          "address": { "$ref": "#/$defs/address" },
+          "strategy": {
+            "type": "string",
+            "enum": ["sprint", "patient", "arb", "inventory", "house", "custom"]
+          }
+        }
+      }
+    },
+    "arkivWriterAddresses": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/address" }
+    },
+    "runnerUrl": { "type": "string", "pattern": "^https://[^\\s]+$", "description": "HTTPS origin of the runner." },
+    "commit": { "type": "string", "pattern": "^[a-f0-9]{7,40}$" }
+  },
+  "$defs": {
+    "address": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+    "bytes32": { "type": "string", "pattern": "^0x[a-fA-F0-9]{64}$" },
+    "pool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["poolId", "fee", "tickSpacing", "currency0", "currency1"],
+      "properties": {
+        "poolId": { "$ref": "#/$defs/bytes32" },
+        "fee": { "type": "integer", "minimum": 0 },
+        "tickSpacing": { "type": "integer", "minimum": 1 },
+        "currency0": { "$ref": "#/$defs/address" },
+        "currency1": { "$ref": "#/$defs/address" }
+      }
+    }
+  }
+}
