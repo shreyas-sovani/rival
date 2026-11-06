@@ -251,7 +251,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 > Targets reference PRD checkpoints: C0 H+1.5 · C1 H+5 · C2 H+14 · C3 H+22 · C4 H+27.
 
 ### M-001 — Freeze F1: Solidity interfaces and shared types
-- STATE: TODO
+- STATE: BLOCKED
 - OWNER: MASTER
 - PRD: §7.1, FR-SET-*, FR-HOK-03, FR-ENS-02/05
 - DEPENDS: —
@@ -268,13 +268,13 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm forge:build   # requires S-001
   ```
 - DONE-WHEN: `forge build` succeeds with only interfaces/types present; ABI JSON exists in `contracts/out`.
-- STARTED:
+- STARTED: 2026-11-06T03:55:00Z
 - PROOF:
-- BLOCKED-BY:
-- NOTES: May start before S-001 by writing files; cannot mark DONE until `forge build` runs.
+- BLOCKED-BY: S-001
+- NOTES: Files written (`Types.sol`, six interfaces). PoolKey/PoolId from `@uniswap/v4-core@1.0.2` git `59d3ecf53afa9264a16bba0e38f4c5d2231f80bc`; remapping must be `@uniswap/v4-core/=lib/v4-core/`. `ISolverRegistry.setSettlement` is the one-time binder from PRD §9.4. Permit2 structs copied from Uniswap/permit2 `ISignatureTransfer` on 6 Nov 2026. Resume after S-001 and run `pnpm forge:build`.
 
 ### M-002 — Freeze F2: Arkiv schemas
-- STATE: TODO
+- STATE: BLOCKED
 - OWNER: MASTER
 - PRD: §7.4, FR-ARK-01/03
 - DEPENDS: —
@@ -290,13 +290,13 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/arkiv typecheck
   ```
 - DONE-WHEN: Typechecks against `@arkiv-network/sdk@1.0.1`.
-- STARTED:
+- STARTED: 2026-11-06T04:00:00Z
 - PROOF:
-- BLOCKED-BY:
-- NOTES:
+- BLOCKED-BY: S-001
+- NOTES: `packages/arkiv/src/schemas.ts` and `specs/arkiv-queries.md` written against Arkiv schema/limits/query-language docs fetched 6 Nov 2026. Column counts 19 and 7, under the 31-column named-schema cap. `<now>` replaced with an interpolated `u64` integer. Resume after S-001 and run `pnpm --filter @rival/arkiv typecheck`.
 
 ### M-003 — Freeze F3: Runner API spec and handler types
-- STATE: TODO
+- STATE: BLOCKED
 - OWNER: MASTER
 - PRD: §7.5, FR-RUN-01..03, FR-ARK-05
 - DEPENDS: —
@@ -314,13 +314,13 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/runner typecheck
   ```
 - DONE-WHEN: Types compile; every endpoint present exactly once in spec and handler map.
-- STARTED:
+- STARTED: 2026-11-06T04:05:00Z
 - PROOF:
-- BLOCKED-BY:
-- NOTES:
+- BLOCKED-BY: S-001
+- NOTES: OpenAPI 3.1 plus handler/service stubs written. Five paths match the handler map. Domain error status map is in the spec. `NotImplemented` is HTTP 501 and is not a domain code. `tsc --strict` on the handler files passed. Official `pnpm --filter @rival/runner typecheck` waits on S-001.
 
 ### M-004 — Freeze F4: view models and route table
-- STATE: TODO
+- STATE: BLOCKED
 - OWNER: MASTER
 - PRD: FR-WEB-01..06, §3.2
 - DEPENDS: —
@@ -337,13 +337,13 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/web typecheck
   ```
 - DONE-WHEN: Typechecks; each PRD §5.5 step is renderable from these view models.
-- STARTED:
+- STARTED: 2026-11-06T04:08:00Z
 - PROOF:
-- BLOCKED-BY:
-- NOTES:
+- BLOCKED-BY: S-001
+- NOTES: View models and `routes.ts` written (Trade, Live auction `?h=`, Solvers, Book, Run a solver, Evidence). Amounts are formatted strings. `tsc --strict` on `viewmodels/index.ts` passed. Official `pnpm --filter @rival/web typecheck` waits on S-001.
 
 ### M-005 — Freeze F5: SDK and intent public APIs
-- STATE: TODO
+- STATE: BLOCKED
 - OWNER: MASTER
 - PRD: FR-SOL-02/04, §6.6
 - DEPENDS: —
@@ -359,13 +359,13 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm exec tsc --noEmit specs/sdk-api.d.ts specs/intent-api.d.ts
   ```
 - DONE-WHEN: `.d.ts` files compile.
-- STARTED:
+- STARTED: 2026-11-06T04:10:00Z
 - PROOF:
-- BLOCKED-BY:
-- NOTES:
+- BLOCKED-BY: S-001
+- NOTES: `specs/intent-api.d.ts` and `specs/sdk-api.d.ts` written. `tsc --strict --noEmit` on both files passed via `npx typescript@5.7.3`. Official `pnpm exec tsc` waits on S-001. Improvement sentinel is `-2147483648`.
 
 ### M-006 — Freeze F6: deployments and env schemas
-- STATE: TODO
+- STATE: BLOCKED
 - OWNER: MASTER
 - PRD: §9.3, §9.4
 - DEPENDS: —
@@ -381,10 +381,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm exec ajv compile -s specs/deployments.schema.json && pnpm exec ajv compile -s specs/env.schema.json
   ```
 - DONE-WHEN: Both schemas valid.
-- STARTED:
+- STARTED: 2026-11-06T04:12:00Z
 - PROOF:
-- BLOCKED-BY:
-- NOTES:
+- BLOCKED-BY: S-001
+- NOTES: Both schemas are draft-07 so default `ajv compile` accepts them. `ajv-cli@5 compile` exited 0 on both files on 6 Nov 2026. `writeOnly` means secret. `$comment` is `humanTask=H-xxx` or `humanTask=none`. `NEXT_PUBLIC_RABDI_RPC` is included so CSP connect-src has a host. Official `pnpm exec ajv` waits on S-001. No values are in the schema.
 
 ### M-007 — C0: write the freeze and tag it
 - STATE: TODO
@@ -409,7 +409,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: SLAVE tasks with `INPUTS: F*` unblock on this.
 
 ### M-010 — `packages/intent`: types, typed data, hashing, curve math, receipts, vectors
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-SET-01/02/06, §7.2, §7.3 (I3, I4)
 - DEPENDS: S-001, M-005
@@ -427,10 +427,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/intent test
   ```
 - DONE-WHEN: Worked-example table passes; property tests (non-increasing curve, never below hard floor) pass.
-- STARTED:
+- STARTED: 2026-11-06T04:16:00Z
 - PROOF:
 - BLOCKED-BY:
-- NOTES: Solidity parity is proven in M-011.
+- NOTES: Curve, receipt, presets, and `vectors.json` (10012 rows, including 10000 random) are in `packages/intent`. `node --experimental-strip-types --test packages/intent/src/math.test.ts` passed, including a recompute of every vector. Still to do: EIP-712 struct hash and Permit2 witness typed data against `@uniswap/permit2-sdk` (needs S-001). Do not mark DONE until `pnpm --filter @rival/intent test` passes. Solidity parity is M-011.
 
 ### M-011 — `RivalMath.sol` and parity with vectors
 - STATE: TODO
@@ -851,7 +851,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 > Every S-task lists `INPUTS`. If an input is not present/frozen, **do not start**; mark `BLOCKED`.
 
 ### S-001 — Monorepo scaffold and toolchain pins
-- STATE: BLOCKED
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: §9.1, §10.2 (rules 3,5)
 - DEPENDS: —
@@ -872,9 +872,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: All commands exit 0 on an empty-logic tree; `contracts/DEPS.md` lists a sha for each dependency.
 - STARTED: 2026-11-06T04:06:21Z
-- PROOF:
-- BLOCKED-BY: needs-master-decision
-- NOTES: forge build fails on contracts/src/interfaces/IRivalOracle.sol natspec (solc 6546): a doc comment contains an @uniswap tag. lint, typecheck, and test pass. Rewrite that comment without an @ sign. Scaffold is otherwise in place.
+- PROOF: fdf232c | pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm test && forge build --root contracts | exit 0 | contracts/DEPS.md
+- BLOCKED-BY:
+- NOTES: NatSpec in IRivalOracle.sol no longer uses an at-sign tag, so solc 0.8.26 accepts it. Pins are in contracts/DEPS.md.
 
 ### S-002 — Backlog tooling: board, verify, territory-check, freeze-check/write
 - STATE: TODO
@@ -1350,7 +1350,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### H-002 — Generate and fund wallets (Sepolia ETH ≥ 3, plus tGLM)
-- STATE: TODO
+- STATE: WORKING
 - OWNER: FOUNDER
 - PRD: §9.5, K5
 - DEPENDS: —
@@ -1361,9 +1361,21 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   - Get Rabdi tGLM for each solver/publisher wallet from https://hub.arkiv.network/faucet.
 - RETURN: `secrets/.env.local` with the variable names listed in `specs/env.schema.json` (runner/operator targets)
 - CHECK: `pnpm env:check --target operator` and `--target runner` → OK
-- PROOF:
+- PROOF: 2026-11-06 | cast balance --rpc-url rpc1 | operator 0xFeAf5C921996FC53f4DEf35e181E766e6D74690A 1.179 ETH after sends (started 3.330) | secrets/.env.local
+- PROOF: 2026-11-06 | cast balance | MM 0x16A13b04775D733aEAAAb88d77A69d1b9ffA0062 1.00 | tx 0xbbc9f126a6d21f1df423d91ced6cffdf44a72dcf4f3df46c5d0f471c8d44739c
+- PROOF: 2026-11-06 | cast balance | HOUSE 0x79bC47e448b1B52F3DE651a0d102FD73FaDD7B7C 0.30 | tx 0xd2041e81ec7dee969f9eb9a5f0ce7328f5a861983855c290ea64129108524a23
+- PROOF: 2026-11-06 | cast balance | ATLAS 0xD2aA21AF4faa840Dea890DB2C6649AACF2C80Ff3 0.100 | tx 0x7f1ed21d6bfd402e46e29974f658a75a060653bfa51ff80b729047ba32d3e6ea
+- PROOF: 2026-11-06 | cast balance | MERIDIAN 0x97e6c2b90492155bFA552FE348A6192f4fB1F163 0.100 | tx 0x94e5fbaa04b51c1966d9429a17a1c12ca2eb21f8beedf23cbddcd936fce2100c
+- PROOF: 2026-11-06 | cast balance | FENIX 0x8AF6577a9ea6B9372Df5fD8762D8d9789E04275F 0.100 | tx 0x1e955f00e9550fbae22366acebe11a8fb12ea3eeb9d3c845576bb9a4ff47f64a
+- PROOF: 2026-11-06 | cast balance | VAULT 0x7521EE686392EF1f27B2DDc757653875a7C3F831 0.116 | tx 0x85830d928bf758d657620e1c526f27b3837c1082a1ec39f77edeafce1ccede56
+- PROOF: 2026-11-06 | cast balance | RELAYER 0x8cEa9b4F8C42464A3661b5ea08FD5EE566557c45 0.20 | tx 0x34454947395d5c0f2bebb84a9b2c4ef168ea91cf43884315e90edb0740cd9902
+- PROOF: 2026-11-06 | cast balance | MAKERBOT_1 0xFc21eC9b802932918640F5Ce8f372E1A5b2EE81a 0.05 | tx 0x1c808e6f0f829d923306d48bb18ee0f3cb7687b853f1acb64ab7d5aec1068105
+- PROOF: 2026-11-06 | cast balance | MAKERBOT_2 0x7A23914e049954145c285F951D83b9a63C9D4Eda 0.05 | tx 0xc0abdd5e7513b1e0a8d077f26e1589037360ad3bd76d00c5899f98a3cf4feecb
+- PROOF: 2026-11-06 | cast balance | MAKERBOT_3 0x13e17fC2Eb8CD89BD433AB6b131047b1A1BF1531 0.05 | tx 0x213d9a379863b93c5833107087a99da4922b81ab594be436a8f956c5c1859e06
+- PROOF: 2026-11-06 | cast balance | FAUCET_MINTER 0x29EEBc9d07d725f72D3de5D47eA048187fc800A9 0.05 | tx 0x6741c68c2bcfafad8ddae29a4bd04411d97f9e566aa90f46806659196af85dc3
+- PROOF: 2026-11-06 | cast balance | UNLISTED_BOT 0xA3d458197eD27a1Af545Cd37b495a0ff56A8927C 0.05 | tx 0x1b97472e8c99a468e8d023795152f0f0b2bed0c70368863d820c86beca9a6be4
 - BLOCKED-BY:
-- NOTES: Report balances to the agents by pasting `cast balance` outputs into PROOF.
+- NOTES: Sepolia ETH sent. Keys in secrets/.env.local only. tGLM faucet for solver/publisher wallets is still open, so this stays WORKING.
 
 ### H-003 — Fund and confirm the OPERATOR wallet
 - STATE: TODO
@@ -1375,9 +1387,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   - Confirm `cast balance $OPERATOR_ADDRESS --rpc-url $SEPOLIA_RPC_URL` ≥ 0.8 ETH. Put `SEPOLIA_RPC_URL` (a reliable provider URL, e.g. a free-tier key from a major provider) and `SEPOLIA_RPC_URL_2`, `SEPOLIA_RPC_URL_3` (different providers) in `secrets/.env.local`.
 - RETURN: three RPC URLs in `secrets/.env.local`
 - CHECK: `pnpm env:check --target operator`
-- PROOF:
+- PROOF: 2026-11-06 | cast balance | operator 0xFeAf5C921996FC53f4DEf35e181E766e6D74690A 1.179 ETH | secrets/.env.local
 - BLOCKED-BY:
-- NOTES: Public RPCs rate-limit; provider keys make the soak and the web app reliable.
+- NOTES: Balance is above 0.8 ETH. SEPOLIA_RPC_URL, SEPOLIA_RPC_URL_2, and SEPOLIA_RPC_URL_3 are in secrets/.env.local. Stays TODO until pnpm env:check exists (S-004).
 
 ### H-004 — Provision the runner host (Fly.io or VPS) and set secrets
 - STATE: TODO
