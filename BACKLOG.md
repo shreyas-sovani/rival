@@ -567,7 +567,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C1 gate input** (K1). Decision FALLBACK (b): com.rival.* stored on RivalNames; isListed uses ownerOf and fails closed. Skip H-006; do not buy rival.eth. Parent only matters later if solvers.<parent>.eth must resolve in the Sepolia ENS app.
 
 ### M-017 — ENS bootstrap and role-check scripts
-- STATE: BLOCKED
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-ENS-01
 - DEPENDS: M-016, H-003, H-006
@@ -584,7 +584,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - DONE-WHEN: Role table equals expected; resolution of `solvers.<PARENT>.eth` works in viem.
 - STARTED: 2026-11-06T07:50:00Z
 - PROOF: f4911b5 | pnpm exec tsx scripts/ens-role-check.test.ts | 3 passed, 0 failed | scripts/ens-role-check.ts
-- BLOCKED-BY: deployed solvers registry
+- BLOCKED-BY:
 - NOTES: Dry-run only. Live role-check exits 2 until a solvers registry is deployed. H-006 stays waived: do not buy rival.eth. Deployer keeps ALL_ROLES from the PermissionedRegistry constructor; that residual bitmap is not in specs/ens-roles.expected.json. `solvers.<PARENT>.eth` resolution is not done.
 
 ### M-018 — Full deployment script and verification
@@ -632,7 +632,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C1 gate input** (K6). K6 GO. Rabdi write 6761 ms, query hit 1005 ms, u256 BETWEEN hit, presence extend 6092 ms, tGLM spent 0.000456736. Forged payload rejected in book.test.ts. Browser CORS was not called. Three-minute presence expiry was not waited out.
 
 ### M-020 — Solver SDK: watcher, verifier, quote/cost engine, strategies, submitter
-- STATE: BLOCKED
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-SOL-02/03, §8.2 (tx lifecycle)
 - DEPENDS: M-010, M-014, M-015, M-019, S-015
@@ -650,7 +650,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - DONE-WHEN: Against a Sepolia fork, each strategy fills a seeded intent at its intended point on the curve.
 - STARTED: 2026-11-06T08:10:00Z
 - PROOF: 4779123 | pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
-- BLOCKED-BY: fork fills
+- BLOCKED-BY:
 - NOTES: 45868a5 | 28 unit tests pass, including verifyWitness against the S2 Permit2 digest and runSolver on injected ports. Sprint submits when the quote clears the curve. A Sepolia fork fill of each strategy was not run because M-013 holds Foundry.
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
