@@ -1174,7 +1174,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Read keys rotate on 401 and 429. The SDK still carries the active key in the Rabdi URL path; the client also sets X-API-KEY and does not log it. Backoff stays local so this package does not depend on solver-sdk.
 
 ### S-015 — RPC pool and retry utilities (generic)
-- STATE: TODO
+- STATE: WORKING
 - OWNER: SLAVE
 - PRD: §8.2 (external failures), FR-WEB data reads
 - DEPENDS: S-001
@@ -1190,7 +1190,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/solver-sdk test -- rpc-pool retry
   ```
 - DONE-WHEN: Failover and cooldown covered by tests.
-- STARTED:
+- STARTED: 2026-11-06T05:32:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES:
