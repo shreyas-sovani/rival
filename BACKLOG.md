@@ -523,7 +523,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: K3 GO. Witness matches viem and permit2-sdk. Fills in tests use LocalPermit2 because pinned Permit2 is solc 0.8.17 and its solmate checkout is empty. cancelBySig cannot check the signer against the maker: the frozen call has no maker argument, so any valid signature cancels a known hash. Slither is not installed; M-025 still owns the Slither report.
 
 ### M-015 — `UniswapSolver` (flash accounting fill contract)
-- STATE: WORKING
+- STATE: DONE
 - OWNER: MASTER
 - PRD: FR-SOL-01
 - DEPENDS: M-014, M-013
@@ -539,9 +539,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: End-to-end fill on a Sepolia fork via both pools; caller-restriction test passes.
 - STARTED: 2026-11-06T08:55:00Z
-- PROOF:
+- PROOF: forge test --match-path "test/solver/*" | 5 passed, 0 failed, fork filled both pools | contracts/src/solver/UniswapSolver.sol
 - BLOCKED-BY:
-- NOTES:
+- NOTES: Callback reverts unless the caller is settlement. Fork maker key skips addresses that already have code, because Permit2 then uses EIP-1271.
 
 ### M-016 — `SolverRegistry` + `RivalNames` (spike S3 inside)
 - STATE: DONE
@@ -632,7 +632,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C1 gate input** (K6). K6 GO. Rabdi write 6761 ms, query hit 1005 ms, u256 BETWEEN hit, presence extend 6092 ms, tGLM spent 0.000456736. Forged payload rejected in book.test.ts. Browser CORS was not called. Three-minute presence expiry was not waited out.
 
 ### M-020 — Solver SDK: watcher, verifier, quote/cost engine, strategies, submitter
-- STATE: BLOCKED
+- STATE: TODO
 - OWNER: MASTER
 - PRD: FR-SOL-02/03, §8.2 (tx lifecycle)
 - DEPENDS: M-010, M-014, M-015, M-019, S-015
@@ -650,8 +650,8 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - DONE-WHEN: Against a Sepolia fork, each strategy fills a seeded intent at its intended point on the curve.
 - STARTED: 2026-11-06T08:10:00Z
 - PROOF: 4779123 | pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
-- BLOCKED-BY: M-015
-- NOTES: Curve, strategies, submit plan, nonce manager, and heartbeat are unit-tested. verifyIntent checks an Intent typed-data signature, not the Permit2 witness makers sign. runSolver and the Sepolia fork fills are not done.
+- BLOCKED-BY:
+- NOTES: Curve, strategies, submit plan, nonce manager, and heartbeat are unit-tested. verifyIntent checks an Intent typed-data signature, not the Permit2 witness makers sign. runSolver and the Sepolia fork fills are not done. UniswapSolver now exists.
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
 - STATE: DONE
