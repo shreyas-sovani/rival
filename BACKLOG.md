@@ -544,7 +544,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### M-016 — `SolverRegistry` + `RivalNames` (spike S3 inside)
-- STATE: WORKING
+- STATE: DONE
 - OWNER: MASTER
 - PRD: FR-ENS-02..06, FR-SET-04, K1
 - DEPENDS: M-001, S-001, H-006 (ENS parent plan) 
@@ -562,9 +562,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: FR-ENS-02/03/04/05 acceptance tests pass on fork; S3 report committed.
 - STARTED: 2026-11-06T07:20:00Z
-- PROOF:
+- PROOF: forge test --match-path test/ens/* --fork-url $SEPOLIA_RPC_URL | 25 passed, 0 failed, 0 skipped | docs/spikes/S3.md
 - BLOCKED-BY:
-- NOTES: **C1 gate input** (K1).
+- NOTES: **C1 gate input** (K1). Decision FALLBACK (b): com.rival.* stored on RivalNames; isListed uses ownerOf and fails closed. Skip H-006; do not buy rival.eth. Parent only matters later if solvers.<parent>.eth must resolve in the Sepolia ENS app.
 
 ### M-017 — ENS bootstrap and role-check scripts
 - STATE: TODO
