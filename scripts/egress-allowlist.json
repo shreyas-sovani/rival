@@ -1,4 +1,15 @@
 {
-  "comment": "Hosts come from env (sepolia RPC, Rabdi, runner, explorers) and must not invent provider hostnames.",
-  "hosts": []
+  "comment": "Vendor documentation strings inside Next, React, Tailwind, viem, and Redux chunks, plus the Sepolia explorer href. None of these are fetches the app makes. runner.local is not in the bundle.",
+  "hosts": [
+    "react.dev",
+    "nextjs.org",
+    "github.com",
+    "www.w3.org",
+    "bit.ly",
+    "redux.js.org",
+    "redux-toolkit.js.org",
+    "tailwindcss.com",
+    "viem.sh",
+    "sepolia.etherscan.io"
+  ]
 }

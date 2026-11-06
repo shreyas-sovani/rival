@@ -10,38 +10,7 @@ import type { BannerVM, TxLinkVM } from "../../viewmodels/common.ts";
 import type { EvidenceRowVM, EvidenceVM } from "../../viewmodels/evidence.ts";
 import { routes } from "../../viewmodels/routes.ts";
 import { RouteShell } from "./page.shell.tsx";
-import deploymentFile from "../../../../../deployments/sepolia.json";
-
-interface DeploymentFile {
-  commit?: string;
-  hook?: { address?: string; flagBitsHex?: string };
-  tokens?: { tWETH?: string; tUSDC?: string };
-  pools?: {
-    A?: { poolId?: string; fee?: number; tickSpacing?: number };
-    B?: { poolId?: string; fee?: number; tickSpacing?: number };
-  };
-  settlement?: string;
-  registry?: string;
-  names?: string;
-  uniswapSolvers?: string[];
-  arkivWriterAddresses?: string[];
-  ens?: {
-    parentLabel?: string;
-    solversRegistry?: string;
-    universalResolverV2?: string;
-    ethRegistrar?: string;
-    ethRegistry?: string;
-    rootRegistry?: string;
-  };
-  solvers?: Array<{ label?: string; address?: string; strategy?: string }>;
-}
-
-function readDeployment(value: unknown): DeploymentFile {
-  if (!value || typeof value !== "object") return {};
-  return value as DeploymentFile;
-}
-
-const deployment = readDeployment(deploymentFile);
+import { publicDeployment as deployment } from "../../data/public-deployment.ts";
 
 function routeTitle(path: (typeof routes)[number]["path"]): string {
   return routes.find((route) => route.path === path)?.title ?? path;

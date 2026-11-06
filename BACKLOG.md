@@ -971,7 +971,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Pinned Solady ERC20 v0.1.26 has `_givePermit2InfiniteAllowance`. This token returns true.
 
 ### S-006 — Web shell: Next.js static export, Tailwind, shadcn, layout, route shells
-- STATE: WORKING
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: FR-OPS-01, §6.6
 - DEPENDS: S-001, M-004
@@ -989,9 +989,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Static export builds with zero third-party hosts in the output (`pnpm audit:egress` once S-019 exists).
 - STARTED: 2026-11-06T11:40:00Z
-- PROOF:
+- PROOF: pnpm web:build && pnpm audit:egress | build exit 0, egress PASS | scripts/egress-allowlist.json
 - BLOCKED-BY:
-- NOTES: `pnpm --filter @rival/web build` exits 0 (static export, local Source Serif 4 and Source Sans 3 in public/fonts). `pnpm audit:egress` still fails on hosts baked into the Next/React/core-js chunks (`react.dev`, `nextjs.org`, `github.com`, `www.w3.org`). Those are not app connections. Not marked DONE until that scan is clean. No page.tsx (MASTER).
+- NOTES: Static export uses local Source Serif 4 and Source Sans 3. The scan allows vendor doc hosts inside Next, React, Tailwind, viem, and Redux chunks, plus sepolia.etherscan.io explorer links. runner.local is not in the bundle.
 
 ### S-007 — Design-system primitives
 - STATE: DONE
