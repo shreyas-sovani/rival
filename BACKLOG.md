@@ -1015,7 +1015,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### S-008 — Display utilities: `format.ts`, `sanitize.ts`, `testids.ts`
-- STATE: WORKING
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: FR-WEB-04 (ENS text display safety)
 - DEPENDS: S-001
@@ -1034,7 +1034,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Tests pass, including RTL-override, zero-width and 10 KB-string cases.
 - STARTED: 2026-11-06T05:25:00Z
-- PROOF:
+- PROOF: 26c019c | pnpm --filter @rival/web test -- lib | 12 passed, 0 failed | apps/web/src/lib/format.ts
 - BLOCKED-BY:
 - NOTES: Formatters truncate toward zero and do not price or settle.
 
@@ -1152,7 +1152,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: If an ABI is missing, BLOCK on the M-task; never hand-write ABIs.
 
 ### S-014 — Arkiv client factory with key rotation
-- STATE: TODO
+- STATE: WORKING
 - OWNER: SLAVE
 - PRD: §6.7.3, §9.3
 - DEPENDS: S-001
