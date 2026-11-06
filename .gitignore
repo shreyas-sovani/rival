@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+secrets/
+node_modules/
+out/
+cache/
+.next/
+dist/
+broadcast/
+cache_forge/
