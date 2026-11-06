@@ -627,7 +627,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Entity written by publisher is queryable within 8 s; presence expires without cleanup; forged payload rejected.
 - STARTED: 2026-11-06T07:20:00Z
-- PROOF: pnpm --filter @rival/arkiv test | 20 passed, 0 failed | docs/spikes/S4.md
+- PROOF: a2423f0 | pnpm --filter @rival/arkiv test | 20 passed, 0 failed | docs/spikes/S4.md
 - BLOCKED-BY:
 - NOTES: **C1 gate input** (K6). K6 GO. Rabdi write 6761 ms, query hit 1005 ms, u256 BETWEEN hit, presence extend 6092 ms, tGLM spent 0.000456736. Forged payload rejected in book.test.ts. Browser CORS was not called. Three-minute presence expiry was not waited out.
 
