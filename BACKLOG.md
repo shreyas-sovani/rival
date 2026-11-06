@@ -948,7 +948,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### S-005 — `TestToken` (Solady ERC20, Permit2-ready) + test
-- STATE: WORKING
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: FR-VEN-01
 - DEPENDS: S-001
@@ -965,7 +965,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Tests pass.
 - STARTED: 2026-11-06T05:20:00Z
-- PROOF:
+- PROOF: e1b72ad | pnpm forge:test --match-contract TestTokenTest | 5 passed, 0 failed | contracts/test/TestToken.t.sol
 - BLOCKED-BY:
 - NOTES: Pinned Solady ERC20 v0.1.26 has `_givePermit2InfiniteAllowance`. This token returns true.
 
