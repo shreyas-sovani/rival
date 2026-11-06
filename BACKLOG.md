@@ -474,7 +474,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Model parity on 1,000 random sequences; manipulation tests pass; fork test initializes the hooked pool.
 - STARTED: 2026-11-06T07:20:00Z
-- PROOF: forge test --match-path "test/hook/*" | 11 passed, 0 failed, fork initialized PoolManager | docs/spikes/S1.md
+- PROOF: bd38489 | forge test --match-path "test/hook/*" | 11 passed, 0 failed, fork initialized PoolManager | docs/spikes/S1.md
 - BLOCKED-BY:
 - NOTES: **C1 gate input.** K2 GO. Flag mask 0x1080. 1000-sequence parity passed. Same-block manipulation does not move consult. Vendored solmate Owned.sol because the v4-core submodule checkout was empty.
 
