@@ -671,7 +671,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Contract tests for each endpoint incl. error codes; forged/expired/insufficient-balance intents rejected.
 - STARTED: 2026-11-06T07:50:00Z
-- PROOF: pnpm --filter @rival/runner test && pnpm --filter @rival/runner typecheck | 32 passed, 0 failed | apps/runner/src/handlers/handlers.test.ts
+- PROOF: 5eda660 | pnpm --filter @rival/runner test && pnpm --filter @rival/runner typecheck | 32 passed, 0 failed | apps/runner/src/handlers/handlers.test.ts
 - BLOCKED-BY:
 - NOTES: Signatures in handlers/types.ts are unchanged. services/index.ts still throws NotImplemented for M-022. Freeze bumped because handlers/index.ts is in F3.
 - NOTES:
