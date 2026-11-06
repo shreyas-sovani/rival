@@ -799,7 +799,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Suite green on production URL with a clean profile.
 - STARTED: 2026-11-06T13:55:00Z
-- PROOF: pnpm e2e --grep flows && pnpm e2e --grep "@smoke" | flows 9 passed, smoke 3 passed | apps/web/e2e/flows.spec.ts
+- PROOF: c4ad41d | pnpm e2e --grep flows && pnpm e2e --grep "@smoke" | flows 9 passed, smoke 3 passed | apps/web/e2e/flows.spec.ts
 - BLOCKED-BY: production URL
 - NOTES: Local flows cover the trade composer, the book shell with Arkiv and Rabdi blocked, and the evidence title. The static book page does not call Arkiv, so the block does not exercise a live degraded read. e2e:synthetic is still NOT_IMPLEMENTED. No production URL was tested.
 
