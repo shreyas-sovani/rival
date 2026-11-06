@@ -820,7 +820,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: `grep -R "FILL(" README.md FEEDBACK.md AI_USAGE.md RUNBOOK.md LICENSE arkiv` returns nothing (LICENSE holder resolved via H-001); links resolve.
 - STARTED: 2026-11-06T13:55:00Z
-- PROOF: grep FILL on the release docs | no markers in README, FEEDBACK, AI_USAGE, RUNBOOK, or arkiv/*.md | README.md
+- PROOF: 3c1c76d | grep FILL on the release docs | no markers in README, FEEDBACK, AI_USAGE, RUNBOOK, or arkiv/*.md | README.md
 - BLOCKED-BY: H-001, M-026
 - NOTES: Release docs name the real Sepolia addresses, the atlas fill, and the skipped parent name. The soak was not run. LICENSE was not edited because the holder is unset. Skeleton files still contain FILL(.
 
