@@ -757,7 +757,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: All green; Slither: no unaddressed high/medium.
 - STARTED: 2026-11-06T13:00:00Z
-- PROOF: slither 0.11.6 | 2 high and 9 medium, all triaged false positive | docs/spikes/slither.md
+- PROOF: a19d05e | slither 0.11.6 | 2 high and 9 medium, all triaged false positive | docs/spikes/slither.md
 - BLOCKED-BY:
 - NOTES: I1–I10 already have Foundry tests. No new settlement test was added, so the 10,000-run fuzz was not repeated. Slither 0.11.6 ran on contracts/src. Lows were not triaged.
 
