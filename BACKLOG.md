@@ -1152,7 +1152,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: If an ABI is missing, BLOCK on the M-task; never hand-write ABIs.
 
 ### S-014 — Arkiv client factory with key rotation
-- STATE: WORKING
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: §6.7.3, §9.3
 - DEPENDS: S-001
@@ -1169,7 +1169,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Rotation switches keys on 429 and 401 in tests; keys never appear in logged strings.
 - STARTED: 2026-11-06T05:28:00Z
-- PROOF:
+- PROOF: d0988d0 | pnpm --filter @rival/arkiv test -- client rotation | 5 passed, 0 failed | packages/arkiv/src/client.ts
 - BLOCKED-BY:
 - NOTES: Read keys rotate on 401 and 429. The SDK still carries the active key in the Rabdi URL path; the client also sets X-API-KEY and does not log it. Backoff stays local so this package does not depend on solver-sdk.
 
