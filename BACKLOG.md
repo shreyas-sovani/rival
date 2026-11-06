@@ -523,7 +523,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: K3 GO. Witness matches viem and permit2-sdk. Fills in tests use LocalPermit2 because pinned Permit2 is solc 0.8.17 and its solmate checkout is empty. cancelBySig cannot check the signer against the maker: the frozen call has no maker argument, so any valid signature cancels a known hash. Slither is not installed; M-025 still owns the Slither report.
 
 ### M-015 — `UniswapSolver` (flash accounting fill contract)
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-SOL-01
 - DEPENDS: M-014, M-013
@@ -538,7 +538,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm forge:test --match-path "test/solver/*" --fork-url $SEPOLIA_RPC_URL
   ```
 - DONE-WHEN: End-to-end fill on a Sepolia fork via both pools; caller-restriction test passes.
-- STARTED:
+- STARTED: 2026-11-06T08:55:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES:
@@ -698,7 +698,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C2 vertical slice depends on this.**
 
 ### M-023 — Web data layer: wallet, signing, quotes, book, auction, leaderboard
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-WEB-01..05, FR-ENS-05 (reads)
 - DEPENDS: M-004, M-010, M-018, M-019, S-013
@@ -713,7 +713,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/web test
   ```
 - DONE-WHEN: Preview curve equals contract `requiredAt` at 20 timestamps; no key ever appears in network requests (test).
-- STARTED:
+- STARTED: 2026-11-06T08:55:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES:
