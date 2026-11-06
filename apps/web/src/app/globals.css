@@ -6,7 +6,7 @@
 :root {
   --ink: #14221c;
   --paper: #efe7d2;
-  --signal: #c4491d;
+  --signal: #9a3412;
   --rule: #1c1915;
 }
 
@@ -97,7 +97,7 @@ a {
 }
 
 .auction-tape__label {
-  color: var(--signal);
+  color: #f0a07a;
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.12em;

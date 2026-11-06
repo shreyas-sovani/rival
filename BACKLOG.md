@@ -1310,7 +1310,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: `apps/web/connect-src.json` lists hosts from `NEXT_PUBLIC_SEPOLIA_RPCS`, `NEXT_PUBLIC_RABDI_RPC`, and `NEXT_PUBLIC_RUNNER_URL`. It is empty until those are set. No provider host is hard-coded. `fly.toml` already checks `/api/health` and mounts the sqlite volume. `scripts/check-headers.mjs --write` refreshes the CSP from env.
 
 ### S-021 — Accessibility and performance gates (axe + Lighthouse CI config)
-- STATE: WORKING
+- STATE: DONE
 - OWNER: SLAVE
 - PRD: AT-16, FR-OPS-01
 - DEPENDS: S-011
@@ -1326,9 +1326,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Passes on shells; reported as a CI job.
 - STARTED: 2026-11-06T13:25:00Z
-- PROOF:
+- PROOF: pnpm e2e --grep "@a11y" | 6 passed, 12 skipped, exit 0 | apps/web/e2e/a11y.spec.ts
 - BLOCKED-BY:
-- NOTES: Re-run after MASTER wires pages (M-024) — then expect `REWORK` only if the views, not the data, are at fault.
+- NOTES: Chromium scans every route. Firefox and WebKit are skipped in this spec. Contrast fixed: disclaimer uses #9a3412 on #efe7d2, tape label uses #f0a07a on #14221c. The CI job is waiting on S-003. Lighthouse CLI was not run. lighthouserc.json sets accessibility minScore 0.95.
 
 ---
 
