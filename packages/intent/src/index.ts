@@ -2,6 +2,7 @@ export { buildIntent, type BuildIntentInput } from "./build.ts";
 export { hashIntent, permit2TypedData, verifyIntentSignature, type Permit2TypedData } from "./eip712.ts";
 export { receiptMath as receiptMathCore, requiredAt } from "./math.ts";
 export { hardFloorFromQuote, presets, type Preset, type PresetId } from "./presets.ts";
+export { getQuoteAtTick } from "./oracle-model.ts";
 export type { Address, Gate, Hex, Intent, IntentDomain, Mode, TypedDataField } from "./types.ts";
 
 import { receiptMath as coreReceipt } from "./math.ts";

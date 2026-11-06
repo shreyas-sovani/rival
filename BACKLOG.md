@@ -738,7 +738,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - STARTED: 2026-11-06T12:20:00Z
 - PROOF: 6a94750 | pnpm --filter @rival/web build | static export, 9 pages, exit 0 | apps/web/src/app/page.tsx
 - BLOCKED-BY:
-- NOTES: Smoke e2e now passes in three browsers against the static export. Live quotes and Arkiv still use the empty or degraded banner.
+- NOTES: Smoke e2e now passes in three browsers against the static export. The trade page reads pool A slot0, hook consult(60), and SolverRegistry.isListed through public Sepolia RPCs. Solver heartbeats, the faucet, signing, and Arkiv publish are still unwired. The presence chip stays degraded.
 
 ### M-025 — Parity, invariants completion, Slither
 - STATE: DONE

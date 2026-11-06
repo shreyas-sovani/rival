@@ -10,6 +10,8 @@
     "redux-toolkit.js.org",
     "tailwindcss.com",
     "viem.sh",
-    "sepolia.etherscan.io"
+    "sepolia.etherscan.io",
+    "ethereum-sepolia-rpc.publicnode.com",
+    "1rpc.io"
   ]
 }
