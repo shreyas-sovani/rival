@@ -539,7 +539,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: End-to-end fill on a Sepolia fork via both pools; caller-restriction test passes.
 - STARTED: 2026-11-06T08:55:00Z
-- PROOF: forge test --match-path "test/solver/*" | 5 passed, 0 failed, fork filled both pools | contracts/src/solver/UniswapSolver.sol
+- PROOF: 014da4a | forge test --match-path "test/solver/*" | 5 passed, 0 failed, fork filled both pools | contracts/src/solver/UniswapSolver.sol
 - BLOCKED-BY:
 - NOTES: Callback reverts unless the caller is settlement. Fork maker key skips addresses that already have code, because Permit2 then uses EIP-1271.
 
