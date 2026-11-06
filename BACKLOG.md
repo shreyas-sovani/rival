@@ -989,7 +989,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Static export builds with zero third-party hosts in the output (`pnpm audit:egress` once S-019 exists).
 - STARTED: 2026-11-06T11:40:00Z
-- PROOF: pnpm web:build && pnpm audit:egress | build exit 0, egress PASS | scripts/egress-allowlist.json
+- PROOF: 723e3b8 | pnpm web:build && pnpm audit:egress | build exit 0, egress PASS | scripts/egress-allowlist.json
 - BLOCKED-BY:
 - NOTES: Static export uses local Source Serif 4 and Source Sans 3. The scan allows vendor doc hosts inside Next, React, Tailwind, viem, and Redux chunks, plus sepolia.etherscan.io explorer links. runner.local is not in the bundle.
 
