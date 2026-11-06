@@ -783,7 +783,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **C3 gate input.**
 
 ### M-027 — E2E flows, synthetic monitor, failure drills
-- STATE: WORKING
+- STATE: BLOCKED
 - OWNER: MASTER
 - PRD: §11.2 AT-01/15, FR-OPS-01
 - DEPENDS: M-024, S-011, M-022
@@ -799,9 +799,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Suite green on production URL with a clean profile.
 - STARTED: 2026-11-06T13:55:00Z
-- PROOF:
-- BLOCKED-BY:
-- NOTES:
+- PROOF: pnpm e2e --grep flows && pnpm e2e --grep "@smoke" | flows 9 passed, smoke 3 passed | apps/web/e2e/flows.spec.ts
+- BLOCKED-BY: production URL
+- NOTES: Local flows cover the trade composer, the book shell with Arkiv and Rabdi blocked, and the evidence title. The static book page does not call Arkiv, so the block does not exercise a live degraded read. e2e:synthetic is still NOT_IMPLEMENTED. No production URL was tested.
 
 ### M-029 — Final docs content (README with line map, FEEDBACK.md, arkiv/*.md, evidence)
 - STATE: WORKING
