@@ -741,7 +741,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Smoke e2e now passes in three browsers against the static export. Live quotes and Arkiv still use the empty or degraded banner.
 
 ### M-025 — Parity, invariants completion, Slither
-- STATE: WORKING
+- STATE: DONE
 - OWNER: MASTER
 - PRD: §11.1–11.3, AT-05/06/08
 - DEPENDS: M-011, M-012, M-014, M-016
@@ -757,9 +757,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: All green; Slither: no unaddressed high/medium.
 - STARTED: 2026-11-06T13:00:00Z
-- PROOF:
+- PROOF: slither 0.11.6 | 2 high and 9 medium, all triaged false positive | docs/spikes/slither.md
 - BLOCKED-BY:
-- NOTES:
+- NOTES: I1–I10 already have Foundry tests. No new settlement test was added, so the 10,000-run fuzz was not repeated. Slither 0.11.6 ran on contracts/src. Lows were not triaged.
 
 ### M-026 — Soak, calibration, K8 decision (spike S5/S6)
 - STATE: TODO

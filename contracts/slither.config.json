@@ -1,0 +1,7 @@
+{
+  "compile_force_framework": "foundry",
+  "exclude_dependencies": true,
+  "include_paths": "contracts/src/",
+  "filter_paths": "contracts/lib/",
+  "fail_on": "none"
+}
