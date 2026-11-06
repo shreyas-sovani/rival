@@ -562,7 +562,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: FR-ENS-02/03/04/05 acceptance tests pass on fork; S3 report committed.
 - STARTED: 2026-11-06T07:20:00Z
-- PROOF: forge test --match-path test/ens/* --fork-url $SEPOLIA_RPC_URL | 25 passed, 0 failed, 0 skipped | docs/spikes/S3.md
+- PROOF: 8dd5269 | forge test --match-path "test/ens/*" --fork-url $SEPOLIA_RPC_URL | 25 passed, 0 failed, 0 skipped | docs/spikes/S3.md
 - BLOCKED-BY:
 - NOTES: **C1 gate input** (K1). Decision FALLBACK (b): com.rival.* stored on RivalNames; isListed uses ownerOf and fails closed. Skip H-006; do not buy rival.eth. Parent only matters later if solvers.<parent>.eth must resolve in the Sepolia ENS app.
 
