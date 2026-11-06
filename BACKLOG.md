@@ -736,7 +736,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   ```
 - DONE-WHEN: Static export builds; smoke e2e passes against `web:preview`.
 - STARTED: 2026-11-06T12:20:00Z
-- PROOF: pnpm --filter @rival/web build | static export, 9 pages, exit 0 | apps/web/src/app/page.tsx
+- PROOF: 6a94750 | pnpm --filter @rival/web build | static export, 9 pages, exit 0 | apps/web/src/app/page.tsx
 - BLOCKED-BY: S-011
 - NOTES: Routes /, /auction, /book, /solver, /solvers, and /evidence render the existing views. Live quotes and Arkiv use the empty or degraded banner. pnpm e2e is NOT_IMPLEMENTED(S-011) and exits 3.
 
