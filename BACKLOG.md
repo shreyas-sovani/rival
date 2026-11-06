@@ -651,7 +651,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - STARTED: 2026-11-06T08:10:00Z
 - PROOF: 4779123 | pnpm --filter @rival/solver-sdk test && pnpm --filter @rival/solver-sdk typecheck | 23 passed, 0 failed | packages/solver-sdk/src/strategies.ts
 - BLOCKED-BY: no settlement transaction
-- NOTES: 058e860 | 36 unit tests pass. encodeFill builds RivalSettlement.fill calldata. On the recorded 1 tWETH quote, sprint fills and arb does not. The calldata was not simulated or submitted.
+- NOTES: 058e860 | encodeFill builds fill calldata. Live demo step 3 submits one fill through UniswapSolver and RivalSettlement. No settlement transaction yet.
 
 ### M-021 — Runner handlers: publisher, faucet, cancel relay, stream, health
 - STATE: DONE
@@ -719,7 +719,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: Curve preview matches requiredAt at 20 timestamps. The plaintext key is absent from mocked fetch URLs and bodies. Wallet storage is an injected port, not IndexedDB yet. Live Quoter, hook TWAP, ENS, and auction subscriptions wait on a deployment.
 
 ### M-024 — Web wiring: pages assemble SLAVE views with data
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-WEB-02..06, §5.5
 - DEPENDS: M-023, S-006, S-009, S-010
@@ -735,10 +735,10 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm web:build && pnpm e2e --grep "@smoke"
   ```
 - DONE-WHEN: Static export builds; smoke e2e passes against `web:preview`.
-- STARTED:
+- STARTED: 2026-11-06T12:20:00Z
 - PROOF:
 - BLOCKED-BY:
-- NOTES:
+- NOTES: Shells and views exist. S-006 is not DONE because the egress scan is dirty. Pages wire the existing offline data functions. Live quotes can show a degraded banner.
 
 ### M-025 — Parity, invariants completion, Slither
 - STATE: TODO
@@ -1129,7 +1129,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - PROOF:
 - BLOCKED-BY: needs-master-decision: `services/deps.ts` probes throw `runner dependency <name> is not configured` before `health()` can return a Health body, so GET /api/health is 500 `{message:"internal error"}`. Smoke does not accept that. SLAVE must not edit `services/**` or invent a Health payload.
 - REWORK-REASON: F3 handlers/index.ts now implements health, faucet, intents, cancel, and stream. types.ts signatures are unchanged. Do not restore the stubs or remove the new apps/runner dependencies. Smoke must accept those implemented responses and the spec's validation errors. startServices and runCheck still throw NotImplemented, so --check still exits 3.
-- NOTES: Typecheck and `pnpm --filter @rival/runner test` pass (33). `--smoke` cannot exit 0 until probes return a real Health body. Handlers stay MASTER's.
+- NOTES: MASTER is wiring service deps so GET /api/health returns a Health body instead of 500. Handlers stay MASTER's. Smoke still must not require 501 from the implemented handlers.
 
 ### S-013 — ABI generation pipeline and typed deployments loader
 - STATE: DONE
