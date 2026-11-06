@@ -454,7 +454,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: The file is read a line at a time because the full document does not fit in the EVM. Every row matched, including the worked example.
 
 ### M-012 — `RivalOracleHook`, reference model, mining script (spike S1 inside)
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-HOK-01..04, §6.5, K2
 - DEPENDS: S-001, M-001
@@ -473,7 +473,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm forge:test --match-path "test/hook/*" && pnpm --filter @rival/intent test -- oracle
   ```
 - DONE-WHEN: Model parity on 1,000 random sequences; manipulation tests pass; fork test initializes the hooked pool.
-- STARTED:
+- STARTED: 2026-11-06T07:20:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES: **C1 gate input.**
@@ -544,7 +544,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES:
 
 ### M-016 — `SolverRegistry` + `RivalNames` (spike S3 inside)
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-ENS-02..06, FR-SET-04, K1
 - DEPENDS: M-001, S-001, H-006 (ENS parent plan) 
@@ -561,7 +561,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm forge:test --match-path "test/ens/*" --fork-url $SEPOLIA_RPC_URL
   ```
 - DONE-WHEN: FR-ENS-02/03/04/05 acceptance tests pass on fork; S3 report committed.
-- STARTED:
+- STARTED: 2026-11-06T07:20:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES: **C1 gate input** (K1).
@@ -609,7 +609,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
 - NOTES: **Produces the first full Sepolia stack (C2 prerequisite).**
 
 ### M-019 — `packages/arkiv`: publish, query, presence, patch, payload verification (spike S4)
-- STATE: TODO
+- STATE: WORKING
 - OWNER: MASTER
 - PRD: FR-ARK-01..05, §7.4
 - DEPENDS: M-002, S-014, H-005
@@ -626,7 +626,7 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   pnpm --filter @rival/arkiv test && pnpm exec tsx scripts/spikes/s4-arkiv.ts --check
   ```
 - DONE-WHEN: Entity written by publisher is queryable within 8 s; presence expires without cleanup; forged payload rejected.
-- STARTED:
+- STARTED: 2026-11-06T07:20:00Z
 - PROOF:
 - BLOCKED-BY:
 - NOTES: **C1 gate input** (K6).
@@ -1487,9 +1487,9 @@ Scripts whose logic belongs to MASTER start as stubs that **exit with code 3 and
   - **C4 (H+27):** approve the release candidate.
 - RETURN: decisions in PROOF
 - CHECK: —
-- PROOF:
+- PROOF: 2026-11-06 | founder: C0 approved (H-010). C1, C2, and C4 remain open.
 - BLOCKED-BY:
-- NOTES: MASTER does not proceed past a gate without this line filled.
+- NOTES: C0 is approved. MASTER continues past C0. C1 still needs S1–S4.
 
 ### H-011 — Judge dry-run and solver-onboarding dry-run by a non-author
 - STATE: TODO
